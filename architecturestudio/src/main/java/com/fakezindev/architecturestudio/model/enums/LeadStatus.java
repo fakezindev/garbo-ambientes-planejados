@@ -1,4 +1,4 @@
-package com.fakezindev.architecturestudio.enums;
+package com.fakezindev.architecturestudio.model.enums;
 
 public enum LeadStatus {
     NOVO,
