@@ -3,11 +3,13 @@ package com.fakezindev.architecturestudio.service;
 import com.fakezindev.architecturestudio.dto.ProjectRequestDTO;
 import com.fakezindev.architecturestudio.dto.ProjectResponseDTO;
 import com.fakezindev.architecturestudio.model.entities.Project;
+import com.fakezindev.architecturestudio.model.entities.ProjectImage;
 import com.fakezindev.architecturestudio.repository.ProjectImageRepository;
 import com.fakezindev.architecturestudio.repository.ProjectRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,7 +19,8 @@ import java.util.stream.Collectors;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
-    private final ProjectImageRepository imageRepository;
+    private final ProjectImageRepository projectImageRepository;
+    private final FileStorageService fileStorageService;
 
     public List<ProjectResponseDTO> findAll() {
         return projectRepository.findAll().stream()
@@ -26,16 +29,29 @@ public class ProjectService {
     }
 
     @Transactional
-    public ProjectResponseDTO create(ProjectRequestDTO dto) {
+    public ProjectResponseDTO create(ProjectRequestDTO dto, List<MultipartFile> images) {
         Project project = new Project();
         project.setTitle(dto.getTitle());
         project.setDescription(dto.getDescription());
         project.setCategory(dto.getCategory());
-        project.setClientName(dto.getClientName());
-        project.setCompletionDate(dto.getCompletionDate());
 
-        Project saved = projectRepository.save(project);
-        return convertToDTO(saved);
+        project = projectRepository.save(project);
+
+        // 2. Processar as Imagens (Se houver)
+        if (images != null && !images.isEmpty()) {
+            for (MultipartFile file : images) {
+                // A. Upload para o MinIO
+                String imageUrl = fileStorageService.upload(file);
+
+                // B. Salvar o link no banco
+                ProjectImage imageEntity = new ProjectImage();
+                imageEntity.setProject(project);
+                imageEntity.setImageUrl(imageUrl);
+
+                projectImageRepository.save(imageEntity);
+            }
+        }
+        return new ProjectResponseDTO(project);
     }
 
     private ProjectResponseDTO convertToDTO(Project project) {
