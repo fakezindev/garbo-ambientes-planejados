@@ -25,6 +25,11 @@ public class ProjectController {
         return ResponseEntity.ok(service.findAll());
     }
 
+    @GetMapping("{id}")
+    public ResponseEntity<ProjectResponseDTO> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findById(id));
+    }
+
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ProjectResponseDTO> create(@RequestPart("data") @Valid ProjectRequestDTO dto,
                                                      @RequestPart(value = "images", required = false) List<MultipartFile> images) {

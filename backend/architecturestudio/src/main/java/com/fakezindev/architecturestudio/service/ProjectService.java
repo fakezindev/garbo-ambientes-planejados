@@ -2,12 +2,14 @@ package com.fakezindev.architecturestudio.service;
 
 import com.fakezindev.architecturestudio.dto.ProjectRequestDTO;
 import com.fakezindev.architecturestudio.dto.ProjectResponseDTO;
+import com.fakezindev.architecturestudio.exception.ResourceNotFoundException;
 import com.fakezindev.architecturestudio.model.entities.Project;
 import com.fakezindev.architecturestudio.model.entities.ProjectImage;
 import com.fakezindev.architecturestudio.repository.ProjectImageRepository;
 import com.fakezindev.architecturestudio.repository.ProjectRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,9 +25,15 @@ public class ProjectService {
     private final FileStorageService fileStorageService;
 
     public List<ProjectResponseDTO> findAll() {
-        return projectRepository.findAll().stream()
-                .map(this ::convertToDTO)
-                .collect(Collectors.toList());
+        return projectRepository.findAll(Sort.by(Sort.Direction.DESC, "id")).stream()
+                .map(ProjectResponseDTO::new)
+                .toList();
+    }
+
+    public ProjectResponseDTO findById(Long id) {
+        return projectRepository.findById(id)
+                .map(ProjectResponseDTO::new)
+                .orElseThrow(() -> new ResourceNotFoundException("Projeto não encontrado com ID:" + id));
     }
 
     @Transactional
