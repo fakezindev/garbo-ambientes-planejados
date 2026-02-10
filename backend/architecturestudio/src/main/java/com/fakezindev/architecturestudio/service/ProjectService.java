@@ -32,6 +32,7 @@ public class ProjectService {
         project.setDescription(dto.getDescription());
         project.setCategory(dto.getCategory());
         project.setClientName(dto.getClientName());
+        project.setCompletionDate(dto.getCompletionDate());
 
         Project saved = projectRepository.save(project);
         return convertToDTO(saved);

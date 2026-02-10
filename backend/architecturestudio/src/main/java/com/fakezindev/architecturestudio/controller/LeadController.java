@@ -21,7 +21,7 @@ public class LeadController {
     private final LeadService service;
 
     @PostMapping
-    public ResponseEntity<ProjectResponseDTO> create(@RequestBody @Valid LeadRequestDTO dto) {
+    public ResponseEntity<Void> create(@RequestBody @Valid LeadRequestDTO dto) {
         service.savelead(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
