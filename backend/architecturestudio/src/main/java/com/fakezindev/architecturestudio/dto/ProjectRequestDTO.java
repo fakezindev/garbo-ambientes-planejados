@@ -13,6 +13,7 @@ public class ProjectRequestDTO {
     @NotBlank(message = "O titulo é obrigatório")
     private String title;
 
+    @NotBlank
     private String description;
 
     @NotNull(message = "A categoria é obrigatória")

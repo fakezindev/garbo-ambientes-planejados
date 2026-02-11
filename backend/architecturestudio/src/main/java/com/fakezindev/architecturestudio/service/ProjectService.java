@@ -42,6 +42,8 @@ public class ProjectService {
         project.setTitle(dto.getTitle());
         project.setDescription(dto.getDescription());
         project.setCategory(dto.getCategory());
+        project.setClientName(dto.getClientName());
+        project.setCompletionDate(dto.getCompletionDate());
 
         project = projectRepository.save(project);
 
