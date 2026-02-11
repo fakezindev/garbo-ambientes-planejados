@@ -13,6 +13,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,8 +38,9 @@ public class ProjectService {
                 .orElseThrow(() -> new ResourceNotFoundException("Projeto não encontrado com ID:" + id));
     }
 
-    @Transactional
+    @Transactional // Importante: Garante que tudo seja feito ou nada feito
     public ProjectResponseDTO create(ProjectRequestDTO dto, List<MultipartFile> images) {
+        // 1. Cria a entidade e preenche os dados básicos
         Project project = new Project();
         project.setTitle(dto.getTitle());
         project.setDescription(dto.getDescription());
@@ -45,23 +48,57 @@ public class ProjectService {
         project.setClientName(dto.getClientName());
         project.setCompletionDate(dto.getCompletionDate());
 
+        // 2. Salva a primeira vez para gerar o ID
         project = projectRepository.save(project);
 
-        // 2. Processar as Imagens (Se houver)
+        // 3. Processa a imagem (Se tiver)
         if (images != null && !images.isEmpty()) {
-            for (MultipartFile file : images) {
-                // A. Upload para o MinIO
+            MultipartFile file = images.get(0); // Pega a primeira imagem
+            try {
+                // Sobe pro MinIO
                 String imageUrl = fileStorageService.upload(file);
 
-                // B. Salvar o link no banco
-                ProjectImage imageEntity = new ProjectImage();
-                imageEntity.setProject(project);
-                imageEntity.setImageUrl(imageUrl);
+                // Atualiza o projeto com a URL recebida
+                project.setCoverImageUrl(imageUrl);
 
-                projectImageRepository.save(imageEntity);
+                // Salva de novo para persistir a URL no banco
+                projectRepository.save(project);
+                // ---------------------------
+
+            } catch (Exception e) {
+                // Se der erro no upload, a gente avisa mas não trava tudo (opcional)
+                System.err.println("Erro ao salvar imagem: " + e.getMessage());
             }
         }
+
         return new ProjectResponseDTO(project);
+    }
+
+    public void delete(Long id) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Projeto não encontrado"));
+
+        // --- LOGS DEDO-DURO ---
+        System.out.println(">>> DEBUG: Entrou no delete do Service com ID: " + id);
+        System.out.println(">>> DEBUG: URL da imagem encontrada: " + project.getCoverImageUrl());
+        // ----------------------
+
+        if (project.getCoverImageUrl() != null) {
+            try {
+                String url = project.getCoverImageUrl();
+                String filename = url.substring(url.lastIndexOf("/") + 1);
+                String decodedFilename = URLDecoder.decode(filename, StandardCharsets.UTF_8.toString());
+
+                System.out.println(">>> DEBUG: Tentando deletar do S3 o arquivo: " + decodedFilename);
+                fileStorageService.delete(decodedFilename);
+            } catch (Exception e) {
+                System.err.println(">>> DEBUG: Erro ao deletar imagem: " + e.getMessage());
+            }
+        } else {
+            System.out.println(">>> DEBUG: Nenhuma imagem para deletar (URL é null).");
+        }
+
+        projectRepository.delete(project);
     }
 
     private ProjectResponseDTO convertToDTO(Project project) {

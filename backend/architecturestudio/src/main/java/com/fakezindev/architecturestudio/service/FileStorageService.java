@@ -44,4 +44,15 @@ public class FileStorageService {
             throw new RuntimeException("Error uploading file: " + originalName, e);
         }
     }
+
+    public void delete(String objectName) {
+        try {
+            System.out.println("S3: Tentando apagar objeto no bucket [" + bucketName + "]: " + objectName);
+            s3Template.deleteObject(bucketName, objectName);
+            System.out.println("S3: Comando de delete enviado com sucesso!");
+        } catch (Exception e) {
+            System.err.println("S3: ERRO CRÍTICO ao deletar: " + e.getMessage());
+            e.printStackTrace(); // Mostra o erro completo no terminal
+        }
+    }
 }

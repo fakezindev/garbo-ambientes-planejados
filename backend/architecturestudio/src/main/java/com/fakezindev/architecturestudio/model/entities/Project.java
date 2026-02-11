@@ -31,6 +31,9 @@ public class Project {
     private String clientName;
     private LocalDate completionDate;
 
+    @Column(name = "cover_image_url")
+    private String coverImageUrl;
+
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectImage> images = new ArrayList<>();
 

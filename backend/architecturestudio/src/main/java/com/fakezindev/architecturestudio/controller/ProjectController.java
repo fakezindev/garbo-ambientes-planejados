@@ -36,4 +36,10 @@ public class ProjectController {
         var response = service.create(dto, images);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }

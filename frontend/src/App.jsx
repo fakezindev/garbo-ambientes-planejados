@@ -19,6 +19,22 @@ function App() {
       });
   };
 
+  const handleDelete = async (id) => {
+
+    if (confirm("Tem certeza que deseja excluir este projeto?")) {
+
+      try {
+        await api.delete(`/projects/${id}`);
+        setProjects(projects.filter(project => project.id !== id));
+      } catch (err) {
+        alert("Erro ao excluir projeto. Veja o console.");
+        console.error(err);
+      }
+
+    }
+    
+  }
+
   // Carrega na primeira vez
   useEffect(() => {
     fetchProjects();
@@ -27,7 +43,7 @@ function App() {
   return (
     <div className="app-container">
       <h1>Garbo Ambientes Planejados</h1>
-      
+
       {/* O Formulário de Cadastro */}
       {/* Quando o upload terminar, ele chama fetchProjects para atualizar a lista */}
       <ProjectForm onUploadSuccess={fetchProjects} />
@@ -36,42 +52,55 @@ function App() {
 
       {/* Lista de Projetos */}
       <h2>Portfólio</h2>
-      
+
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
       <div style={{ display: 'grid', gap: '20px', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))' }}>
         {projects.map((project) => (
-          <div key={project.id} style={{ 
-              background: 'white',
-              border: '1px solid #eee', 
-              borderRadius: '8px',
-              overflow: 'hidden',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-            }}>
-            
+          <div key={project.id} style={{
+            background: 'white',
+            border: '1px solid #eee',
+            borderRadius: '8px',
+            overflow: 'hidden',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+          }}>
+
             {/* Imagem de Capa */}
             {project.coverImageUrl ? (
-              <img 
-                src={project.coverImageUrl} 
-                alt={project.title} 
+              <img
+                src={project.coverImageUrl}
+                alt={project.title}
                 style={{ width: '100%', height: '150px', objectFit: 'cover' }}
               />
             ) : (
               <div style={{ height: '150px', background: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Sem Imagem</div>
             )}
-            
+
             <div style={{ padding: '15px' }}>
-              <span style={{ 
-                  fontSize: '0.7em', 
-                  textTransform: 'uppercase', 
-                  color: '#666', 
-                  letterSpacing: '1px',
-                  background: '#f0f0f0',
-                  padding: '2px 6px',
-                  borderRadius: '4px'
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{
+                  fontSize: '0.7em', textTransform: 'uppercase', color: '#666',
+                  letterSpacing: '1px', background: '#f0f0f0', padding: '2px 6px', borderRadius: '4px'
                 }}>
-                {project.category}
-              </span>
+                  {project.category}
+                </span>
+
+                {/* --- BOTÃO DE EXCLUIR --- */}
+                <button
+                  onClick={() => handleDelete(project.id)}
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid #ff4d4d',
+                    color: '#ff4d4d',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    padding: '2px 8px',
+                    fontSize: '0.8em'
+                  }}
+                >
+                  Excluir
+                </button>
+              </div>
               <h3 style={{ margin: '10px 0', fontSize: '1.1em' }}>{project.title}</h3>
               <p style={{ fontSize: '0.9em', color: '#555' }}>{project.description}</p>
             </div>
