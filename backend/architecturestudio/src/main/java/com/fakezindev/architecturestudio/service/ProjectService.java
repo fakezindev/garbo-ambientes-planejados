@@ -101,6 +101,46 @@ public class ProjectService {
         projectRepository.delete(project);
     }
 
+    @Transactional
+    public ProjectResponseDTO update(Long id, ProjectRequestDTO dto, List<MultipartFile> images) {
+
+        // 1. Busca o projeto existente
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Projeto não encontrado"));
+
+        // 2. Atualiza os dados de texto
+        project.setTitle(dto.getTitle());
+        project.setDescription(dto.getDescription());
+        project.setCategory(dto.getCategory());
+        project.setClientName(dto.getClientName());
+        project.setCompletionDate(dto.getCompletionDate());
+
+        // 3. Lógica da Imagem (A parte inteligente)
+        if (images != null && !images.isEmpty()) {
+            try {
+                // Apaga a imagem antiga se tiver
+                if (project.getCoverImageUrl() != null) {
+                    String oldUrl = project.getCoverImageUrl();
+                    String oldFileName = URLDecoder.decode(oldUrl.substring(oldUrl.lastIndexOf("/") + 1));
+                    fileStorageService.delete(oldFileName);
+                }
+
+                // Sobe a nova foto
+                String newImageUrl = fileStorageService.upload(images.get(0));
+
+                // Atualiza o link no projeto
+                project.setCoverImageUrl(newImageUrl);
+            }
+            catch (Exception e) {
+                System.err.println("Erro ao atualizar imagem: " + e.getMessage());
+            }
+        }
+
+        // Salva e retorna
+        project = projectRepository.save(project);
+        return new ProjectResponseDTO(project);
+    }
+
     private ProjectResponseDTO convertToDTO(Project project) {
         ProjectResponseDTO dto = new ProjectResponseDTO();
         dto.setId(project.getId());

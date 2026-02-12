@@ -7,6 +7,8 @@ function App() {
   const [projects, setProjects] = useState([]);
   const [error, setError] = useState(null);
 
+  const [editingProject, setEditingProject] = useState(null);
+
   // Função que busca os dados (extraída para poder ser reutilizada)
   const fetchProjects = () => {
     api.get('/projects')
@@ -32,7 +34,12 @@ function App() {
       }
 
     }
-    
+
+  }
+
+  const handleEdit = (project) => {
+    setEditingProject(project); // Joga os dados do projeto lá pro formulário
+    window.scrollTo({ top: 0, behavior: 'smooth' }); // Sobe a tela suavemente
   }
 
   // Carrega na primeira vez
@@ -43,19 +50,25 @@ function App() {
   return (
     <div className="app-container">
       <h1>Garbo Ambientes Planejados</h1>
+      
 
       {/* O Formulário de Cadastro */}
       {/* Quando o upload terminar, ele chama fetchProjects para atualizar a lista */}
-      <ProjectForm onUploadSuccess={fetchProjects} />
+      {/* Passamos o editingProject e a função de Cancelar para o form */}
+      <ProjectForm 
+          onUploadSuccess={fetchProjects} 
+          projectToEdit={editingProject}
+          onCancelEdit={() => setEditingProject(null)}
+      />
 
-      <hr style={{ margin: '20px 0', border: 'none', borderTop: '1px solid #eee' }} />
+      <hr style={{ margin: '30px 0', border: 'none', borderTop: '1px solid #eee' }} />
 
       {/* Lista de Projetos */}
       <h2>Portfólio</h2>
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      <div style={{ display: 'grid', gap: '20px', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))' }}>
+      <div style={{ display: 'grid', gap: '20px', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
         {projects.map((project) => (
           <div key={project.id} style={{
             background: 'white',
@@ -77,31 +90,31 @@ function App() {
             )}
 
             <div style={{ padding: '15px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{
-                  fontSize: '0.7em', textTransform: 'uppercase', color: '#666',
-                  letterSpacing: '1px', background: '#f0f0f0', padding: '2px 6px', borderRadius: '4px'
-                }}>
-                  {project.category}
-                </span>
+              <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px'}}>
+                  <span style={{ fontSize: '0.7em', textTransform: 'uppercase', color: '#666', background: '#f0f0f0', padding: '2px 6px', borderRadius: '4px' }}>
+                    {project.category}
+                  </span>
+                  
+                  <div style={{display: 'flex', gap: '5px'}}>
+                      {/* BOTÃO EDITAR (Amarelo) */}
+                      <button 
+                        onClick={() => handleEdit(project)}
+                        style={{ border: '1px solid #ffc107', background: 'transparent', color: '#ffc107', borderRadius: '4px', cursor: 'pointer', padding: '2px 8px', fontSize: '0.8em' }}
+                      >
+                        Editar
+                      </button>
 
-                {/* --- BOTÃO DE EXCLUIR --- */}
-                <button
-                  onClick={() => handleDelete(project.id)}
-                  style={{
-                    background: 'transparent',
-                    border: '1px solid #ff4d4d',
-                    color: '#ff4d4d',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    padding: '2px 8px',
-                    fontSize: '0.8em'
-                  }}
-                >
-                  Excluir
-                </button>
+                      {/* BOTÃO EXCLUIR (Vermelho) */}
+                      <button 
+                        onClick={() => handleDelete(project.id)}
+                        style={{ border: '1px solid #ff4d4d', background: 'transparent', color: '#ff4d4d', borderRadius: '4px', cursor: 'pointer', padding: '2px 8px', fontSize: '0.8em' }}
+                      >
+                        Excluir
+                      </button>
+                  </div>
               </div>
-              <h3 style={{ margin: '10px 0', fontSize: '1.1em' }}>{project.title}</h3>
+
+              <h3 style={{ margin: '0 0 5px 0', fontSize: '1.2em' }}>{project.title}</h3>
               <p style={{ fontSize: '0.9em', color: '#555' }}>{project.description}</p>
             </div>
           </div>
