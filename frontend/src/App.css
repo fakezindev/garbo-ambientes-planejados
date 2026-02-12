@@ -1,6 +1,20 @@
+/* --- IDENTIDADE GARBO: DARK & GOLD --- */
 :root {
-  /* Garante que variáveis globais não atrapalhem */
-  color-scheme: light;
+  /* Cores Extraídas da Logo */
+  --bg-color: #121212;        /* Preto Fundo (quase absoluto) */
+  --card-bg: #1e1e1e;         /* Cinza Chumbo (para destacar do fundo) */
+  
+  --gold-primary: #d4af37;    /* Dourado Clássico */
+  --gold-light: #f1c40f;      /* Dourado Brilhante */
+  --gold-dark: #b8860b;       /* Dourado Escuro (Sombra) */
+  
+  --text-main: #f0f0f0;       /* Branco Gelo */
+  --text-muted: #a0a0a0;      /* Cinza Prata */
+  
+  --danger: #e74c3c;          /* Vermelho (Excluir) - mantido mas suavizado */
+  
+  --radius: 8px;
+  --shadow: 0 8px 16px rgba(0, 0, 0, 0.4); /* Sombra mais dramática */
 }
 
 * {
@@ -10,24 +24,306 @@
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f0f2f5; /* Cinza bem clarinho */
-  color: #1a1a1a; /* Preto quase absoluto (para leitura) */
-  padding: 20px;
-  min-height: 100vh;
+  font-family: 'Montserrat', 'Inter', sans-serif; /* Sugestão: Fonte mais geométrica */
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  line-height: 1.6;
 }
 
+/* --- CONTAINER & HEADER --- */
 .app-container {
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
-  background-color: white;
   padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave */
-  text-align: center;
 }
 
-h1 {
-  color: #2c3e50;
+header {
+  text-align: center;
+  margin-bottom: 4rem;
+  border-bottom: 1px solid #333;
+  padding-bottom: 2rem;
+}
+
+/* Efeito de Texto Dourado (Igual a Logo) */
+header h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  
+  /* Gradiente Dourado no Texto */
+  background: linear-gradient(to right, var(--gold-dark), var(--gold-light), var(--gold-primary), var(--gold-dark));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent; /* Deixa o texto transparente para mostrar o fundo dourado */
+}
+
+header p {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* --- FORMULÁRIO (DARK MODE) --- */
+.form-card {
+  background: var(--card-bg);
+  padding: 2.5rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 4rem;
+  border: 1px solid #333;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Detalhe dourado no topo do card */
+.form-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--gold-dark), var(--gold-light));
+}
+
+.form-header h2 {
+  color: var(--gold-primary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Inputs Escuros */
+.input-field {
+  padding: 14px;
+  background-color: #2d2d2d;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: var(--text-main);
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+.input-field::placeholder {
+  color: #666;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--gold-primary);
+  background-color: #333;
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.2);
+}
+
+/* Upload de Arquivo */
+.file-upload {
+  border: 2px dashed #444;
+  background-color: #252525;
+  padding: 2rem;
+  text-align: center;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.3s;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 150px;
+}
+
+.file-upload.has-image:hover {
+  border-style: solid;
+  border-color: var(--gold-primary);
+  background-color: #2a2a2a;
+}
+
+.file-upload:hover {
+  border-color: var(--gold-primary);
+  color: var(--gold-primary);
+}
+
+.preview-image {
+  max-width: 100%;   
+  max-height: 350px;  
+  object-fit: cover;  
+  border-radius: var(--radius);
+  border: 3px solid var(--gold-primary); 
+  box-shadow: 0 8px 16px rgba(0,0,0,0.5); 
+  margin-bottom: 1rem; 
+}
+
+/* --- BOTÕES PREMIUM --- */
+.btn {
+  padding: 14px 28px;
+  border: none;
+  border-radius: 4px; /* Bordas mais quadradas combinam com luxo */
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 0.9rem;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
+  color: #121212; /* Texto preto no fundo dourado fica muito legível */
+}
+
+.btn-primary:hover {
+  filter: brightness(1.2);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+}
+
+.btn-update {
+  background: transparent;
+  border: 1px solid var(--gold-primary);
+  color: var(--gold-primary);
+}
+
+.btn-update:hover {
+  background: var(--gold-primary);
+  color: #000;
+}
+
+.btn-cancel {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid #444;
+  padding: 8px 16px;
+}
+
+.btn-cancel:hover {
+  border-color: #666;
+  color: white;
+}
+
+/* Ícones nos cards */
+.btn-icon {
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 1rem;
+  margin-left: 8px;
+  background: transparent;
+  border: 1px solid #444;
+  color: var(--text-muted);
+}
+
+.btn-icon:hover {
+  border-color: var(--gold-primary);
+  color: var(--gold-primary);
+}
+
+.btn-delete:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* --- GRID DE PROJETOS --- */
+.portfolio-section h2 {
+  font-size: 2rem;
+  color: var(--text-main);
+  margin-bottom: 2rem;
+  border-left: 5px solid var(--gold-primary); /* Linha dourada vertical */
+  padding-left: 1rem;
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2.5rem;
+}
+
+.project-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid #333;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--gold-dark);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+}
+
+.card-image-container {
+  height: 240px; /* Imagens mais altas */
+  background-color: #2d2d2d;
+  position: relative;
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.9; /* Levemente escurecida para manter o mood */
+  transition: opacity 0.3s;
+}
+
+.project-card:hover .card-image {
+  opacity: 1;
+}
+
+.no-image {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #555;
+  background: radial-gradient(circle, #333, #222);
+}
+
+.card-content {
+  padding: 1.5rem;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 1rem;
+}
+
+.badge {
+  background: rgba(212, 175, 55, 0.1); /* Dourado bem transparente */
+  color: var(--gold-primary);
+  border: 1px solid var(--gold-dark);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.card-title {
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.card-meta {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 1.2rem;
+  border-bottom: 1px solid #333;
+  padding-bottom: 0.8rem;
+}
+
+.card-desc {
+  font-size: 0.95rem;
+  color: #ccc;
+  line-height: 1.5;
 }

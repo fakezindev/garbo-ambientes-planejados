@@ -1,28 +1,46 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import api from '../services/api';
 
 function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
+    // Estados do Formulário
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [category, setCategory] = useState('PLANEJADOS');
+    const [category, setCategory] = useState('RESIDENCIAL');
     const [clientName, setClientName] = useState('');
     const [completionDate, setCompletionDate] = useState('');
+    
+    // Estados da Imagem
     const [image, setImage] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState(null); // URL para mostrar a miniatura
+    
+    // Estado de Carregamento (Só pode ter UM desse)
     const [loading, setLoading] = useState(false);
 
     const fileInputRef = useRef(null);
 
+    // Efeito: Preenche o formulário quando clica em Editar
     useEffect(() => {
         if (projectToEdit) {
             setTitle(projectToEdit.title);
             setDescription(projectToEdit.description);
             setCategory(projectToEdit.category);
-            setClientName(projectToEdit.clientName);
+            setClientName(projectToEdit.clientName || '');
             setCompletionDate(projectToEdit.completionDate || '');
+            // Se já tem foto, mostra ela
+            setPreviewUrl(projectToEdit.coverImageUrl);
         } else {
             clearForm();
         }
     }, [projectToEdit]);
+
+    // Função que gera o preview da imagem quando o usuário seleciona
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImage(file);
+            setPreviewUrl(URL.createObjectURL(file));
+        }
+    };
 
     const clearForm = () => {
         setTitle('');
@@ -31,6 +49,7 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
         setClientName('');
         setCompletionDate('');
         setImage(null);
+        setPreviewUrl(null);
         if (fileInputRef.current) fileInputRef.current.value = "";
     };
 
@@ -38,24 +57,14 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
         e.preventDefault();
         setLoading(true);
 
-        // O Segredo do Upload: FormData
-        // O JSON e o Arquivo têm que ir embalados juntos
         const formData = new FormData();
-
-        // 1. O JSON (como string)
         const projectData = JSON.stringify({
-            title,
-            description,
-            category,
-            clientName,
-            completionDate
+            title, description, category, clientName, completionDate
         });
-
-        // Atenção: O backend espera uma parte chamada 'data' com content-type application/json
+        
         const jsonBlob = new Blob([projectData], { type: 'application/json' });
         formData.append('data', jsonBlob);
 
-        // 2. A Imagem (se tiver)
         if (image) {
             formData.append('images', image);
         }
@@ -63,75 +72,104 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
         try {
             if (projectToEdit) {
                 await api.put(`/projects/${projectToEdit.id}`, formData, {
-                    headers: {'Content-Type': 'multipart/form-data'},
+                    headers: { 'Content-Type': 'multipart/form-data' },
                 });
-                alert('Projeto atualizado com sucesso!');
+                alert('Projeto atualizado!');
             } else {
                 await api.post('/projects', formData, {
                     headers: { 'Content-Type': 'multipart/form-data' },
                 });
-                alert('Projeto criado com sucesso!');
+                alert('Projeto criado!');
             }
-
+            
             clearForm();
             if (onUploadSuccess) onUploadSuccess();
             if (onCancelEdit) onCancelEdit();
 
         } catch (error) {
             console.error('Erro ao salvar:', error);
-            alert('Erro ao salvar projeto. ');
+            alert('Erro ao salvar projeto.');
         } finally {
             setLoading(false);
         }
-        
     };
 
     return (
-        <div style={{ background: '#fff', padding: '20px', borderRadius: '8px', marginBottom: '20px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                <h2>{projectToEdit ? `Editando: ${projectToEdit.title}` : 'Novo Projeto'}</h2>
+        <div className="form-card">
+            <div className="form-header">
+                <h2>{projectToEdit ? `✏️ Editando: ${projectToEdit.title}` : '🚀 Novo Projeto'}</h2>
+                <br />
                 {projectToEdit && (
-                    <button onClick={onCancelEdit} style={{background: '#666', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer'}}>
-                        Cancelar Edição
+                    <button onClick={onCancelEdit} className="btn btn-cancel">
+                        Cancelar
                     </button>
                 )}
             </div>
+            <br />
 
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                <input type="text" placeholder="Título" value={title} onChange={e => setTitle(e.target.value)} required style={inputStyle} />
-                <input type="text" placeholder="Cliente" value={clientName} onChange={e => setClientName(e.target.value)} style={inputStyle} />
-                <input type="date" value={completionDate} onChange={e => setCompletionDate(e.target.value)} style={inputStyle} />
-                <textarea placeholder="Descrição" value={description} onChange={e => setDescription(e.target.value)} required style={{ ...inputStyle, minHeight: '80px' }} />
-                
-                <select value={category} onChange={e => setCategory(e.target.value)} style={inputStyle}>
-                    <option value="RESIDENCIAL">Residencial</option>
-                    <option value="COMERCIAL">Comercial</option>
-                    <option value="INTERIORES">Interiores</option>
-                </select>
+            <form onSubmit={handleSubmit} className="form-group">
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <input 
+                        type="text" placeholder="Título do Projeto" 
+                        value={title} onChange={e => setTitle(e.target.value)} 
+                        required className="input-field"
+                    />
+                    <select 
+                        value={category} onChange={e => setCategory(e.target.value)}
+                        className="input-field"
+                    >
+                        <option value="PLANEJADOS">Planejados</option>
+                        <option value="COMERCIAL">Comercial</option>
+                        <option value="INTERIORES">Interiores</option>
+                    </select>
+                </div>
 
-                <div style={{ border: '1px dashed #ccc', padding: '15px', textAlign: 'center', borderRadius: '4px' }}>
-                    <label style={{ cursor: 'pointer', display: 'block', color: '#555' }}>
-                        {image ? `Nova Imagem: ${image.name}` : (projectToEdit ? "Mudar foto atual? (Opcional)" : "📸 Adicionar Foto")}
-                        <input type="file" accept="image/*" ref={fileInputRef} onChange={e => setImage(e.target.files[0])} style={{ display: 'none' }} />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <input 
+                        type="text" placeholder="Nome do Cliente" 
+                        value={clientName} onChange={e => setClientName(e.target.value)} 
+                        className="input-field"
+                    />
+                    <input 
+                        type="date" 
+                        value={completionDate} onChange={e => setCompletionDate(e.target.value)}
+                        className="input-field"
+                    />
+                </div>
+
+                <textarea 
+                    placeholder="Descrição detalhada do projeto..." 
+                    value={description} onChange={e => setDescription(e.target.value)} 
+                    required className="input-field" style={{ minHeight: '100px', resize: 'vertical' }}
+                />
+
+                {/* Área de Upload com Preview */}
+                <div className={`file-upload ${previewUrl ? 'has-image' : ''}`}>
+                    <label>
+                        {previewUrl && (
+                            <img src={previewUrl} alt="Preview" className="preview-image" />
+                        )}
+                        
+                        <span style={{display: 'block', marginTop: previewUrl ? '10px' : '0'}}>
+                            {image ? `Arquivo selecionado: ${image.name}` : (projectToEdit && !image ? "Clique na imagem para alterar a foto" : "📸 Clique para adicionar foto de capa")}
+                        </span>
+                        
+                        <input 
+                            type="file" 
+                            accept="image/*" 
+                            ref={fileInputRef} 
+                            onChange={handleImageChange} 
+                            style={{ display: 'none' }} 
+                        />
                     </label>
                 </div>
 
-                <button type="submit" disabled={loading} style={{
-                    padding: '12px', background: loading ? '#ccc' : (projectToEdit ? '#ffc107' : '#28a745'),
-                    color: projectToEdit ? '#000' : 'white', border: 'none', borderRadius: '4px', cursor: loading ? 'not-allowed' : 'pointer', fontWeight: 'bold'
-                }}>
-                    {loading ? 'Salvando...' : (projectToEdit ? 'Atualizar Projeto' : 'Cadastrar Projeto')}
+                <button type="submit" disabled={loading} className={`btn ${projectToEdit ? 'btn-update' : 'btn-primary'}`}>
+                    {loading ? 'Processando...' : (projectToEdit ? 'Salvar Alterações' : 'Cadastrar Projeto')}
                 </button>
             </form>
         </div>
     );
 }
-
-const inputStyle = {
-    padding: '10px',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    fontSize: '14px'
-};
 
 export default ProjectForm;
