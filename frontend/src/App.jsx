@@ -4,6 +4,8 @@ import Login from './pages/Login/Login';
 import api from './services/api'
 import ProjectForm from './components/ProjectForm'
 import PrivateRoute from './components/PrivateRoute';
+import Home from './pages/Home/Home';
+import ClientDashboard from './pages/ClientDashboard/ClientDashboard';
 import './App.css'
 
 function App() {
@@ -119,8 +121,11 @@ function App() {
           </PrivateRoute>
         } />
 
-        {/* ROTA PADRÃO: Se alguém acessar "/", joga direto para o admin (por enquanto) */}
-        <Route path="/" element={<Navigate to="/admin" />} />
+          {/* ROTA 3: O Dashboard do Cliente */}
+        <Route path="/meu-projeto" element={<ClientDashboard />} />
+
+        {/* ROTA PADRÃO: Se alguém acessar "/", joga direto para o Home */}
+        <Route path="/" element={<Home />} />
 
       </Routes>
     </BrowserRouter>

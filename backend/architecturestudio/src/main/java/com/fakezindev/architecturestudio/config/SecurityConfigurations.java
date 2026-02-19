@@ -41,12 +41,15 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.GET, "/projects").permitAll() // Clientes podem ver o portfólio
                         .requestMatchers(HttpMethod.GET, "/projects/*").permitAll()
 
+                        .requestMatchers(HttpMethod.POST, "/leads").permitAll()
+
                         // BLOQUEADO (Só Admin com Token)
                         .requestMatchers(HttpMethod.POST, "/projects").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/projects/*").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/projects/*").hasRole("ADMIN")
 
                         // Qualquer outra coisa precisa estar logado
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)

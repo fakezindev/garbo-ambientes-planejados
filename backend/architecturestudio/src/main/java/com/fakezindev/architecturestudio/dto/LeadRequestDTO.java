@@ -27,5 +27,5 @@ public class LeadRequestDTO {
 
     @NotBlank(message = "A mensagem não pode estar vazia.")
     @Size(min = 10, max = 1000, message = "A mensagem deve ter entre 10 e 1000 caracteres.")
-    private String message;
+    private String environment;
 }

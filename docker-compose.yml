@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # Serviço 1: Banco de Dados
   postgres:
     image: postgres:15-alpine
     container_name: arch_db
@@ -14,7 +13,6 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  # Serviço 2: MinIO (Storage) - TEM QUE ESTAR ALINHADO COM O 'postgres'
   minio:
     image: minio/minio:latest
     container_name: arch_storage
@@ -23,11 +21,39 @@ services:
       MINIO_ROOT_USER: admin
       MINIO_ROOT_PASSWORD: password
     ports:
-      - "9000:9000" # API (Java usa essa)
-      - "9001:9001" # Console (Navegador usa essa)
+      - "9000:9000"
+      - "9001:9001"
     volumes:
       - minio_data:/data
 
+  # Adicione o Backend aqui para resolver o erro do TokenService
+  backend:
+    build: ./backend/architecturestudio # Caminho para o seu Dockerfile do Spring
+    container_name: arch_backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/arch_studio_db
+      - SPRING_DATASOURCE_USERNAME=bruno
+      - SPRING_DATASOURCE_PASSWORD=password
+      - API_SECURITY_TOKEN_SECRET=minha-senha-secreta-garbo # RESOLVE O ERRO DO TOKENSERVICE
+    depends_on:
+      - postgres
+
+  # Adicione o Frontend aqui para resolver o erro do Vite
+  frontend:
+    build: ./frontend # Caminho para o seu Dockerfile do React
+    container_name: arch_frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules # ESSENCIAL: Protege os módulos instalados e resolve o "vite not found"
+    environment:
+      - CHOKIDAR_USEPOLLING=true # Ajuda o Vite a atualizar no Windows/Docker
+    depends_on:
+      - backend
+
 volumes:
-  postgres_data: garbo-ambientes-planejados_postgres_data
+  postgres_data:
   minio_data:

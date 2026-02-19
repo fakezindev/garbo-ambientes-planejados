@@ -39,8 +39,7 @@ public class TokenService {
     public String validateToken(String token) {
         try {
             SecretKey key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
-
-            return Jwts.parserBuilder()
+            return Jwts.parserBuilder() // Se estiver na 0.11.5
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token)

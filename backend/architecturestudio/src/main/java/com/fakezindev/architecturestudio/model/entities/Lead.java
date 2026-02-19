@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
-@Table(name = "tb_leads")
+@Table(name = "tb_leads_v2")
 public class Lead {
 
     @Id
@@ -20,8 +20,7 @@ public class Lead {
     private String email;
     private String phone;
 
-    @Column(columnDefinition = "TEXT")
-    private String message;
+    private String environment;
 
     @Enumerated(EnumType.STRING)
     private LeadStatus status = LeadStatus.NOVO;

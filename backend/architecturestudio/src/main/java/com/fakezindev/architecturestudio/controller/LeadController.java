@@ -1,28 +1,22 @@
 package com.fakezindev.architecturestudio.controller;
 
-import com.fakezindev.architecturestudio.dto.LeadRequestDTO;
-import com.fakezindev.architecturestudio.dto.ProjectRequestDTO;
-import com.fakezindev.architecturestudio.dto.ProjectResponseDTO;
-import com.fakezindev.architecturestudio.service.LeadService;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import com.fakezindev.architecturestudio.model.entities.Lead;
+import com.fakezindev.architecturestudio.repository.LeadRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/leads")
-@RequiredArgsConstructor
+@RequestMapping("/leads") // A porta exata que o React está chamando
 public class LeadController {
 
-    private final LeadService service;
+    @Autowired
+    private LeadRepository leadRepository;
 
     @PostMapping
-    public ResponseEntity<Void> create(@RequestBody @Valid LeadRequestDTO dto) {
-        service.savelead(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<Lead> createLead(@RequestBody Lead lead) {
+        // Recebe o pacote do React e salva direto no banco de dados!
+        Lead savedLead = leadRepository.save(lead);
+        return ResponseEntity.ok(savedLead);
     }
 }
