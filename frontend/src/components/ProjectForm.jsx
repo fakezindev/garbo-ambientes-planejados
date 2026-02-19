@@ -71,14 +71,10 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
 
         try {
             if (projectToEdit) {
-                await api.put(`/projects/${projectToEdit.id}`, formData, {
-                    headers: { 'Content-Type': 'multipart/form-data' },
-                });
+                await api.put(`/projects/${projectToEdit.id}`, formData);
                 alert('Projeto atualizado!');
             } else {
-                await api.post('/projects', formData, {
-                    headers: { 'Content-Type': 'multipart/form-data' },
-                });
+                await api.post('/projects', formData);
                 alert('Projeto criado!');
             }
             
@@ -150,7 +146,7 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
                             <img src={previewUrl} alt="Preview" className="preview-image" />
                         )}
                         
-                        <span style={{display: 'block', marginTop: previewUrl ? '10px' : '0'}}>
+                        <span style={{color: 'var(--text-main)', display: 'block', marginTop: previewUrl ? '10px' : '0'}}>
                             {image ? `Arquivo selecionado: ${image.name}` : (projectToEdit && !image ? "Clique na imagem para alterar a foto" : "📸 Clique para adicionar foto de capa")}
                         </span>
                         

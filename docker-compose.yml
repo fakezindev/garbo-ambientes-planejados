@@ -29,5 +29,5 @@ services:
       - minio_data:/data
 
 volumes:
-  postgres_data:
+  postgres_data: garbo-ambientes-planejados_postgres_data
   minio_data:

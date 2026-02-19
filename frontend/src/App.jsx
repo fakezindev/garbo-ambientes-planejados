@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './pages/Login/Login';
 import api from './services/api'
 import ProjectForm from './components/ProjectForm'
+import PrivateRoute from './components/PrivateRoute';
 import './App.css'
 
 function App() {
+  
   const [projects, setProjects] = useState([]);
   const [error, setError] = useState(null);
   const [editingProject, setEditingProject] = useState(null);
@@ -28,72 +32,98 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('garbo_token'); // Joga a chave fora
+    window.location.href = '/login'; // Chuta o usuário pra tela de login
+  };
+
   useEffect(() => { fetchProjects(); }, []);
 
   return (
-    <div className="app-container">
-      <header>
-        {/* Usamos o CSS para dar efeito dourado neste texto */}
-        <h1>GARBO</h1> 
-        <p>Arquitetura e Ambientes Planejados</p>
-      </header>
-      
+    <BrowserRouter>
+      <Routes>
+        
+        {/* ROTA 1: A tela de Login (Totalmente isolada) */}
+        <Route path="/login" element={<Login />} />
 
-      {/* O Formulário de Cadastro */}
-      {/* Quando o upload terminar, ele chama fetchProjects para atualizar a lista */}
-      {/* Passamos o editingProject e a função de Cancelar para o form */}
-      <ProjectForm 
-          onUploadSuccess={fetchProjects} 
-          projectToEdit={editingProject}
-          onCancelEdit={() => setEditingProject(null)}
-      />
-
-      <section className="portfolio-section">
-        <h2>Portfólio Recente</h2>
-        {error && <p style={{ color: 'var(--danger)' }}>{error}</p>}
-
-        <div className="projects-grid">
-          {projects.map((project) => (
-            <div key={project.id} className="project-card">
-              
-              <div className="card-image-container">
-                {project.coverImageUrl ? (
-                  <img src={project.coverImageUrl} alt={project.title} className="card-image" />
-                ) : (
-                  <div className="no-image">Sem Imagem</div>
-                )}
-              </div>
-              
-              <div className="card-content">
-                <div className="card-header">
-                    <span className="badge">{project.category}</span>
-                    <div>
-                        <button onClick={() => handleEdit(project)} className="btn btn-icon btn-edit" title="Editar">
-                           ✏️
-                        </button>
-                        <button onClick={() => handleDelete(project.id)} className="btn btn-icon btn-delete" title="Excluir">
-                           🗑️
-                        </button>
-                    </div>
+        {/* ROTA 2: O seu Painel de Administração */}
+        <Route path="/admin" element={
+          <PrivateRoute>
+            <div className="app-container">
+              <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h1>GARBO</h1>
+                  <p>Arquitetura e Ambientes Planejados</p>
                 </div>
+                {/* 4. O botão de Logout elegante no canto direito */}
+                <button 
+                  onClick={handleLogout} 
+                  style={{ padding: '8px 16px', background: 'var(--danger, #ff4d4f)', color: 'var(--text-main)', border: '1px solid #444', borderRadius: '4px', cursor: 'pointer' }}
+                >
+                  Sair do Sistema
+                </button>
+              </header>
 
-                <h3 className="card-title">{project.title}</h3>
-                
-                {(project.clientName || project.completionDate) && (
-                    <div className="card-meta">
-                        {project.clientName && <span>Cliente: {project.clientName}</span>}
-                        {project.clientName && project.completionDate && <span> • </span>}
-                        {project.completionDate && <span>{new Date(project.completionDate).toLocaleDateString('pt-BR')}</span>}
+              <ProjectForm
+                onUploadSuccess={fetchProjects}
+                projectToEdit={editingProject}
+                onCancelEdit={() => setEditingProject(null)} 
+              />
+
+              <section className="portfolio-section">
+                <h2>Portfólio Recente</h2>
+                {error && <p style={{ color: 'var(--danger)' }}>{error}</p>}
+
+                <div className="projects-grid">
+                  {projects.map((project) => (
+                    <div key={project.id} className="project-card">
+
+                      <div className="card-image-container">
+                        {project.coverImageUrl ? (
+                          <img src={project.coverImageUrl} alt={project.title} className="card-image" />
+                        ) : (
+                          <div className="no-image">Sem Imagem</div>
+                        )}
+                      </div>
+
+                      <div className="card-content">
+                        <div className="card-header">
+                          <span className="badge">{project.category}</span>
+                          <div>
+                            <button onClick={() => handleEdit(project)} className="btn btn-icon btn-edit" title="Editar">
+                              ✏️
+                            </button>
+                            <button onClick={() => handleDelete(project.id)} className="btn btn-icon btn-delete" title="Excluir">
+                              🗑️
+                            </button>
+                          </div>
+                        </div>
+
+                        <h3 className="card-title">{project.title}</h3>
+
+                        {(project.clientName || project.completionDate) && (
+                          <div className="card-meta">
+                            {project.clientName && <span>Cliente: {project.clientName}</span>}
+                            {project.clientName && project.completionDate && <span> • </span>}
+                            {project.completionDate && <span>{new Date(project.completionDate).toLocaleDateString('pt-BR')}</span>}
+                          </div>
+                        )}
+
+                        <p className="card-desc">{project.description}</p>
+                      </div>
                     </div>
-                )}
-
-                <p className="card-desc">{project.description}</p>
-              </div>
+                  ))}
+                </div>
+              </section>
             </div>
-          ))}
-        </div>
-      </section>
-    </div>
+          </PrivateRoute>
+        } />
+
+        {/* ROTA PADRÃO: Se alguém acessar "/", joga direto para o admin (por enquanto) */}
+        <Route path="/" element={<Navigate to="/admin" />} />
+
+      </Routes>
+    </BrowserRouter>
   )
 }
 

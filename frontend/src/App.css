@@ -106,7 +106,7 @@ header p {
 .input-field {
   padding: 14px;
   background-color: #2d2d2d;
-  border: 1px solid #444;
+  border: 1px solid #dcdde1;
   border-radius: 4px;
   color: var(--text-main);
   font-size: 1rem;
@@ -326,4 +326,117 @@ header p {
   font-size: 0.95rem;
   color: #ccc;
   line-height: 1.5;
+}
+
+/* =========================================
+   TELA DE LOGIN - GARBO ARQUITETURA
+   ========================================= */
+
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: var(--bg-light); /* Fundo suave, mude se seu site for escuro */
+  padding: 20px;
+}
+
+.login-card {
+  background: var(--card-bg);
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 420px;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.login-header h2 {
+  margin: 0;
+  font-size: 2rem;
+  letter-spacing: 2px;
+  color: var(--gold-primary); /* Ou a cor dourada que você usa: var(--gold) */
+}
+
+.login-header p {
+  margin: 5px 0 0 0;
+  color: var(--gold-dark);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--gold-primary);
+}
+
+.form-group input {
+  padding: 12px 15px;
+  border: 1px solid #dcdde1;
+  border-radius: 6px;
+  font-size: 1rem;
+  color: white;
+  transition: all 0.3s ease;
+  background-color: #2d2d2d;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--gold-primary); /* Mude para a cor principal do seu site */
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+}
+
+.btn-submit {
+  margin-top: 10px;
+  padding: 14px;
+  background-color: var(--gold-dark); /* Mude para a cor do seu botão de Salvar Projeto */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn-submit:hover {
+  background-color: var(--gold-light); /* Mude para a cor de hover do seu botão de Salvar Projeto */
+}
+
+.btn-submit:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+.error-message {
+  background-color: #ffeaa7;
+  color: #d63031;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-left: 4px solid #d63031;
 }

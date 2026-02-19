@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     host: true, // Isso libera o acesso externo (0.0.0.0)
     strictPort: true,
-    port: 5173,
+    port: 3000,
     watch: {
       usePolling: true, // Essencial para o Docker no Windows funcionar o Hot Reload
     }

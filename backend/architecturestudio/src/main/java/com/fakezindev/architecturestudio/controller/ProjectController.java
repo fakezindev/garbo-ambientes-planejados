@@ -15,7 +15,7 @@ import tools.jackson.databind.ObjectMapper;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/projects")
+@RequestMapping("/projects")
 public class ProjectController {
 
     private final ProjectService service;
