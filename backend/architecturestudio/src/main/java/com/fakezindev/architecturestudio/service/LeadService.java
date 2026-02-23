@@ -16,9 +16,10 @@ public class LeadService {
     public Lead savelead(LeadRequestDTO dto) {
         Lead lead = new Lead();
         lead.setStatus(LeadStatus.NOVO);
-        lead.setName(dto.getName());
-        lead.setEmail(dto.getEmail());
-        lead.setPhone(dto.getPhone());
+        lead.setName(dto.name());
+        lead.setEmail(dto.email());
+        lead.setPhone(dto.phone());
+        lead.setEnvironment(dto.environment());
         return leadRepository.save(lead);
     }
 }

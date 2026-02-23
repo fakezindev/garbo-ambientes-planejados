@@ -1,12 +1,14 @@
 package com.fakezindev.architecturestudio.service;
 
 import io.awspring.cloud.s3.S3Template;
+import io.minio.BucketExistsArgs;
+import io.minio.MakeBucketArgs;
+import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.UUID;
 
 @Service
@@ -14,34 +16,51 @@ public class FileStorageService {
 
     private final S3Template s3Template;
     private final String bucketName;
+    private final MinioClient minioClient;
 
-    // O Spring injeta o bucketName direto do application.properties
+    // 👇 CORREÇÃO 1: Adicionamos o MinioClient aqui nos parênteses e no this!
     public FileStorageService(S3Template s3Template,
+                              MinioClient minioClient,
                               @Value("${application.bucket.name}") String bucketName) {
         this.s3Template = s3Template;
+        this.minioClient = minioClient;
         this.bucketName = bucketName;
     }
 
     public String upload(MultipartFile file) {
-        // 1. Gerar nome único para não sobrescrever arquivos (ex: a1b2c3-sala.jpg)
-        String originalName = file.getOriginalFilename();
-        String extension = originalName != null && originalName.contains(".")
-                ? originalName.substring(originalName.lastIndexOf("."))
-                : "";
-        String fileName = UUID.randomUUID().toString() + extension;
-
         try {
-            // 2. Enviar para o MinIO
-            InputStream inputStream = file.getInputStream();
-            s3Template.upload(bucketName, fileName, inputStream);
+            // 👇 CORREÇÃO 2: Trocamos o texto fixo pela variável 'bucketName'
+            boolean bucketExiste = minioClient.bucketExists(
+                    BucketExistsArgs.builder().bucket(bucketName).build()
+            );
 
-            // 3. Retornar a URL de acesso
-            // Nota: Como é local (Docker), montamos a URL na mão.
-            // Em produção (AWS real), usaríamos s3Template.getSignedUrl() ou CloudFront.
+            if (!bucketExiste) {
+                System.out.println(">>> AVISO: Bucket não existia! Recriando bucket '" + bucketName + "'...");
+                minioClient.makeBucket(
+                        MakeBucketArgs.builder().bucket(bucketName).build()
+                );
+            }
+
+            // Gera o nome único
+            String fileName = UUID.randomUUID().toString() + "-" + file.getOriginalFilename().replace(" ", "_");
+
+            // Faz o upload da forma mais segura possível
+            minioClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(fileName)
+                            .stream(file.getInputStream(), file.getSize(), -1)
+                            .contentType(file.getContentType())
+                            .build()
+            );
+
+            // Retorna a URL (Usando a variável do bucket também!)
             return "http://localhost:9000/" + bucketName + "/" + fileName;
-        }
-        catch (IOException e) {
-            throw new RuntimeException("Error uploading file: " + originalName, e);
+
+        } catch (Exception e) {
+            System.err.println(">>> ERRO FATAL NO MINIO: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Erro ao subir arquivo no MinIO", e);
         }
     }
 
@@ -52,7 +71,7 @@ public class FileStorageService {
             System.out.println("S3: Comando de delete enviado com sucesso!");
         } catch (Exception e) {
             System.err.println("S3: ERRO CRÍTICO ao deletar: " + e.getMessage());
-            e.printStackTrace(); // Mostra o erro completo no terminal
+            e.printStackTrace();
         }
     }
 }

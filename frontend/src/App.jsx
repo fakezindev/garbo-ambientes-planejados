@@ -5,11 +5,13 @@ import api from './services/api'
 import ProjectForm from './components/ProjectForm'
 import PrivateRoute from './components/PrivateRoute';
 import Home from './pages/Home/Home';
+import ClientPrivateRoute from './components/ClientPrivateRoute';
 import ClientDashboard from './pages/ClientDashboard/ClientDashboard';
+import ClientLogin from './pages/ClientLogin/ClientLogin';
 import './App.css'
 
 function App() {
-  
+
   const [projects, setProjects] = useState([]);
   const [error, setError] = useState(null);
   const [editingProject, setEditingProject] = useState(null);
@@ -22,10 +24,10 @@ function App() {
 
   const handleDelete = async (id) => {
     if (confirm("Tem certeza que deseja excluir este projeto?")) {
-        try {
-            await api.delete(`/projects/${id}`);
-            setProjects(projects.filter(project => project.id !== id));
-        } catch (err) { alert("Erro ao excluir."); }
+      try {
+        await api.delete(`/projects/${id}`);
+        setProjects(projects.filter(project => project.id !== id));
+      } catch (err) { alert("Erro ao excluir."); }
     }
   };
 
@@ -44,11 +46,8 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        
-        {/* ROTA 1: A tela de Login (Totalmente isolada) */}
-        <Route path="/login" element={<Login />} />
 
-        {/* ROTA 2: O seu Painel de Administração */}
+        {/* ROTA ADMIN: Painel de Administração */}
         <Route path="/admin" element={
           <PrivateRoute>
             <div className="app-container">
@@ -58,8 +57,8 @@ function App() {
                   <p>Arquitetura e Ambientes Planejados</p>
                 </div>
                 {/* 4. O botão de Logout elegante no canto direito */}
-                <button 
-                  onClick={handleLogout} 
+                <button
+                  onClick={handleLogout}
                   style={{ padding: '8px 16px', background: 'var(--danger, #ff4d4f)', color: 'var(--text-main)', border: '1px solid #444', borderRadius: '4px', cursor: 'pointer' }}
                 >
                   Sair do Sistema
@@ -69,7 +68,7 @@ function App() {
               <ProjectForm
                 onUploadSuccess={fetchProjects}
                 projectToEdit={editingProject}
-                onCancelEdit={() => setEditingProject(null)} 
+                onCancelEdit={() => setEditingProject(null)}
               />
 
               <section className="portfolio-section">
@@ -121,11 +120,21 @@ function App() {
           </PrivateRoute>
         } />
 
-          {/* ROTA 3: O Dashboard do Cliente */}
-        <Route path="/meu-projeto" element={<ClientDashboard />} />
+        {/* ROTA PROTEGIDA DO CLIENTE: O Dashboard VIP */}
+        <Route path="/meu-projeto" element={
+          <ClientPrivateRoute>
+            <ClientDashboard />
+          </ClientPrivateRoute>
+        } />
 
-        {/* ROTA PADRÃO: Se alguém acessar "/", joga direto para o Home */}
+        {/* ROTA PÚBLICA: Landing Page */}
         <Route path="/" element={<Home />} />
+
+        {/* ROTA PÚBLICA: Login do Admin */}
+        <Route path="/login" element={<Login />} />
+
+        {/* ROTA PÚBLICA: Login do Cliente */}
+        <Route path="/area-cliente" element={<ClientLogin />} />
 
       </Routes>
     </BrowserRouter>

@@ -28,14 +28,19 @@ public class Project {
     @Enumerated(EnumType.STRING)
     private ProjectCategory category;
 
-    private String clientName;
     private LocalDate completionDate;
 
     @Column(name = "cover_image_url")
     private String coverImageUrl;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProjectImage> images = new ArrayList<>();
+    @ElementCollection
+    @CollectionTable(name = "tb_project_images", joinColumns = @JoinColumn(name = "project_id"))
+    @Column(name = "image_url")
+    private List<String> imageUrls = new java.util.ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "client_id")
+    private Client client;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

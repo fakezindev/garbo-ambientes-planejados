@@ -4,8 +4,7 @@ import com.fakezindev.architecturestudio.dto.ProjectRequestDTO;
 import com.fakezindev.architecturestudio.dto.ProjectResponseDTO;
 import com.fakezindev.architecturestudio.exception.ResourceNotFoundException;
 import com.fakezindev.architecturestudio.model.entities.Project;
-import com.fakezindev.architecturestudio.model.entities.ProjectImage;
-import com.fakezindev.architecturestudio.repository.ProjectImageRepository;
+import com.fakezindev.architecturestudio.repository.ClientRepository;
 import com.fakezindev.architecturestudio.repository.ProjectRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -15,16 +14,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
-    private final ProjectImageRepository projectImageRepository;
     private final FileStorageService fileStorageService;
+    private final ClientRepository clientRepository;
 
     public List<ProjectResponseDTO> findAll() {
         return projectRepository.findAll(Sort.by(Sort.Direction.DESC, "id")).stream()
@@ -38,116 +37,133 @@ public class ProjectService {
                 .orElseThrow(() -> new ResourceNotFoundException("Projeto não encontrado com ID:" + id));
     }
 
-    @Transactional // Importante: Garante que tudo seja feito ou nada feito
+    @Transactional
     public ProjectResponseDTO create(ProjectRequestDTO dto, List<MultipartFile> images) {
-        // 1. Cria a entidade e preenche os dados básicos
         Project project = new Project();
-        project.setTitle(dto.getTitle());
-        project.setDescription(dto.getDescription());
-        project.setCategory(dto.getCategory());
-        project.setClientName(dto.getClientName());
-        project.setCompletionDate(dto.getCompletionDate());
 
-        // 2. Salva a primeira vez para gerar o ID
+        // Faz TODA a conversão de textos e cliente em uma linha só!
+        convertDtoToEntity(dto, project);
+
         project = projectRepository.save(project);
 
-        // 3. Processa a imagem (Se tiver)
         if (images != null && !images.isEmpty()) {
-            MultipartFile file = images.get(0); // Pega a primeira imagem
-            try {
-                // Sobe pro MinIO
-                String imageUrl = fileStorageService.upload(file);
+            List<String> uploadedUrls = new ArrayList<>();
 
-                // Atualiza o projeto com a URL recebida
-                project.setCoverImageUrl(imageUrl);
+            for (MultipartFile file : images) {
+                try {
+                    String imageUrl = fileStorageService.upload(file);
+                    uploadedUrls.add(imageUrl);
+                } catch (Exception e) {
+                    System.err.println("Erro ao salvar imagem: " + e.getMessage());
+                }
+            }
 
-                // Salva de novo para persistir a URL no banco
+            if (!uploadedUrls.isEmpty()) {
+                project.setCoverImageUrl(uploadedUrls.get(0));
+
+                // Inicializa a lista caso esteja nula e adiciona
+                if (project.getImageUrls() == null) {
+                    project.setImageUrls(new ArrayList<>());
+                }
+                project.getImageUrls().addAll(uploadedUrls);
+
                 projectRepository.save(project);
-                // ---------------------------
-
-            } catch (Exception e) {
-                // Se der erro no upload, a gente avisa mas não trava tudo (opcional)
-                System.err.println("Erro ao salvar imagem: " + e.getMessage());
             }
         }
 
         return new ProjectResponseDTO(project);
     }
 
+    @Transactional
+    public ProjectResponseDTO update(Long id, ProjectRequestDTO dto, List<MultipartFile> images) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Projeto não encontrado"));
+
+        convertDtoToEntity(dto, project);
+
+        if (images != null && !images.isEmpty()) {
+
+            // 1. Apaga imagens antigas
+            if (project.getImageUrls() != null && !project.getImageUrls().isEmpty()) {
+                for (String oldUrl : project.getImageUrls()) {
+                    try {
+                        String oldFilename = URLDecoder.decode(oldUrl.substring(oldUrl.lastIndexOf("/") + 1), StandardCharsets.UTF_8);
+                        fileStorageService.delete(oldFilename);
+                    } catch (Exception e) {
+                        System.err.println("Erro ao deletar imagem antiga: " + e.getMessage());
+                    }
+                }
+            } else if (project.getCoverImageUrl() != null) {
+                try {
+                    String oldFilename = URLDecoder.decode(project.getCoverImageUrl().substring(project.getCoverImageUrl().lastIndexOf("/") + 1), StandardCharsets.UTF_8);
+                    fileStorageService.delete(oldFilename);
+                } catch (Exception e) {}
+            }
+
+            // 2. Faz Upload do novo carrossel
+            List<String> uploadedUrls = new ArrayList<>();
+            for (MultipartFile file : images) {
+                try {
+                    String imageUrl = fileStorageService.upload(file);
+                    uploadedUrls.add(imageUrl);
+                } catch (Exception e) {
+                    System.err.println("Erro ao salvar nova imagem: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+
+            // 3. Atualiza o banco do jeito que o Hibernate gosta!
+            if (!uploadedUrls.isEmpty()) {
+                project.setCoverImageUrl(uploadedUrls.get(0));
+
+                // 👇 A MÁGICA ESTÁ AQUI 👇
+                if (project.getImageUrls() == null) {
+                    project.setImageUrls(new ArrayList<>());
+                }
+                project.getImageUrls().clear(); // Limpa a lista monitorada
+                project.getImageUrls().addAll(uploadedUrls); // Adiciona os itens novos nela
+            }
+        }
+
+        project = projectRepository.save(project);
+        return new ProjectResponseDTO(project);
+    }
+
+    @Transactional
     public void delete(Long id) {
         Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Projeto não encontrado"));
+                .orElseThrow(() -> new RuntimeException("Projeto não encontrado"));
 
-        // --- LOGS DEDO-DURO ---
-        System.out.println(">>> DEBUG: Entrou no delete do Service com ID: " + id);
-        System.out.println(">>> DEBUG: URL da imagem encontrada: " + project.getCoverImageUrl());
-        // ----------------------
-
-        if (project.getCoverImageUrl() != null) {
-            try {
-                String url = project.getCoverImageUrl();
-                String filename = url.substring(url.lastIndexOf("/") + 1);
-                String decodedFilename = URLDecoder.decode(filename, StandardCharsets.UTF_8.toString());
-
-                System.out.println(">>> DEBUG: Tentando deletar do S3 o arquivo: " + decodedFilename);
-                fileStorageService.delete(decodedFilename);
-            } catch (Exception e) {
-                System.err.println(">>> DEBUG: Erro ao deletar imagem: " + e.getMessage());
+        if (project.getImageUrls() != null && !project.getImageUrls().isEmpty()) {
+            for (String url : project.getImageUrls()) {
+                try {
+                    String filename = URLDecoder.decode(url.substring(url.lastIndexOf("/") + 1), StandardCharsets.UTF_8);
+                    fileStorageService.delete(filename);
+                } catch (Exception e) {
+                    System.err.println("Erro ao deletar do MinIO: " + e.getMessage());
+                }
             }
-        } else {
-            System.out.println(">>> DEBUG: Nenhuma imagem para deletar (URL é null).");
         }
 
         projectRepository.delete(project);
     }
 
-    @Transactional
-    public ProjectResponseDTO update(Long id, ProjectRequestDTO dto, List<MultipartFile> images) {
+    private void convertDtoToEntity(ProjectRequestDTO dto, Project project) {
+        project.setTitle(dto.title());
+        project.setDescription(dto.description());
+        project.setCategory(dto.category());
+        project.setCompletionDate(dto.completionDate());
 
-        // 1. Busca o projeto existente
-        Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Projeto não encontrado"));
-
-        // 2. Atualiza os dados de texto
-        project.setTitle(dto.getTitle());
-        project.setDescription(dto.getDescription());
-        project.setCategory(dto.getCategory());
-        project.setClientName(dto.getClientName());
-        project.setCompletionDate(dto.getCompletionDate());
-
-        // 3. Lógica da Imagem (A parte inteligente)
-        if (images != null && !images.isEmpty()) {
-            try {
-                // Apaga a imagem antiga se tiver
-                if (project.getCoverImageUrl() != null) {
-                    String oldUrl = project.getCoverImageUrl();
-                    String oldFileName = URLDecoder.decode(oldUrl.substring(oldUrl.lastIndexOf("/") + 1));
-                    fileStorageService.delete(oldFileName);
-                }
-
-                // Sobe a nova foto
-                String newImageUrl = fileStorageService.upload(images.get(0));
-
-                // Atualiza o link no projeto
-                project.setCoverImageUrl(newImageUrl);
-            }
-            catch (Exception e) {
-                System.err.println("Erro ao atualizar imagem: " + e.getMessage());
-            }
+        if (dto.clientId() != null) {
+            var client = clientRepository.findById(dto.clientId())
+                    .orElseThrow(() -> new RuntimeException("Cliente não encontrado!"));
+            project.setClient(client);
+        } else {
+            project.setClient(null);
         }
-
-        // Salva e retorna
-        project = projectRepository.save(project);
-        return new ProjectResponseDTO(project);
     }
 
-    private ProjectResponseDTO convertToDTO(Project project) {
-        ProjectResponseDTO dto = new ProjectResponseDTO();
-        dto.setId(project.getId());
-        dto.setTitle(project.getTitle());
-        dto.setDescription(project.getDescription());
-        dto.setCategory(project.getCategory());
-
-        return dto;
+    public List<Project> findByClientEmail(String email) {
+        return projectRepository.findByClient_Email(email);
     }
 }

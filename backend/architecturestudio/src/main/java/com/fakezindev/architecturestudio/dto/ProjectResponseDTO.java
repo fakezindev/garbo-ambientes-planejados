@@ -2,31 +2,32 @@ package com.fakezindev.architecturestudio.dto;
 
 import com.fakezindev.architecturestudio.model.entities.Project;
 import com.fakezindev.architecturestudio.model.enums.ProjectCategory;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
 
-@Data
-@NoArgsConstructor // Cria o construtor vazio (obrigatório para o JSON funcionar)
-public class ProjectResponseDTO {
-    private Long id;
-    private String title;
-    private String description;
-    private ProjectCategory category;
-    private String clientName;
-    private LocalDate completionDate;
-    private String coverImageUrl;
-    private List<String> allImageUrl;
-
+public record ProjectResponseDTO(
+        Long id,
+        String title,
+        String description,
+        ProjectCategory category,
+        String clientName,
+        Long clientId,
+        LocalDate completionDate,
+        String coverImageUrl,
+        List<String> imageUrls
+) {
     public ProjectResponseDTO(Project project) {
-        this.id = project.getId();
-        this.title = project.getTitle();
-        this.description = project.getDescription();
-        this.category = project.getCategory();
-        this.clientName = project.getClientName();
-        this.completionDate = project.getCompletionDate();
-        this.coverImageUrl = project.getCoverImageUrl();
+        this(
+                project.getId(),
+                project.getTitle(),
+                project.getDescription(),
+                project.getCategory(),
+                project.getClient() != null ? project.getClient().getName() : null,
+                project.getClient() != null ? project.getClient().getId() : null,
+                project.getCompletionDate(),
+                project.getCoverImageUrl(),
+                project.getImageUrls()
+        );
     }
 }

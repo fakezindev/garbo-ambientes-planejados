@@ -25,7 +25,6 @@ const Home = () => {
         setLeadStatus('Enviando...');
 
         try {
-            // Ajuste a rota '/leads' se no seu Java estiver diferente
             await api.post('/leads', {
                 name: leadName,
                 email: leadEmail,
@@ -51,8 +50,7 @@ const Home = () => {
                     <a href="#sobre">Sobre Nós</a>
                     <a href="#portfolio">Projetos</a>
                     <a href="#contato">Orçamento</a>
-                    {/* Esse botão vai levar o cliente para a futura área restrita */}
-                    <Link to="/login" className="btn-area-cliente">Área do Cliente</Link>
+                    <Link to="/area-cliente" className="btn-area-cliente">Área do Cliente</Link>
                 </nav>
             </header>
 

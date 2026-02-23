@@ -1,10 +1,10 @@
 package com.fakezindev.architecturestudio.service;
 
-import com.fakezindev.architecturestudio.model.entities.User;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -20,7 +20,7 @@ public class TokenService {
     @Value("${api.security.token.secret}")
     private String secret;
 
-    public String generateToken(User user) {
+    public String generateToken(UserDetails user) {
         try {
             // Define o algoritmo de criptografia (HMAC256)
             SecretKey key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
