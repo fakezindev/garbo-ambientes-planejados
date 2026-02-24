@@ -7,58 +7,48 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
     const [category, setCategory] = useState('PLANEJADOS');
     const [completionDate, setCompletionDate] = useState('');
 
-    // 👇 NOVOS ESTADOS PARA O CLIENTE 👇
     const [clients, setClients] = useState([]);
-    const [clientId, setClientId] = useState(''); // Guarda o ID do cliente selecionado
+    const [clientId, setClientId] = useState(''); 
 
-    const [images, setImages] = useState([]); 
+    const [images, setImages] = useState([]);
     const [previewUrls, setPreviewUrls] = useState([]);
     const [loading, setLoading] = useState(false);
 
     const fileInputRef = useRef(null);
 
-    // EFEITO 1: Busca a lista de clientes assim que o componente nasce
     useEffect(() => {
+        const token = localStorage.getItem('token');
         api.get('/clients')
             .then(response => setClients(response.data))
             .catch(err => console.error("Erro ao carregar clientes:", err));
     }, []);
 
-    // EFEITO 2: Preenche os dados quando clica em Editar
     useEffect(() => {
         if (projectToEdit) {
             setTitle(projectToEdit.title);
             setDescription(projectToEdit.description);
             setCategory(projectToEdit.category);
             setCompletionDate(projectToEdit.completionDate || '');
-            
-            // Tenta puxar o ID do cliente para deixar selecionado
-            setClientId(projectToEdit.clientId || ''); 
-            
-            // 👇 LÓGICA INTELIGENTE PARA AS FOTOS 👇
+            setClientId(projectToEdit.clientId || '');
+
             let fotosSalvas = [];
             if (projectToEdit.imageUrls && projectToEdit.imageUrls.length > 0) {
-                // Projetos novos com várias fotos
                 fotosSalvas = projectToEdit.imageUrls;
             } else if (projectToEdit.coverImageUrl) {
-                // Projetos antigos com apenas uma foto
                 fotosSalvas = [projectToEdit.coverImageUrl];
             }
-            
-            setPreviewUrls(fotosSalvas); // Coloca as fotos na vitrine
-            setImages([]); // Deixa os arquivos vazios, pois não vamos reenviar o que já tá lá
-            
+
+            setPreviewUrls(fotosSalvas); 
+            setImages([]); 
         } else {
             clearForm();
         }
     }, [projectToEdit]);
 
     const handleImageChange = (e) => {
-        // Pega todos os arquivos selecionados
         const files = Array.from(e.target.files);
         if (files.length > 0) {
             setImages(files);
-            // Cria um link temporário para cada foto selecionada
             const urls = files.map(file => URL.createObjectURL(file));
             setPreviewUrls(urls);
         }
@@ -69,75 +59,67 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
         setDescription('');
         setCategory('PLANEJADOS');
         setCompletionDate('');
-        setClientId(''); // Limpa o cliente selecionado
+        setClientId(''); 
         setImages([]);
         setPreviewUrls([]);
         if (fileInputRef.current) fileInputRef.current.value = "";
     };
 
     const handleSubmit = async (e) => {
-        try {
-            // 👀 OLHOS DO DETETIVE NO REACT:
-            console.log(">>> Enviando projeto para o Java...");
-            console.log(">>> Quantidade de fotos no pacote:", images.length);
-
-            if (projectToEdit) {
-                // 👇 MUDAMOS DE api.put PARA api.post AQUI 👇
-                await api.post(`/projects/${projectToEdit.id}`, formData);
-                alert('Projeto atualizado com sucesso!');
-            } else {
-                await api.post('/projects', formData);
-                alert('Projeto criado com sucesso!');
-            }
-            clearForm();
-            if (onUploadSuccess) onUploadSuccess();
-            if (onCancelEdit) onCancelEdit();
-        } catch (error) {
-            console.error('Erro ao salvar:', error);
-            alert('Erro ao salvar projeto.');
-        } finally {
-            setLoading(false);
-        }
-        
         e.preventDefault();
         setLoading(true);
 
         const formData = new FormData();
 
-        // 👇 Agora enviamos o clientId no pacote JSON 👇
-        const projectData = JSON.stringify({
+        const projectData = {
             title,
             description,
             category,
             completionDate,
-            clientId: clientId ? parseInt(clientId) : null // Converte pra número ou manda null
-        });
+            clientId: clientId
+        };
+        
+        // Agora envia apenas como String JSON simples (o Java se vira para ler)
+        formData.append('data', JSON.stringify(projectData));
 
-        const jsonBlob = new Blob([projectData], { type: 'application/json' });
-        formData.append('data', jsonBlob);
-
-        if (images.length > 0) {
-            images.forEach(img => {
-                formData.append('images', img);
-            });
+        if (images && images.length > 0) {
+            for (let i = 0; i < images.length; i++) {
+                formData.append('images', images[i]);
+            }
         }
 
         try {
-            if (projectToEdit) {
-                await api.put(`/projects/${projectToEdit.id}`, formData);
-                alert('Projeto atualizado!');
-            } else {
-                await api.post('/projects', formData);
-                alert('Projeto criado e vinculado ao cliente!');
-            }
+            console.log(">>> Enviando projeto para o Java...");
+            console.log(">>> Quantidade de fotos no pacote:", images.length);
 
+            const token = localStorage.getItem('token');
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            };
+
+            if (projectToEdit) {
+                // Atualiza projeto existente
+                await api.put(`/projects/${projectToEdit.id}`, formData, config);
+                alert('Projeto atualizado com sucesso!');
+            } else {
+                // Cria projeto novo
+                await api.post('/projects', formData, config);
+                alert('Projeto criado com sucesso!');
+            }
+            
             clearForm();
             if (onUploadSuccess) onUploadSuccess();
             if (onCancelEdit) onCancelEdit();
-
+            
         } catch (error) {
-            console.error('Erro ao salvar:', error);
-            alert('Erro ao salvar projeto.');
+            console.error('>>> ERRO DETALHADO AO SALVAR:', error);
+            if (error.code === 'ECONNABORTED') {
+                alert('O upload está demorando um pouco, mas está sendo processado no fundo!');
+            } else {
+                alert('Erro ao salvar projeto. Verifique o console.');
+            }
         } finally {
             setLoading(false);
         }
@@ -172,7 +154,6 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                    {/* 👇 O NOVO CAMPO: DROPDOWN DE CLIENTES 👇 */}
                     <select
                         value={clientId}
                         onChange={e => setClientId(e.target.value)}
@@ -201,7 +182,6 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
 
                 <div className={`file-upload ${previewUrls.length > 0 ? 'has-image' : ''}`}>
                     <label>
-                        {/* Se tiver miniaturas, mostra todas lado a lado */}
                         {previewUrls.length > 0 && (
                             <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '10px' }}>
                                 {previewUrls.map((url, index) => (
@@ -209,18 +189,18 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
                                 ))}
                             </div>
                         )}
-                        
-                        <span style={{display: 'block', marginTop: previewUrls.length > 0 ? '10px' : '0'}}>
+
+                        <span style={{ display: 'block', marginTop: previewUrls.length > 0 ? '10px' : '0' }}>
                             {images.length > 0 ? `${images.length} arquivo(s) selecionado(s)` : "📸 Clique para adicionar fotos do projeto"}
                         </span>
-                        
-                        <input 
-                            type="file" 
-                            accept="image/*" 
-                            multiple /* A MÁGICA QUE PERMITE ESCOLHER VÁRIAS FOTOS */
-                            ref={fileInputRef} 
-                            onChange={handleImageChange} 
-                            style={{ display: 'none' }} 
+
+                        <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            ref={fileInputRef}
+                            onChange={handleImageChange}
+                            style={{ display: 'none' }}
                         />
                     </label>
                 </div>

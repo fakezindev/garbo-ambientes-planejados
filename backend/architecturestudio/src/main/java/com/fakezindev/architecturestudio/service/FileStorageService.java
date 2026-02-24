@@ -1,9 +1,9 @@
 package com.fakezindev.architecturestudio.service;
 
-import io.awspring.cloud.s3.S3Template;
 import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
+import io.minio.RemoveObjectArgs;
 import io.minio.PutObjectArgs;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,15 +14,13 @@ import java.util.UUID;
 @Service
 public class FileStorageService {
 
-    private final S3Template s3Template;
     private final String bucketName;
     private final MinioClient minioClient;
 
     // 👇 CORREÇÃO 1: Adicionamos o MinioClient aqui nos parênteses e no this!
-    public FileStorageService(S3Template s3Template,
-                              MinioClient minioClient,
-                              @Value("${application.bucket.name}") String bucketName) {
-        this.s3Template = s3Template;
+    public FileStorageService(MinioClient minioClient,
+                              @Value("${application.bucket.name}")
+                              String bucketName) {
         this.minioClient = minioClient;
         this.bucketName = bucketName;
     }
@@ -66,11 +64,18 @@ public class FileStorageService {
 
     public void delete(String objectName) {
         try {
-            System.out.println("S3: Tentando apagar objeto no bucket [" + bucketName + "]: " + objectName);
-            s3Template.deleteObject(bucketName, objectName);
-            System.out.println("S3: Comando de delete enviado com sucesso!");
+            System.out.println("MinIO: Tentando apagar objeto no bucket [" + bucketName + "]: " + objectName);
+
+            minioClient.removeObject(
+                    RemoveObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(objectName)
+                            .build()
+            );
+
+            System.out.println("MinIO: Objeto apagado com sucesso!");
         } catch (Exception e) {
-            System.err.println("S3: ERRO CRÍTICO ao deletar: " + e.getMessage());
+            System.err.println("MinIO: ERRO ao deletar objeto antigo: " + e.getMessage());
             e.printStackTrace();
         }
     }
