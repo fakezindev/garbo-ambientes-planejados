@@ -1,4 +1,4 @@
 package com.fakezindev.architecturestudio.dto;
 
-public record ClientLoginDTO() {
+public record ClientLoginDTO(String email, String password) {
 }

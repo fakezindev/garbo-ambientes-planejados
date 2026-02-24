@@ -38,6 +38,8 @@ public class SecurityConfigurations {
                         .requestMatchers("/error").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/client/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/client/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/projects").permitAll() // Clientes podem ver o portfólio
                         .requestMatchers(HttpMethod.GET, "/projects/*").permitAll()
 
