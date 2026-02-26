@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../../services/api.js'; // Opcional: seu arquivo de estilos
+import api from '../../services/api.js'; 
+import './ClientLogin.css'; // Crie este arquivo para estilizar a página de login do cliente
+import { Link } from 'react-router-dom';
 
 function Login() {
     const [email, setEmail] = useState('');
@@ -31,7 +33,7 @@ function Login() {
             }
 
             // Redireciona para a vitrine/área do cliente
-            navigate('/meus-projetos'); 
+            navigate('/meu-projeto'); 
             
         } catch (err) {
             console.error(err);
@@ -72,6 +74,10 @@ function Login() {
                         {loading ? 'Entrando...' : 'Acessar Meus Projetos'}
                     </button>
                 </form>
+
+                <p style={{ marginTop: '15px', textAlign: 'center' }}>    
+                    Não possui uma conta? <Link to="/cadastro">Faça seu cadastro</Link>
+                </p>
             </div>
         </div>
     );

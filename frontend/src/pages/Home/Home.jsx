@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api'; // Ajuste o caminho se necessário
-import './Home.css'; // Vamos criar esse CSS no próximo passo!
+import './Home.css';
+
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
 const Home = () => {
     const [projects, setProjects] = useState([]);
@@ -31,7 +37,7 @@ const Home = () => {
                 phone: leadPhone,
                 environment: leadEnvironment
             });
-            
+
             setLeadStatus('Sucesso! Em breve nossa equipe entrará em contato.');
             // Limpa o formulário
             setLeadName(''); setLeadEmail(''); setLeadPhone(''); setLeadEnvironment('');
@@ -69,7 +75,7 @@ const Home = () => {
                     <h2>Quem Somos</h2>
                     <p>A excelência por trás de cada detalhe.</p>
                 </div>
-                
+
                 <div className="mvv-grid">
                     <div className="mvv-card">
                         <div className="icon">🎯</div>
@@ -97,22 +103,45 @@ const Home = () => {
                 </div>
 
                 <div className="projects-grid public-grid">
-                    {projects.map((project) => (
-                        <div key={project.id} className="project-card">
-                            <div className="card-image-container">
-                                {project.coverImageUrl ? (
-                                    <img src={project.coverImageUrl} alt={project.title} className="card-image" />
-                                ) : (
-                                    <div className="no-image">Sem Imagem</div>
-                                )}
+                    {projects && projects.length > 0 ? (
+                        projects.map((project) => (
+                            <div key={project.id} className="project-card">
+                                <div className="card-image-container">
+                                    {project.imageUrls && project.imageUrls.length > 0 ? (
+                                        <Swiper
+                                            modules={[Navigation, Pagination]}
+                                            spaceBetween={0}
+                                            slidesPerView={1}
+                                            navigation
+                                            pagination={{ clickable: true }}
+                                            style={{ width: '100%', height: '100%' }}
+                                        >
+                                            {project.imageUrls.map((url, imgIndex) => (
+                                                <SwiperSlide key={imgIndex}>
+                                                    <img
+                                                        src={url}
+                                                        alt={`${project.title} - ${imgIndex + 1}`}
+                                                        className="card-image"
+                                                    />
+                                                </SwiperSlide>
+                                            ))}
+                                        </Swiper>
+                                    ) : project.coverImageUrl ? (
+                                        <img src={project.coverImageUrl} alt={project.title} className="card-image" />
+                                    ) : (
+                                        <div className="no-image">Sem Imagem</div>
+                                    )}
+                                </div>
+                                <div className="card-content">
+                                    <span className="badge">{project.category}</span>
+                                    <h3 className="card-title">{project.title}</h3>
+                                    <p className="card-desc">{project.description}</p>
+                                </div>
                             </div>
-                            <div className="card-content">
-                                <span className="badge">{project.category}</span>
-                                <h3 className="card-title">{project.title}</h3>
-                                <p className="card-desc">{project.description}</p>
-                            </div>
-                        </div>
-                    ))}
+                        ))
+                    ) : (
+                        <p style={{ textAlign: 'center', color: 'red' }}>Nenhum projeto encontrado.</p>
+                    )}
                 </div>
             </section>
 
@@ -121,31 +150,31 @@ const Home = () => {
                 <div className="contact-box">
                     <h2>Comece o Seu Projeto</h2>
                     <p>Preencha os dados abaixo e nossa equipe entrará em contato para entender a sua necessidade.</p>
-                    
+
                     {/* Mais para frente, vamos conectar isso ao seu POST /leads no Java */}
                     <form className="lead-form" onSubmit={handleSubmitLead}>
-                        <input 
-                            type="text" 
-                            placeholder="Seu Nome Completo" 
+                        <input
+                            type="text"
+                            placeholder="Seu Nome Completo"
                             value={leadName}
                             onChange={(e) => setLeadName(e.target.value)}
-                            required 
+                            required
                         />
-                        <input 
-                            type="email" 
-                            placeholder="Seu E-mail" 
+                        <input
+                            type="email"
+                            placeholder="Seu E-mail"
                             value={leadEmail}
                             onChange={(e) => setLeadEmail(e.target.value)}
-                            required 
+                            required
                         />
-                        <input 
-                            type="tel" 
-                            placeholder="Seu WhatsApp" 
+                        <input
+                            type="tel"
+                            placeholder="Seu WhatsApp"
                             value={leadPhone}
                             onChange={(e) => setLeadPhone(e.target.value)}
-                            required 
+                            required
                         />
-                        <select 
+                        <select
                             value={leadEnvironment}
                             onChange={(e) => setLeadEnvironment(e.target.value)}
                             required

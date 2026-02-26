@@ -18,9 +18,22 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        api.get('/clients')
-            .then(response => setClients(response.data))
-            .catch(err => console.error("Erro ao carregar clientes:", err));
+        api.get('/clients', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+            .then(response => {
+                if (Array.isArray(response.data)) {
+                    setClients(response.data);
+                } else {
+                    setClients([]); // Se vier algo estranho, deixa a lista vazia
+                }
+            })
+            .catch(err => {
+                console.error("Erro ao carregar clientes:", err);
+                setClients([]);
+            });
     }, []);
 
     useEffect(() => {
@@ -160,11 +173,15 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
                         className="input-field"
                     >
                         <option value="">Selecione um Cliente (Opcional)</option>
-                        {clients.map(client => (
+                        {Array.isArray(clients) && clients.length > 0 ? (
+                        clients.map(client => (
                             <option key={client.id} value={client.id}>
                                 {client.name} - {client.email}
                             </option>
-                        ))}
+                        ))
+                        ) : (
+                            <option value="" disabled>Nenhum cliente disponível</option>
+                        )}
                     </select>
 
                     <input

@@ -191,7 +191,45 @@
 }
 
 /* =========================================
-   5. CONTATO E LEADS
+   5. AJUSTES DO CARROSSEL (SWIPER) NOS CARDS
+   ========================================= */
+
+/* 1. Reduz o tamanho das setas e define a cor padrão */
+.card-image-container {
+  --swiper-navigation-size: 18px; /* Tamanho original é 44px (gigante) */
+  --swiper-theme-color: #ffffff;  /* Deixa setas e bolinhas brancas */
+}
+
+/* 2. Cria um fundo transparente para as setas não sumirem em fotos claras */
+.card-image-container .swiper-button-next,
+.card-image-container .swiper-button-prev {
+  background-color: rgba(0, 0, 0, 0.3); /* Fundo pretinho transparente */
+  padding: 18px 12px;
+  border-radius: 8px; /* Borda arredondada elegante */
+  transition: background-color 0.3s ease;
+}
+
+/* 3. Escurece o fundo quando o mouse passa por cima (Efeito Hover) */
+.card-image-container .swiper-button-next:hover,
+.card-image-container .swiper-button-prev:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* 4. Deixa as bolinhas (pagination) mais discretas */
+.card-image-container .swiper-pagination-bullet {
+  background: #ffffff;
+  opacity: 0.5;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.5); /* Sombra para dar leitura */
+}
+
+/* 5. Destaca a bolinha da foto atual */
+.card-image-container .swiper-pagination-bullet-active {
+  opacity: 1;
+  transform: scale(1.2); /* Fica um pouquinho maior */
+}
+
+/* =========================================
+   6. CONTATO E LEADS
    ========================================= */
 .contact-section {
     background-color: var(--dark);
@@ -239,7 +277,7 @@
 }
 
 /* =========================================
-   6. FOOTER
+   7. FOOTER
    ========================================= */
 .public-footer {
     text-align: center;

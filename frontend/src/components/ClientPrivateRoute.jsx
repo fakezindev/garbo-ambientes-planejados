@@ -6,7 +6,7 @@ function ClientPrivateRoute({ children }) {
 
     // Se não tiver o token de cliente, chuta de volta para a tela de login do cliente
     if (!token) {
-        return <Navigate to="/login" replace />;
+        return <Navigate to="/area-cliente" replace />;
     }
 
     // Se tiver o token, libera a passagem para ver o componente
