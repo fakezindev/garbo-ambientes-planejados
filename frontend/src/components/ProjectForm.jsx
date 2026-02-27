@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { toast } from 'react-toastify';
 import api from '../services/api';
 
 function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
@@ -8,7 +9,7 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
     const [completionDate, setCompletionDate] = useState('');
 
     const [clients, setClients] = useState([]);
-    const [clientId, setClientId] = useState(''); 
+    const [clientId, setClientId] = useState('');
 
     const [images, setImages] = useState([]);
     const [previewUrls, setPreviewUrls] = useState([]);
@@ -51,8 +52,8 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
                 fotosSalvas = [projectToEdit.coverImageUrl];
             }
 
-            setPreviewUrls(fotosSalvas); 
-            setImages([]); 
+            setPreviewUrls(fotosSalvas);
+            setImages([]);
         } else {
             clearForm();
         }
@@ -72,7 +73,7 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
         setDescription('');
         setCategory('PLANEJADOS');
         setCompletionDate('');
-        setClientId(''); 
+        setClientId('');
         setImages([]);
         setPreviewUrls([]);
         if (fileInputRef.current) fileInputRef.current.value = "";
@@ -91,7 +92,7 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
             completionDate,
             clientId: clientId
         };
-        
+
         // Agora envia apenas como String JSON simples (o Java se vira para ler)
         formData.append('data', JSON.stringify(projectData));
 
@@ -115,23 +116,24 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
             if (projectToEdit) {
                 // Atualiza projeto existente
                 await api.put(`/projects/${projectToEdit.id}`, formData, config);
-                alert('Projeto atualizado com sucesso!');
+                toast.success("Projeto atualizado com sucesso! 🏗️");
             } else {
                 // Cria projeto novo
                 await api.post('/projects', formData, config);
-                alert('Projeto criado com sucesso!');
+                toast.success("Novo projeto publicado com sucesso! 🎉");
             }
-            
+
             clearForm();
             if (onUploadSuccess) onUploadSuccess();
             if (onCancelEdit) onCancelEdit();
-            
+
         } catch (error) {
             console.error('>>> ERRO DETALHADO AO SALVAR:', error);
             if (error.code === 'ECONNABORTED') {
                 alert('O upload está demorando um pouco, mas está sendo processado no fundo!');
             } else {
-                alert('Erro ao salvar projeto. Verifique o console.');
+                console.error("Erro ao salvar projeto:", error);
+                toast.error("Erro ao salvar o projeto. Verifique os dados e imagens. 🚨");
             }
         } finally {
             setLoading(false);
@@ -174,11 +176,11 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
                     >
                         <option value="">Selecione um Cliente (Opcional)</option>
                         {Array.isArray(clients) && clients.length > 0 ? (
-                        clients.map(client => (
-                            <option key={client.id} value={client.id}>
-                                {client.name} - {client.email}
-                            </option>
-                        ))
+                            clients.map(client => (
+                                <option key={client.id} value={client.id}>
+                                    {client.name} - {client.email}
+                                </option>
+                            ))
                         ) : (
                             <option value="" disabled>Nenhum cliente disponível</option>
                         )}

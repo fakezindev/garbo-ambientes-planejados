@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
 import api from "../../services/api"; // Ajuste o caminho se a sua pasta for diferente
 import ProjectForm from "../../components/ProjectForm"; // Ajuste o caminho se necessário
 import "./AdminDashboard.css"; // Vamos criar um CSS específico para o dashboard do admin
@@ -18,6 +19,8 @@ const AdminDashboard = () => {
   const [showClientModal, setShowClientModal] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
   const [clientForm, setClientForm] = useState({ name: '', email: '', phone: '', password: '' });
+  const [transactions, setTransactions] = useState([]); // 👈 Guarda os lançamentos
+  const [transactionForm, setTransactionForm] = useState({ description: '', amount: '', type: 'RECEITA', date: '' });
   const [error, setError] = useState(null);
   const [editingProject, setEditingProject] = useState(null);
   const navigate = useNavigate();
@@ -67,6 +70,55 @@ const AdminDashboard = () => {
       });
   };
 
+  const fetchTransactions = () => {
+    const token = localStorage.getItem("token") || localStorage.getItem("garbo_token");
+    api.get('/transactions', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then((response) => setTransactions(response.data))
+      .catch(err => console.error("Erro ao buscar transações:", err));
+  };
+
+  const handleSaveTransaction = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem("token") || localStorage.getItem("garbo_token");
+    try {
+      await api.post('/transactions', transactionForm, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success("Lançamento adicionado com sucesso! 💰");
+      setTransactionForm({ description: '', amount: '', type: 'RECEITA', date: '' }); // Limpa o formulário
+      fetchTransactions(); // Atualiza a tabela e os cards
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao adicionar o lançamento. 🚨");
+    }
+  };
+
+  // Excluir lançamento
+  const handleDeleteTransaction = async (id) => {
+    if (window.confirm("Tem certeza que deseja excluir este lançamento?")) {
+      const token = localStorage.getItem("token") || localStorage.getItem("garbo_token");
+      try {
+        await api.delete(`/transactions/${id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        toast.success("Lançamento excluído! 🗑️");
+        fetchTransactions();
+      } catch (err) {
+        toast.error("Erro ao excluir. 🚨");
+      }
+    }
+  };
+
+  const totalReceitas = transactions.filter(t => t.type === 'RECEITA').reduce((acc, curr) => acc + Number(curr.amount), 0);
+  const totalDespesas = transactions.filter(t => t.type === 'DESPESA').reduce((acc, curr) => acc + Number(curr.amount), 0);
+  const saldoAtual = totalReceitas - totalDespesas;
+
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+  };
+
   const handleOpenClientModal = (client = null) => {
     if (client) {
       setEditingClient(client);
@@ -88,17 +140,16 @@ const AdminDashboard = () => {
       if (editingClient) {
         // Atualiza cliente existente
         await api.put(`/clients/${editingClient.id}`, clientForm, config);
-        alert("Cliente atualizado com sucesso!");
+        toast.success("Cliente atualizado com sucesso! 🎉");
       } else {
         // Cria novo cliente (ajuste a rota se o seu registro for em /auth/client/register)
         await api.post('/clients', clientForm, config);
-        alert("Cliente registado com sucesso!");
+        toast.success("Cliente registado com sucesso! 🎉");
       }
       setShowClientModal(false);
       fetchClients(); // Recarrega a tabela
     } catch (err) {
-      console.error("Erro ao salvar cliente:", err);
-      alert("Erro ao salvar cliente.");
+      toast.error("Erro ao guardar cliente. Verifique os dados. 🚨", err);
     }
   };
 
@@ -109,11 +160,11 @@ const AdminDashboard = () => {
         await api.delete(`/clients/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        alert("Cliente eliminado!");
+        toast.success("Cliente eliminado da base de dados! 🗑️");
+
         fetchClients(); // Recarrega a tabela
       } catch (err) {
-        console.error("Erro ao eliminar cliente:", err);
-        alert("Erro ao eliminar cliente. Verifique se ele não está vinculado a um projeto.");
+        toast.error("Erro ao eliminar cliente. Verifique se ele não está vinculado a um projeto.");
       }
     }
   };
@@ -128,10 +179,10 @@ const AdminDashboard = () => {
 
         // Remove o projeto da tela na hora, sem precisar recarregar a página!
         setProjects(projects.filter((project) => project.id !== id));
-        alert("Projeto excluído com sucesso!");
+        toast.success("Projeto excluído com sucesso! 🗑️");
       } catch (err) {
-        console.error(err);
-        alert("Erro ao excluir o projeto.");
+        console.error("Erro ao excluir projeto:", err);
+        toast.error("Erro ao excluir o projeto. Tente novamente. 🚨");
       }
     }
   };
@@ -155,6 +206,7 @@ const AdminDashboard = () => {
     fetchProjects();
     fetchLeads();
     fetchClients();
+    fetchTransactions();
   }, []);
 
 
@@ -206,6 +258,11 @@ const AdminDashboard = () => {
           onClick={() => setActiveTab("clientes")}
           style={{ padding: '10px 20px', cursor: 'pointer', background: activeTab === "clientes" ? '#fff' : 'transparent', color: activeTab === "clientes" ? '#000' : '#888', border: '1px solid #333', borderRadius: '4px', fontWeight: 'bold' }}>
           👥 Gestão de Clientes
+        </button>
+        <button
+          onClick={() => setActiveTab("financeiro")}
+          style={{ padding: '10px 20px', cursor: 'pointer', background: activeTab === "financeiro" ? '#fff' : 'transparent', color: activeTab === "financeiro" ? '#000' : '#888', border: '1px solid #333', borderRadius: '4px', fontWeight: 'bold' }}>
+          💰 Financeiro
         </button>
       </div>
 
@@ -362,7 +419,7 @@ const AdminDashboard = () => {
         </section>
       )}
 
-      {/* 🪟 MODAL DE CLIENTE */}
+      {/* 5.1 MODAL DE CLIENTE */}
       {showClientModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
           <div style={{ background: '#2c2c2c', padding: '2rem', borderRadius: '8px', width: '400px', maxWidth: '90%' }}>
@@ -400,6 +457,82 @@ const AdminDashboard = () => {
             </form>
           </div>
         </div>
+      )}
+
+      {/* 6. 💰 TELA DO FINANCEIRO */}
+      {activeTab === "financeiro" && (
+        <section className="finance-section" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+
+          {/* CARDS DE RESUMO (Visão de Dono) */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
+            <div style={{ background: '#1e1e1e', padding: '1.5rem', borderRadius: '8px', borderLeft: '5px solid #4CAF50' }}>
+              <p style={{ margin: 0, color: '#aaa', fontSize: '0.9rem' }}>Total de Entradas</p>
+              <h2 style={{ margin: '10px 0 0 0', color: '#4CAF50' }}>{formatCurrency(totalReceitas)}</h2>
+            </div>
+            <div style={{ background: '#1e1e1e', padding: '1.5rem', borderRadius: '8px', borderLeft: '5px solid #e74c3c' }}>
+              <p style={{ margin: 0, color: '#aaa', fontSize: '0.9rem' }}>Total de Saídas</p>
+              <h2 style={{ margin: '10px 0 0 0', color: '#e74c3c' }}>{formatCurrency(totalDespesas)}</h2>
+            </div>
+            <div style={{ background: '#1e1e1e', padding: '1.5rem', borderRadius: '8px', borderLeft: `5px solid ${saldoAtual >= 0 ? '#3498db' : '#e74c3c'}` }}>
+              <p style={{ margin: 0, color: '#aaa', fontSize: '0.9rem' }}>Saldo Atual</p>
+              <h2 style={{ margin: '10px 0 0 0', color: saldoAtual >= 0 ? '#3498db' : '#e74c3c' }}>{formatCurrency(saldoAtual)}</h2>
+            </div>
+          </div>
+
+          {/* FORMULÁRIO DE NOVO LANÇAMENTO & TABELA */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem', alignItems: 'start' }}>
+
+            {/* Formulário Fixo na Esquerda */}
+            <div style={{ background: '#1e1e1e', padding: '1.5rem', borderRadius: '8px' }}>
+              <h3 style={{ marginTop: 0, color: '#fff' }}>Novo Lançamento</h3>
+              <br />
+              <form onSubmit={handleSaveTransaction} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <input type="text" placeholder="Descrição (Ex: Compra MDF)" required value={transactionForm.description} onChange={e => setTransactionForm({ ...transactionForm, description: e.target.value })} style={{ padding: '10px', borderRadius: '4px', border: '1px solid #444', background: '#2c2c2c', color: '#fff' }} />
+                <input type="number" step="0.01" placeholder="Valor (R$)" required value={transactionForm.amount} onChange={e => setTransactionForm({ ...transactionForm, amount: e.target.value })} style={{ padding: '10px', borderRadius: '4px', border: '1px solid #444', background: '#2c2c2c', color: '#fff' }} />
+                <input type="date" value={transactionForm.date} onChange={e => setTransactionForm({ ...transactionForm, date: e.target.value })} style={{ padding: '10px', borderRadius: '4px', border: '1px solid #444', background: '#2c2c2c', color: '#fff' }} />
+                <select value={transactionForm.type} onChange={e => setTransactionForm({ ...transactionForm, type: e.target.value })} style={{ padding: '10px', borderRadius: '4px', border: '1px solid #444', background: '#2c2c2c', color: '#fff' }}>
+                  <option value="RECEITA">Entrada (Receita)</option>
+                  <option value="DESPESA">Saída (Despesa)</option>
+                </select>
+                <button type="submit" style={{ background: '#4CAF50', color: '#fff', border: 'none', padding: '10px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>➕ Adicionar</button>
+              </form>
+            </div>
+
+            {/* Tabela de Transações na Direita */}
+            <div style={{ background: '#1e1e1e', padding: '1.5rem', borderRadius: '8px', overflowX: 'auto' }}>
+              <h3 style={{ marginTop: 0, color: '#fff' }}>Extrato Recente</h3>
+              <br />
+              {transactions.length === 0 ? (
+                <p style={{ color: '#888' }}>Nenhuma movimentação registrada.</p>
+              ) : (
+                <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff', textAlign: 'left' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid #444' }}>
+                      <th style={{ padding: '12px' }}>Data</th>
+                      <th style={{ padding: '12px' }}>Descrição</th>
+                      <th style={{ padding: '12px' }}>Valor</th>
+                      <th style={{ padding: '12px' }}>Ação</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {transactions.sort((a, b) => new Date(b.date) - new Date(a.date)).map(t => (
+                      <tr key={t.id} style={{ borderBottom: '1px solid #333' }}>
+                        <td style={{ padding: '12px', color: '#aaa' }}>{new Date(t.date).toLocaleDateString("pt-BR", { timeZone: 'UTC' })}</td>
+                        <td style={{ padding: '12px' }}>{t.description}</td>
+                        <td style={{ padding: '12px', color: t.type === 'RECEITA' ? '#4CAF50' : '#e74c3c', fontWeight: 'bold' }}>
+                          {t.type === 'RECEITA' ? '+' : '-'} {formatCurrency(t.amount)}
+                        </td>
+                        <td style={{ padding: '12px' }}>
+                          <button onClick={() => handleDeleteTransaction(t.id)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }} title="Excluir">🗑️</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        </section>
       )}
     </div>
   );
