@@ -14,8 +14,7 @@ import "./App.css";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Router basename="/garbo-ambientes-planejados">
+    <BrowserRouter basename="/garbo-ambientes-planejados">
         <Routes>
           {/* ROTA PÚBLICA: Landing Page */}
           <Route path="/" element={<Home />} />
@@ -58,7 +57,6 @@ function App() {
           pauseOnHover
           theme="dark" // Pode mudar para "light" ou "colored" se preferir
         />
-      </Router>
     </BrowserRouter>
   );
 }
