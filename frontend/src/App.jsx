@@ -15,48 +15,50 @@ import "./App.css";
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* ROTA PÚBLICA: Landing Page */}
-        <Route path="/" element={<Home />} />
+      <Router basename="/garbo-ambientes-planejados">
+        <Routes>
+          {/* ROTA PÚBLICA: Landing Page */}
+          <Route path="/" element={<Home />} />
 
-        {/* ROTAS PÚBLICAS: Logins e Cadastros */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/area-cliente" element={<ClientLogin />} />
-        <Route path="/cadastro" element={<ClientRegister />} />
+          {/* ROTAS PÚBLICAS: Logins e Cadastros */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/area-cliente" element={<ClientLogin />} />
+          <Route path="/cadastro" element={<ClientRegister />} />
 
-        {/* ROTA ADMIN: Painel de Administração Limpo */}
-        <Route
-          path="/admin"
-          element={
-            <PrivateRoute>
-              <AdminDashboard /> 
-            </PrivateRoute>
-          }
+          {/* ROTA ADMIN: Painel de Administração Limpo */}
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute>
+                <AdminDashboard />
+              </PrivateRoute>
+            }
+          />
+
+          {/* ROTA PROTEGIDA DO CLIENTE: O Dashboard VIP */}
+          <Route
+            path="/meu-projeto"
+            element={
+              <ClientPrivateRoute>
+                <ClientDashboard />
+              </ClientPrivateRoute>
+            }
+          />
+        </Routes>
+
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark" // Pode mudar para "light" ou "colored" se preferir
         />
-
-        {/* ROTA PROTEGIDA DO CLIENTE: O Dashboard VIP */}
-        <Route
-          path="/meu-projeto"
-          element={
-            <ClientPrivateRoute>
-              <ClientDashboard />
-            </ClientPrivateRoute>
-          }
-        />
-      </Routes>
-
-      <ToastContainer 
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark" // Pode mudar para "light" ou "colored" se preferir
-      />
+      </Router>
     </BrowserRouter>
   );
 }
