@@ -13,52 +13,79 @@
 }
 
 /* =========================================
-   1. CABEÇALHO (HEADER)
+   1. CABEÇALHO (HEADER) - AJUSTE EIXO (0,0)
    ========================================= */
 .public-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 5%;
+    /* Alinhamento vertical perfeito no centro do eixo Y */
+
+    /* 🚨 Ajuste de Eixo: Reduzi o padding vertical de 50px para 15px 
+       e mantive 5% nas laterais para não encostar na borda do monitor */
+    padding: 15px 5%;
+
     background-color: var(--dark);
     color: white;
     position: sticky;
     top: 0;
     z-index: 1000;
+
+    /* 🛡️ Bloqueio da Barra Branca: Removemos qualquer margem ou borda 
+       que possa fazer o fundo do body vazar */
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    /* Sombra leve para separar do conteúdo */
 }
 
 .logo-garbo {
+    /* 📏 Alinhamento X=0: Garantindo que o texto comece no limite da caixa */
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+
     font-size: 1.8rem;
     font-weight: 800;
     letter-spacing: 3px;
     color: var(--gold);
+    display: flex;
+    align-items: center;
 }
 
 .main-nav {
     display: flex;
     gap: 30px;
     align-items: center;
+    /* Alinha links e botões no mesmo eixo horizontal */
 }
 
 .main-nav a {
+    /* 📏 Alinhamento de Texto: Reset de linha para evitar "ar" acima da palavra */
+    margin: 0;
+    line-height: 1;
+
     color: white;
     text-decoration: none;
     font-size: 0.95rem;
     font-weight: 500;
     transition: color 0.3s;
+    display: flex;
+    align-items: center;
 }
 
-.main-nav a:hover {
-    color: var(--gold);
-}
-
+/* 🏆 MANTIDO: Estética da Área do Cliente Intocada */
 .btn-area-cliente {
     background-color: transparent;
     border: 1px solid var(--gold);
     color: var(--gold) !important;
     padding: 8px 16px;
     border-radius: 4px;
+    font-weight: 600;
     transition: all 0.3s !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-area-cliente:hover {
@@ -115,6 +142,98 @@
 }
 
 /* =========================================
+   SESSÃO QUEM SOMOS (A EQUIPE)
+   ========================================= */
+.about-section {
+    padding: 80px 5%;
+    background-color: #1a1a1a;
+    /* Fundo um tom acima do #121212 para destacar a seção */
+    margin: 0;
+}
+
+.team-grid {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 50px;
+    flex-wrap: wrap;
+    /* Garante que os cards desçam um embaixo do outro no celular */
+}
+
+.team-card {
+    background: #121212;
+    border: 1px solid #333;
+    border-radius: 12px;
+    overflow: hidden;
+    width: 100%;
+    max-width: 400px;
+    /* Tamanho elegante para as fotos */
+    transition: transform 0.3s ease, border-color 0.3s ease;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Efeito de levitar o card e acender a borda em dourado */
+.team-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--gold);
+    box-shadow: 0 15px 40px rgba(212, 175, 55, 0.15);
+}
+
+.team-image-wrapper {
+    width: 100%;
+    height: 450px;
+    /* Deixa as fotos mais compridas, estilo retrato profissional */
+    overflow: hidden;
+    background-color: #0a0a0a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.team-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    /* Garante que o rosto não seja cortado */
+    transition: transform 0.5s ease;
+}
+
+/* Efeito de zoom suave na foto */
+.team-card:hover .team-image {
+    transform: scale(1.05);
+}
+
+.team-info {
+    padding: 30px 25px;
+    text-align: center;
+}
+
+.team-info h3 {
+    font-size: 1.5rem;
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+.team-role {
+    display: block;
+    color: var(--gold);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+}
+
+.team-info p {
+    color: #aaa;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* =========================================
    3. MISSÃO, VISÃO E VALORES
    ========================================= */
 .section-title {
@@ -128,12 +247,17 @@
     margin-bottom: 10px;
 }
 
-.mvv-section, .portfolio-public, .contact-section {
+.mvv-section,
+.portfolio-public,
+.contact-section {
     padding: 80px 5%;
 }
 
 .mvv-section {
-    background-color: var(--light-gray);
+    padding: 80px 5%;
+    background-color: #121212;
+    /* Fundo escuro contínuo */
+    margin: 0;
 }
 
 .mvv-grid {
@@ -141,43 +265,135 @@
     gap: 30px;
     justify-content: center;
     flex-wrap: wrap;
+    margin-top: 50px;
 }
 
 .mvv-card {
-    background: white;
+    background: #1a1a1a;
     padding: 40px 30px;
-    border-radius: 8px;
+    border-radius: 12px;
     text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
     flex: 1;
-    min-width: 250px;
+    min-width: 280px;
     max-width: 350px;
-    transition: transform 0.3s;
+    transition: all 0.4s ease;
+    border: 1px solid #333;
+    border-top: 4px solid var(--gold);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 .mvv-card:hover {
     transform: translateY(-10px);
+    border-color: var(--gold);
+    box-shadow: 0 15px 40px rgba(212, 175, 55, 0.15);
 }
 
 .mvv-card .icon {
-    font-size: 3rem;
+    font-size: 3.5rem;
     margin-bottom: 20px;
+    display: inline-block;
+    transition: transform 0.3s ease;
+}
+
+.mvv-card:hover .icon {
+    transform: scale(1.15) rotate(5deg);
+}
+
+.mvv-card h3 {
+    font-size: 1.5rem;
+    color: #fff;
+    margin-bottom: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.mvv-card p {
+    color: #aaa;
+    font-size: 0.95rem;
+    line-height: 1.6;
 }
 
 /* =========================================
    4. PORTFÓLIO E CARDS
    ========================================= */
+
+.portfolio-public {
+    background-color: #121212;
+    margin: 0;
+}
+
 .public-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 30px;
+    gap: 35px;
+    margin-top: 50px;
+}
+
+.portfolio-card {
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+    cursor: pointer; /* Indica que é clicável */
+    display: flex;
+    flex-direction: column;
+}
+
+.portfolio-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--gold);
+    box-shadow: 0 15px 35px rgba(212, 175, 55, 0.15);
+}
+
+.portfolio-image-wrapper {
+    width: 100%;
+    height: 280px; /* Altura fixa para TODOS os cards */
+    overflow: hidden; /* Tudo que vazar dessa altura é cortado */
+    background-color: #0a0a0a;
+}
+
+.portfolio-image {
+    width: 100%;
+    height: 100%;
+    /* O object-fit: cover faz a foto preencher a caixa inteira sem amassar, 
+       cortando o excesso automaticamente como no Instagram! */
+    object-fit: cover; 
+    transition: transform 0.6s ease;
+}
+
+.portfolio-card:hover .portfolio-image {
+    transform: scale(1.08);
+}
+
+.portfolio-content {
+    padding: 25px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.portfolio-category {
+    font-size: 0.75rem;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+}
+
+.portfolio-title {
+    color: #ffffff;
+    font-size: 1.4rem;
+    margin: 0;
+    line-height: 1.2;
 }
 
 .project-card {
-    background: white;
+    background: black;
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
 .card-image {
@@ -196,36 +412,42 @@
 
 /* 1. Reduz o tamanho das setas e define a cor padrão */
 .card-image-container {
-  --swiper-navigation-size: 18px; /* Tamanho original é 44px (gigante) */
-  --swiper-theme-color: #ffffff;  /* Deixa setas e bolinhas brancas */
+    --swiper-navigation-size: 18px;
+    /* Tamanho original é 44px (gigante) */
+    --swiper-theme-color: #ffffff;
+    /* Deixa setas e bolinhas brancas */
 }
 
 /* 2. Cria um fundo transparente para as setas não sumirem em fotos claras */
 .card-image-container .swiper-button-next,
 .card-image-container .swiper-button-prev {
-  background-color: rgba(0, 0, 0, 0.3); /* Fundo pretinho transparente */
-  padding: 18px 12px;
-  border-radius: 8px; /* Borda arredondada elegante */
-  transition: background-color 0.3s ease;
+    background-color: rgba(0, 0, 0, 0.3);
+    /* Fundo pretinho transparente */
+    padding: 18px 12px;
+    border-radius: 8px;
+    /* Borda arredondada elegante */
+    transition: background-color 0.3s ease;
 }
 
 /* 3. Escurece o fundo quando o mouse passa por cima (Efeito Hover) */
 .card-image-container .swiper-button-next:hover,
 .card-image-container .swiper-button-prev:hover {
-  background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.7);
 }
 
 /* 4. Deixa as bolinhas (pagination) mais discretas */
 .card-image-container .swiper-pagination-bullet {
-  background: #ffffff;
-  opacity: 0.5;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.5); /* Sombra para dar leitura */
+    background: #ffffff;
+    opacity: 0.5;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    /* Sombra para dar leitura */
 }
 
 /* 5. Destaca a bolinha da foto atual */
 .card-image-container .swiper-pagination-bullet-active {
-  opacity: 1;
-  transform: scale(1.2); /* Fica um pouquinho maior */
+    opacity: 1;
+    transform: scale(1.2);
+    /* Fica um pouquinho maior */
 }
 
 /* =========================================
@@ -253,7 +475,8 @@
     margin-top: 30px;
 }
 
-.lead-form input, .lead-form select {
+.lead-form input,
+.lead-form select {
     padding: 15px;
     border: none;
     border-radius: 4px;

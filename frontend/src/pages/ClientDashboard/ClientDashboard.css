@@ -1,116 +1,171 @@
-.client-portal-wrapper {
-    background-color: #f8f9fa;
-    min-height: 100vh;
-    font-family: 'Inter', sans-serif;
+/* =========================================
+   CABEÇALHO DO PROJETO VIP
+   ========================================= */
+.vip-project-card {
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 30px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
 }
 
-.client-header {
-    background-color: #1a1a1a;
-    padding: 15px 5%;
+.vip-project-header {
     display: flex;
     justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid #333;
+    padding-bottom: 20px;
+    margin-bottom: 25px;
+}
+
+.vip-project-title h2 {
+    color: #fff;
+    margin: 0 0 10px 0;
+    font-size: 2rem;
+    display: flex;
     align-items: center;
-    color: white;
+    gap: 15px;
 }
 
 .vip-tag {
-    background-color: #d4af37;
-    color: #1a1a1a;
-    font-size: 0.7rem;
-    padding: 2px 8px;
-    border-radius: 10px;
-    vertical-align: middle;
-    margin-left: 10px;
-    font-weight: bold;
-}
-
-.btn-logout-client {
-    background: transparent;
-    border: 1px solid #555;
+    background-color: #333;
     color: #ccc;
-    padding: 5px 15px;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: all 0.3s;
+    font-size: 0.8rem;
+    padding: 4px 12px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-.btn-logout-client:hover {
-    border-color: #d4af37;
-    color: #d4af37;
+.vip-project-info {
+    text-align: right;
 }
 
-.client-dashboard-content {
-    max-width: 1100px;
-    margin: 40px auto;
-    padding: 0 20px;
+.vip-price {
+    color: #f1c40f; /* Dourado/Amarelo combinando com a Logo */
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0;
 }
 
-.welcome-banner {
-    margin-bottom: 40px;
-}
-
-.welcome-banner h1 { font-size: 2.2rem; color: #2d3436; margin-bottom: 10px; }
-
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: 1fr 400px;
-    gap: 30px;
-}
-
-/* Responsividade para telas menores */
-@media (max-width: 900px) {
-    .dashboard-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-.project-details-card, .project-status-card {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-    overflow: hidden;
-}
-
-.client-project-img {
-    width: 100%;
-    height: 350px;
-    object-fit: cover;
-}
-
-.project-info { padding: 25px; }
-.project-info h2 { color: #1a1a1a; margin-top: 10px;}
-
-/* LINHA DO TEMPO (STATUS) */
-.project-status-card { padding: 25px; }
-
+/* =========================================
+   LINHA DO TEMPO (STATUS DO PROJETO)
+   ========================================= */
 .status-timeline {
-    margin-top: 30px;
     display: flex;
-    flex-direction: column;
-    gap: 25px;
+    justify-content: space-between;
+    position: relative;
+    margin: 30px 0 40px 0;
+}
+
+/* A linha cinza de fundo */
+.status-timeline::before {
+    content: '';
+    position: absolute;
+    top: 15px; /* Alinhado com o centro das bolinhas */
+    left: 0;
+    right: 0;
+    height: 3px;
+    background-color: #333;
+    z-index: 1;
+}
+
+/* A linha de progresso dourada */
+.status-progress-line {
+    position: absolute;
+    top: 15px;
+    left: 0;
+    height: 3px;
+    background-color: #f1c40f;
+    z-index: 2;
+    transition: width 0.5s ease;
 }
 
 .status-step {
+    position: relative;
+    z-index: 3;
     display: flex;
-    gap: 20px;
-    opacity: 0.3; /* Desativado por padrão */
-    transition: opacity 0.5s;
-}
-
-.status-step.active { opacity: 1; }
-
-.step-icon {
-    width: 45px;
-    height: 45px;
-    background: #eee;
-    border-radius: 50%;
-    display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
+    gap: 10px;
+    width: 25%;
 }
 
-.active .step-icon { background: #d4af37; }
+.step-circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #1a1a1a;
+    border: 3px solid #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+}
 
-.step-text h4 { margin: 0; color: #2d3436; }
-.step-text p { margin: 5px 0 0; font-size: 0.85rem; color: #636e72; }
+.step-text {
+    color: #888;
+    font-size: 0.85rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+/* Estilos para quando o passo está ATIVO ou CONCLUÍDO */
+.status-step.active .step-circle {
+    border-color: #f1c40f;
+    background-color: #f1c40f;
+    box-shadow: 0 0 15px rgba(241, 196, 15, 0.4);
+}
+
+.status-step.active .step-text {
+    color: #f1c40f;
+}
+
+.status-step.completed .step-circle {
+    border-color: #f1c40f;
+    background-color: #1a1a1a;
+}
+
+.status-step.completed .step-text {
+    color: #fff;
+}
+
+/* =========================================
+   SWIPER: IMAGENS COMPLETAS E NATURAIS
+   ========================================= */
+.card-image-container {
+    width: 100%;
+    height: 500px; 
+    background-color: #0a0a0a;
+    margin-top: 30px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* 2. Forçamos o Swiper e a div de Imagem Única a terem o tamanho exato da janela */
+.card-image-container .swiper,
+.card-image-container .swiper-slide,
+.card-image-container .single-image-container {
+    width: 100%;
+    height: 100%; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 3. A regra de chumbo para a imagem (!important vence qualquer App.css) */
+.card-image-container img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important; /* Exibe 100% da foto, doa a quem doer */
+    display: block;
+}
+
+/* 📱 4. Responsividade para não ficar um buraco gigante no celular */
+@media (max-width: 768px) {
+    .card-image-container {
+        height: 300px; 
+    }
+}

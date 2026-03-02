@@ -79,51 +79,51 @@ public class ProjectService {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Projeto não encontrado"));
 
-        convertDtoToEntity(dto, project);
+        // 1. GESTÃO DE IMAGENS QUE JÁ EXISTIAM (O que o usuário manteve vs o que excluiu no "x")
+        List<String> urlsNoBanco = project.getImageUrls() != null ? new ArrayList<>(project.getImageUrls()) : new ArrayList<>();
+        List<String> urlsParaManter = dto.existingImageUrls() != null ? dto.existingImageUrls() : new ArrayList<>();
 
-        if (images != null && !images.isEmpty()) {
+        // Identifica o que sumiu da lista (o que deve ser apagado fisicamente do MinIO)
+        List<String> urlsParaDeletar = urlsNoBanco.stream()
+                .filter(url -> !urlsParaManter.contains(url))
+                .toList();
 
-            // 1. Apaga imagens antigas
-            if (project.getImageUrls() != null && !project.getImageUrls().isEmpty()) {
-                for (String oldUrl : project.getImageUrls()) {
-                    try {
-                        String oldFilename = URLDecoder.decode(oldUrl.substring(oldUrl.lastIndexOf("/") + 1), StandardCharsets.UTF_8);
-                        fileStorageService.delete(oldFilename);
-                    } catch (Exception e) {
-                        System.err.println("Erro ao deletar imagem antiga: " + e.getMessage());
-                    }
-                }
-            } else if (project.getCoverImageUrl() != null) {
-                try {
-                    String oldFilename = URLDecoder.decode(project.getCoverImageUrl().substring(project.getCoverImageUrl().lastIndexOf("/") + 1), StandardCharsets.UTF_8);
-                    fileStorageService.delete(oldFilename);
-                } catch (Exception e) {}
-            }
-
-            // 2. Faz Upload do novo carrossel
-            List<String> uploadedUrls = new ArrayList<>();
-            for (MultipartFile file : images) {
-                try {
-                    String imageUrl = fileStorageService.upload(file);
-                    uploadedUrls.add(imageUrl);
-                } catch (Exception e) {
-                    System.err.println("Erro ao salvar nova imagem: " + e.getMessage());
-                    e.printStackTrace();
-                }
-            }
-
-            // 3. Atualiza o banco do jeito que o Hibernate gosta!
-            if (!uploadedUrls.isEmpty()) {
-                project.setCoverImageUrl(uploadedUrls.get(0));
-
-                // 👇 A MÁGICA ESTÁ AQUI 👇
-                if (project.getImageUrls() == null) {
-                    project.setImageUrls(new ArrayList<>());
-                }
-                project.getImageUrls().clear(); // Limpa a lista monitorada
-                project.getImageUrls().addAll(uploadedUrls); // Adiciona os itens novos nela
+        // 🚨 A CORREÇÃO: Deletar apenas as fotos que foram removidas pelo "x"
+        for (String urlToRemove : urlsParaDeletar) {
+            try {
+                String filename = URLDecoder.decode(urlToRemove.substring(urlToRemove.lastIndexOf("/") + 1), StandardCharsets.UTF_8);
+                fileStorageService.delete(filename);
+                System.out.println(">>> Imagem removida do MinIO: " + filename);
+            } catch (Exception e) {
+                System.err.println("Erro ao deletar imagem excluída: " + e.getMessage());
             }
         }
+
+        // Atualiza a lista do banco apenas com as fotos que o usuário decidiu manter
+        project.getImageUrls().clear();
+        project.getImageUrls().addAll(urlsParaManter);
+
+        // 2. GESTÃO DE NOVAS IMAGENS (Upload de novos arquivos selecionados no input)
+        if (images != null && !images.isEmpty()) {
+            for (MultipartFile file : images) {
+                try {
+                    String newImageUrl = fileStorageService.upload(file);
+                    project.getImageUrls().add(newImageUrl); // Adiciona no final da lista atual
+                } catch (Exception e) {
+                    System.err.println("Erro ao salvar nova imagem: " + e.getMessage());
+                }
+            }
+        }
+
+        // 3. ATUALIZAÇÃO DA CAPA (Garante que a capa seja sempre a primeira foto da lista final)
+        if (!project.getImageUrls().isEmpty()) {
+            project.setCoverImageUrl(project.getImageUrls().get(0));
+        } else {
+            project.setCoverImageUrl(null);
+        }
+
+        // 4. ATUALIZAÇÃO DOS DADOS TEXTUAIS (Título, Status, etc)
+        convertDtoToEntity(dto, project);
 
         project = projectRepository.save(project);
         return new ProjectResponseDTO(project);
@@ -153,6 +153,7 @@ public class ProjectService {
         project.setDescription(dto.description());
         project.setCategory(dto.category());
         project.setCompletionDate(dto.completionDate());
+        project.setStatus(dto.status() != null ? dto.status() : " EM PROJETO");
 
         if (dto.clientId() != null) {
             var client = clientRepository.findById(dto.clientId())

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api'; // Ajuste o caminho se necessário
 import './Home.css';
+import imgEdna from '../../assets/edna_arquiteta.jpeg';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
@@ -69,11 +70,64 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* 3. MISSÃO, VISÃO E VALORES (Institucional) */}
-            <section id="sobre" className="mvv-section">
+            {/* =========================================
+    SESSÃO: QUEM SOMOS (AS SÓCIAS)
+    ========================================= */}
+            <section className="about-section" id="sobre">
                 <div className="section-title">
-                    <h2>Quem Somos</h2>
-                    <p>A excelência por trás de cada detalhe.</p>
+                    <h2 style={{ color: '#d4af37' }}>Quem Somos</h2>
+                    <p style={{ color: '#aaa', marginTop: '10px' }}>
+                        As mentes brilhantes por trás da Garbo Ambientes Planejados
+                    </p>
+                </div>
+
+                <div className="team-grid">
+                    {/* CARD 1: EDNA RAMOS */}
+                    <div className="team-card">
+                        <div className="team-image-wrapper">
+                            <img src={imgEdna} alt="Edna da Silva Ramos Alves" className="team-image" />
+                        </div>
+                        <div className="team-info">
+                            <h3>Edna da Silva Ramos Alves</h3>
+                            <span className="team-role">Sócia-Fundadora & Arquiteta</span>
+                            <p>
+                                Com anos de experiência em transformar espaços em verdadeiros lares,
+                                Edna traz o olhar técnico, sofisticado e acolhedor da arquitetura
+                                para cada projeto desenvolvido pela Garbo.
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* CARD 2: MARCIA */}
+                    <div className="team-card">
+                        <div className="team-image-wrapper">
+                            <div className="placeholder-image" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', backgroundColor: '#0a0a0a' }}>
+                                <span style={{ fontSize: '3rem' }}>📸</span>
+                                <p style={{ marginTop: '10px', color: '#666' }}>Foto da Marcia</p>
+                            </div>
+                        </div>
+                        <div className="team-info">
+                            <h3>Marcia</h3>
+                            <span className="team-role">Sócia-Fundadora & Arquiteta</span>
+                            <p>
+                                Especialista em planejamento e execução de excelência, Marcia garante
+                                que cada milímetro do seu projeto saia do papel com precisão,
+                                qualidade e pontualidade.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* =========================================
+    SESSÃO: NOSSO PROPÓSITO (MVV)
+    ========================================= */}
+            <section className="mvv-section" id="proposito">
+                <div className="section-title">
+                    <h2 style={{ color: '#d4af37' }}>Nosso Propósito</h2>
+                    <p style={{ color: '#aaa', marginTop: '10px' }}>
+                        A excelência por trás de cada detalhe dos seus móveis planejados.
+                    </p>
                 </div>
 
                 <div className="mvv-grid">
@@ -82,11 +136,13 @@ const Home = () => {
                         <h3>Missão</h3>
                         <p>Entregar ambientes planejados que unam estética refinada, funcionalidade inteligente e o estilo único de cada cliente.</p>
                     </div>
+
                     <div className="mvv-card">
                         <div className="icon">👁️</div>
                         <h3>Visão</h3>
                         <p>Ser referência em arquitetura e design de interiores pela excelência, transparência e inovação nos projetos.</p>
                     </div>
+
                     <div className="mvv-card">
                         <div className="icon">💎</div>
                         <h3>Valores</h3>
@@ -98,15 +154,19 @@ const Home = () => {
             {/* 4. GALERIA DE PROJETOS (A Vitrine conectada ao Backend) */}
             <section id="portfolio" className="portfolio-public">
                 <div className="section-title">
-                    <h2>Nosso Portfólio</h2>
-                    <p>Inspire-se com os nossos trabalhos mais recentes.</p>
+                    <h2 style={{ color: '#d4af37' }}>Nosso Portfólio</h2>
+                    <p style={{ color: '#aaa', marginTop: '10px' }}>
+                        Inspire-se com os nossos trabalhos mais recentes.
+                    </p>
                 </div>
 
                 <div className="projects-grid public-grid">
                     {projects && projects.length > 0 ? (
                         projects.map((project) => (
-                            <div key={project.id} className="project-card">
-                                <div className="card-image-container">
+                            <div key={project.id} className="portfolio-card">
+
+                                {/* O container que trava a altura em 280px para TODAS as fotos */}
+                                <div className="portfolio-image-wrapper">
                                     {project.imageUrls && project.imageUrls.length > 0 ? (
                                         <Swiper
                                             modules={[Navigation, Pagination]}
@@ -121,26 +181,43 @@ const Home = () => {
                                                     <img
                                                         src={url}
                                                         alt={`${project.title} - ${imgIndex + 1}`}
-                                                        className="card-image"
+                                                        className="portfolio-image"
                                                     />
                                                 </SwiperSlide>
                                             ))}
                                         </Swiper>
                                     ) : project.coverImageUrl ? (
-                                        <img src={project.coverImageUrl} alt={project.title} className="card-image" />
+                                        <img
+                                            src={project.coverImageUrl}
+                                            alt={project.title}
+                                            className="portfolio-image"
+                                        />
                                     ) : (
-                                        <div className="no-image">Sem Imagem</div>
+                                        /* Fundo elegante caso o projeto não tenha foto */
+                                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#111', color: '#555' }}>
+                                            Sem Imagem
+                                        </div>
                                     )}
                                 </div>
-                                <div className="card-content">
-                                    <span className="badge">{project.category}</span>
-                                    <h3 className="card-title">{project.title}</h3>
-                                    <p className="card-desc">{project.description}</p>
+
+                                {/* Textos alinhados e estilizados */}
+                                <div className="portfolio-content">
+                                    <span className="portfolio-category">{project.category || 'PLANEJADOS'}</span>
+                                    <h3 className="portfolio-title">{project.title}</h3>
+
+                                    {/* Estilo adicionado para a descrição não quebrar o layout escuro */}
+                                    <p style={{ color: '#aaa', fontSize: '0.9rem', marginTop: '10px', lineHeight: '1.5', margin: '10px 0 0 0' }}>
+                                        {project.description}
+                                    </p>
                                 </div>
+
                             </div>
                         ))
                     ) : (
-                        <p style={{ textAlign: 'center', color: 'red' }}>Nenhum projeto encontrado.</p>
+                        /* Mensagem de vazio ajustada para o tema (gridColumn faz o texto centralizar na tela toda) */
+                        <p style={{ textAlign: 'center', color: '#aaa', gridColumn: '1 / -1', padding: '50px 0' }}>
+                            Nenhum projeto encontrado.
+                        </p>
                     )}
                 </div>
             </section>

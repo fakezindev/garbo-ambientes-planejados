@@ -27,6 +27,8 @@ public class Project {
     @Enumerated(EnumType.STRING)
     private ProjectCategory category;
 
+    private String status;
+
     private LocalDate completionDate;
 
     @Column(name = "cover_image_url")

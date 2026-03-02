@@ -209,7 +209,12 @@ const AdminDashboard = () => {
     fetchTransactions();
   }, []);
 
-
+  const statusFormatado = {
+    'PROJETO': 'EM PROJETO',
+    'FABRICAÇÃO': 'EM FABRICAÇÃO',
+    'MONTAGEM': 'EM MONTAGEM',
+    'CONCLUÍDO': 'CONCLUÍDO'
+  };
 
   return (
     <div className="app-container">
@@ -312,7 +317,21 @@ const AdminDashboard = () => {
                       </div>
                     </div>
 
-                    <h3 className="card-title">{project.title}</h3>
+                    {/* 👇 AQUI ESTÁ A MÁGICA DO STATUS JUNTO AO TÍTULO 👇 */}
+                    <h3 className="card-title" style={{ display: 'flex', alignItems: 'center' }}>
+                      {project.title}
+                      <span style={{
+                        background: project.status === 'CONCLUÍDO' ? '#27ae60' : '#f39c12',
+                        color: '#fff',
+                        padding: '3px 8px',
+                        borderRadius: '12px',
+                        fontSize: '0.75rem',
+                        fontWeight: 'bold',
+                        marginLeft: '10px'
+                      }}>
+                        {statusFormatado[project.status] || 'EM PROJETO'}
+                      </span>
+                    </h3>
 
                     {(project.clientName || project.completionDate) && (
                       <div className="card-meta">

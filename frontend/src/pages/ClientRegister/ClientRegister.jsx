@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../../services/api.js'; 
+import '../../components/Auth.css'; 
 
 function ClientRegister() {
     const [formData, setFormData] = useState({
@@ -38,27 +39,27 @@ function ClientRegister() {
     };
 
     return (
-        <div className="login-container">
-            <div className="login-card">
-                <h2>Crie sua conta</h2>
-                <p>Acompanhe o projeto dos seus sonhos.</p>
+        <div className="auth-container">
+            <div className="auth-card">
+                <h2 className="auth-title">Crie sua conta</h2>
+                <p className="auth-subtitle">Acompanhe o projeto dos seus sonhos.</p>
 
-                {error && <div className="error-message" style={{color: 'red'}}>{error}</div>}
+                {error && <div style={{ color: '#ff4d4f', marginBottom: '15px', fontSize: '0.9rem' }}>{error}</div>}
 
-                <form onSubmit={handleRegister} className="login-form">
-                    <input type="text" name="name" placeholder="Seu nome completo" value={formData.name} onChange={handleChange} required className="input-field" />
-                    <input type="email" name="email" placeholder="Seu e-mail" value={formData.email} onChange={handleChange} required className="input-field" /> 
-                    <input type="text" name="cpfCnpj" placeholder="CPF ou CNPJ" value={formData.cpfCnpj} onChange={handleChange} required className="input-field" />
-                    <input type="text" name="phone" placeholder="Telefone para contato" value={formData.phone} onChange={handleChange} required className="input-field" />
-                    <input type="password" name="password" placeholder="Crie uma senha" value={formData.password} onChange={handleChange} required className="input-field" />
+                <form onSubmit={handleRegister} className="auth-form">
+                    <input type="text" name="name" placeholder="Seu nome completo" value={formData.name} onChange={handleChange} required className="auth-input" />
+                    <input type="email" name="email" placeholder="Seu e-mail" value={formData.email} onChange={handleChange} required className="auth-input" /> 
+                    <input type="text" name="cpfCnpj" placeholder="CPF ou CNPJ" value={formData.cpfCnpj} onChange={handleChange} required className="auth-input" />
+                    <input type="text" name="phone" placeholder="Telefone para contato" value={formData.phone} onChange={handleChange} required className="auth-input" />
+                    <input type="password" name="password" placeholder="Crie uma senha" value={formData.password} onChange={handleChange} required className="auth-input" />
 
-                    <button type="submit" disabled={loading} className="btn-primary" style={{marginTop: '15px'}}>
+                    <button type="submit" disabled={loading} className="auth-button" style={{marginTop: '15px'}}>
                         {loading ? 'Cadastrando...' : 'Registrar'}
                     </button>
                 </form>
 
-                <p style={{ marginTop: '15px', textAlign: 'center' }}>    
-                    Já possui uma conta? <Link to="/area-cliente">Faça login</Link>
+                <p style={{ marginTop: '20px', color: '#888', fontSize: '0.9rem' }}>    
+                    Já possui uma conta? <Link to="/area-cliente" style={{ color: 'var(--gold-primary)', textDecoration: 'none', fontWeight: 'bold' }}>Faça login</Link>
                 </p>
             </div>
         </div>

@@ -1,14 +1,55 @@
 /* =========================================
-    AJUSTES DO CARROSSEL (SWIPER) NOS CARDS
+   1. ESTRUTURA PRINCIPAL DO ADMIN
    ========================================= */
+.admin-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
 
-/* 1. Reduz o tamanho das setas e define a cor padrão */
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap; /* 📱 No celular, se faltar espaço, o botão desce */
+    gap: 15px;
+}
+
+/* 🗂️ Menu de Abas Inteligente */
+.admin-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #333;
+    padding-bottom: 10px;
+    overflow-x: auto; /* 📱 Permite rolar as abas horizontalmente no celular */
+    white-space: nowrap; /* Impede que o texto dos botões quebre no meio */
+    -webkit-overflow-scrolling: touch; /* Deixa o scroll suave no iPhone */
+}
+
+/* Esconde a barra de rolagem visual das abas, mas mantém a função */
+.admin-tabs::-webkit-scrollbar {
+    display: none; 
+}
+
+/* 💰 Layout do Financeiro */
+.finance-layout {
+    display: grid;
+    grid-template-columns: 1fr 2fr; /* PC: Form na esquerda, Tabela na direita */
+    gap: 2rem;
+    align-items: start;
+}
+
+/* =========================================
+   2. AJUSTES DO CARROSSEL (SWIPER) NOS CARDS
+   ========================================= */
 .card-image-container {
   --swiper-navigation-size: 18px; /* Tamanho original é 44px (gigante) */
   --swiper-theme-color: #ffffff;  /* Deixa setas e bolinhas brancas */
+  position: relative; /* Garante que as setas obedeçam ao limite da foto */
 }
 
-/* 2. Cria um fundo transparente para as setas não sumirem em fotos claras */
 .card-image-container .swiper-button-next,
 .card-image-container .swiper-button-prev {
   background-color: rgba(0, 0, 0, 0.3); /* Fundo pretinho transparente */
@@ -17,21 +58,75 @@
   transition: background-color 0.3s ease;
 }
 
-/* 3. Escurece o fundo quando o mouse passa por cima (Efeito Hover) */
 .card-image-container .swiper-button-next:hover,
 .card-image-container .swiper-button-prev:hover {
   background-color: rgba(0, 0, 0, 0.7);
 }
 
-/* 4. Deixa as bolinhas (pagination) mais discretas */
 .card-image-container .swiper-pagination-bullet {
   background: #ffffff;
   opacity: 0.5;
   box-shadow: 0 1px 3px rgba(0,0,0,0.5); /* Sombra para dar leitura */
 }
 
-/* 5. Destaca a bolinha da foto atual */
 .card-image-container .swiper-pagination-bullet-active {
   opacity: 1;
   transform: scale(1.2); /* Fica um pouquinho maior */
+}
+
+/* =========================================
+   3. 📱 A MÁGICA DA RESPONSIVIDADE (CELULARES)
+   ========================================= */
+@media (max-width: 768px) {
+    .admin-container {
+        padding: 10px;
+    }
+
+    .admin-header h1 {
+        font-size: 1.5rem;
+    }
+
+    /* 📱 Coloca o Form Financeiro em cima e a Tabela embaixo */
+    .finance-layout {
+        grid-template-columns: 1fr; 
+    }
+
+    /* 📱 Ajustes para não quebrar a grade de projetos no celular */
+    .projects-grid {
+        display: grid;
+        grid-template-columns: 1fr !important; /* Força 1 card por linha */
+        gap: 20px;
+    }
+
+    /* 📱 Ajuste cirúrgico do Swiper para telas pequenas */
+    .card-image-container .swiper-button-next,
+    .card-image-container .swiper-button-prev {
+        padding: 12px 8px; /* Reduz o fundo preto */
+        --swiper-navigation-size: 14px; /* Setas um pouco mais discretas */
+    }
+}
+
+/* Estilo refinado para os campos de entrada e seleção */
+.input-field {
+    background-color: #1e1e1e !important;
+    border: 1px solid #333 !important;
+    border-radius: 6px !important;
+    color: #fff !important;
+    padding: 12px 15px !important;
+    font-size: 0.95rem !important;
+    transition: all 0.3s ease !important;
+    width: 100%;
+    outline: none;
+}
+
+.input-field:focus {
+    border-color: #f1c40f !important; /* Dourado da Garbo ao focar */
+    box-shadow: 0 0 0 2px rgba(241, 196, 15, 0.1) !important;
+    background-color: #252525 !important;
+}
+
+/* Ajuste específico para o seletor de data (ícone do calendário) */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1); /* Deixa o ícone do calendário branco */
+    cursor: pointer;
 }

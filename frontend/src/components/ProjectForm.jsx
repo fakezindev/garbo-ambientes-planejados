@@ -6,6 +6,7 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('PLANEJADOS');
+    const [status, setStatus] = useState('PROJETO');
     const [completionDate, setCompletionDate] = useState('');
 
     const [clients, setClients] = useState([]);
@@ -17,18 +18,15 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
 
     const fileInputRef = useRef(null);
 
+    // Carregar Clientes
     useEffect(() => {
         const token = localStorage.getItem('token');
         api.get('/clients', {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
+            headers: { Authorization: `Bearer ${token}` }
         })
             .then(response => {
                 if (Array.isArray(response.data)) {
                     setClients(response.data);
-                } else {
-                    setClients([]); // Se vier algo estranho, deixa a lista vazia
                 }
             })
             .catch(err => {
@@ -37,11 +35,13 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
             });
     }, []);
 
+    // Efeito para Edição
     useEffect(() => {
         if (projectToEdit) {
             setTitle(projectToEdit.title);
             setDescription(projectToEdit.description);
             setCategory(projectToEdit.category);
+            setStatus(projectToEdit.status || 'PROJETO');
             setCompletionDate(projectToEdit.completionDate || '');
             setClientId(projectToEdit.clientId || '');
 
@@ -53,7 +53,7 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
             }
 
             setPreviewUrls(fotosSalvas);
-            setImages([]);
+            setImages([]); // Resetamos o array de novos arquivos ao editar
         } else {
             clearForm();
         }
@@ -62,19 +62,50 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
         if (files.length > 0) {
-            setImages(files);
-            const urls = files.map(file => URL.createObjectURL(file));
-            setPreviewUrls(urls);
+            // ✅ Mantém as fotos antigas e adiciona as novas ao array de arquivos
+            setImages(prevImages => [...prevImages, ...files]);
+
+            // ✅ Gera previews sem apagar os que já estavam na tela
+            const newPreviewUrls = files.map(file => URL.createObjectURL(file));
+            setPreviewUrls(prevUrls => [...prevUrls, ...newPreviewUrls]);
         }
+        // Limpa o valor do input para permitir selecionar o mesmo arquivo novamente se desejar
+        if (fileInputRef.current) fileInputRef.current.value = "";
+    };
+
+    const removeImage = (indexToRemove) => {
+        // ❌ Remove do array de arquivos reais (ajustando o índice caso existam fotos vindas do banco)
+        // Se a imagem for nova (existir no array images), removemos ela.
+        // Como o previewUrls junta fotos do banco + fotos novas, precisamos de cuidado aqui.
+
+        setPreviewUrls(prevUrls => {
+            const urlToRemove = prevUrls[indexToRemove];
+            // Se for uma URL temporária do navegador, libera memória
+            if (urlToRemove.startsWith('blob:')) {
+                URL.revokeObjectURL(urlToRemove);
+            }
+            return prevUrls.filter((_, index) => index !== indexToRemove);
+        });
+
+        // Remove do array de arquivos (images) apenas se for uma foto recém adicionada
+        // (As fotos do banco não estão no array 'images')
+        setImages(prevImages => {
+            // O cálculo do índice aqui depende de como você organiza a ordem (banco primeiro ou novas primeiro)
+            // Por simplicidade, se você estiver apenas adicionando fotos novas:
+            return prevImages.filter((_, index) => index !== indexToRemove);
+        });
     };
 
     const clearForm = () => {
         setTitle('');
         setDescription('');
         setCategory('PLANEJADOS');
+        setStatus('PROJETO');
         setCompletionDate('');
         setClientId('');
         setImages([]);
+        // Limpa previews e revoga URLs para evitar vazamento de memória
+        previewUrls.forEach(url => { if (url.startsWith('blob:')) URL.revokeObjectURL(url); });
         setPreviewUrls([]);
         if (fileInputRef.current) fileInputRef.current.value = "";
     };
@@ -83,42 +114,33 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
         e.preventDefault();
         setLoading(true);
 
-        const formData = new FormData();
+        const existingImageUrls = previewUrls.filter(url => !url.startsWith('blob:'));
 
+        const formData = new FormData();
         const projectData = {
             title,
+            status,
             description,
             category,
             completionDate,
-            clientId: clientId
+            clientId: clientId,
+            existingImageUrls: existingImageUrls
         };
 
-        // Agora envia apenas como String JSON simples (o Java se vira para ler)
         formData.append('data', JSON.stringify(projectData));
 
         if (images && images.length > 0) {
-            for (let i = 0; i < images.length; i++) {
-                formData.append('images', images[i]);
-            }
+            images.forEach(img => formData.append('images', img));
         }
 
         try {
-            console.log(">>> Enviando projeto para o Java...");
-            console.log(">>> Quantidade de fotos no pacote:", images.length);
-
             const token = localStorage.getItem('token');
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            };
+            const config = { headers: { Authorization: `Bearer ${token}` } };
 
             if (projectToEdit) {
-                // Atualiza projeto existente
                 await api.put(`/projects/${projectToEdit.id}`, formData, config);
                 toast.success("Projeto atualizado com sucesso! 🏗️");
             } else {
-                // Cria projeto novo
                 await api.post('/projects', formData, config);
                 toast.success("Novo projeto publicado com sucesso! 🎉");
             }
@@ -126,15 +148,9 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
             clearForm();
             if (onUploadSuccess) onUploadSuccess();
             if (onCancelEdit) onCancelEdit();
-
         } catch (error) {
-            console.error('>>> ERRO DETALHADO AO SALVAR:', error);
-            if (error.code === 'ECONNABORTED') {
-                alert('O upload está demorando um pouco, mas está sendo processado no fundo!');
-            } else {
-                console.error("Erro ao salvar projeto:", error);
-                toast.error("Erro ao salvar o projeto. Verifique os dados e imagens. 🚨");
-            }
+            console.error("Erro ao salvar projeto:", error);
+            toast.error("Erro ao salvar o projeto. 🚨");
         } finally {
             setLoading(false);
         }
@@ -150,9 +166,9 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
                 )}
             </div>
             <br />
-
             <form onSubmit={handleSubmit} className="form-group">
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                {/* LINHA 1: TÍTULO E CATEGORIA */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
                     <input
                         type="text" placeholder="Título do Projeto"
                         value={title} onChange={e => setTitle(e.target.value)}
@@ -168,49 +184,83 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
                     </select>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                {/* LINHA 2: CLIENTE E STATUS (Corrigido o espaço gigante) */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
                     <select
                         value={clientId}
                         onChange={e => setClientId(e.target.value)}
                         className="input-field"
                     >
                         <option value="">Selecione um Cliente (Opcional)</option>
-                        {Array.isArray(clients) && clients.length > 0 ? (
-                            clients.map(client => (
-                                <option key={client.id} value={client.id}>
-                                    {client.name} - {client.email}
-                                </option>
-                            ))
-                        ) : (
-                            <option value="" disabled>Nenhum cliente disponível</option>
-                        )}
+                        {clients.map(client => (
+                            <option key={client.id} value={client.id}>{client.name} - {client.email}</option>
+                        ))}
                     </select>
 
+                    <select
+                        value={status}
+                        onChange={e => setStatus(e.target.value)}
+                        className="input-field"
+                        style={{ fontWeight: 'bold', color: status === 'CONCLUÍDO' ? '#27ae60' : '#f1c40f' }}
+                    >
+                        <option value="PROJETO">Em Projeto</option>
+                        <option value="FABRICAÇÃO">Em Fabricação</option>
+                        <option value="MONTAGEM">Em Montagem</option>
+                        <option value="CONCLUÍDO">Concluído</option>
+                    </select>
+                </div>
+
+                {/* LINHA 3: DATA DE PREVISÃO */}
+                <div style={{ marginBottom: '1rem' }}>
+                    <label style={{ color: '#888', fontSize: '0.8rem', display: 'block', marginBottom: '5px' }}>Previsão de Entrega</label>
                     <input
                         type="date"
-                        value={completionDate} onChange={e => setCompletionDate(e.target.value)}
+                        value={completionDate}
+                        onChange={e => setCompletionDate(e.target.value)}
                         className="input-field"
+                        style={{ width: '100%' }}
                     />
                 </div>
 
                 <textarea
                     placeholder="Descrição detalhada do projeto..."
                     value={description} onChange={e => setDescription(e.target.value)}
-                    required className="input-field" style={{ minHeight: '100px', resize: 'vertical' }}
+                    required className="input-field" style={{ minHeight: '100px', resize: 'vertical', marginBottom: '1rem' }}
                 />
 
-                <div className={`file-upload ${previewUrls.length > 0 ? 'has-image' : ''}`}>
-                    <label>
+                {/* UPLOAD DE IMAGENS COM BOTÃO DE REMOVER */}
+                <div className={`file-upload ${previewUrls.length > 0 ? 'has-image' : ''}`} style={{ marginBottom: '1rem' }}>
+                    <label style={{ cursor: 'pointer', display: 'block' }}>
                         {previewUrls.length > 0 && (
-                            <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '10px' }}>
+                            <div style={{ display: 'flex', gap: '15px', overflowX: 'auto', padding: '10px 5px' }}>
                                 {previewUrls.map((url, index) => (
-                                    <img key={index} src={url} alt={`Preview ${index}`} className="preview-image" style={{ width: '100px', height: '100px', objectFit: 'cover' }} />
+                                    <div key={index} style={{ position: 'relative', minWidth: '100px' }}>
+                                        <img
+                                            src={url}
+                                            alt={`Preview ${index}`}
+                                            style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #333' }}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                removeImage(index);
+                                            }}
+                                            style={{
+                                                position: 'absolute', top: '-8px', right: '-8px',
+                                                background: '#e74c3c', color: 'white', border: 'none',
+                                                borderRadius: '50%', width: '22px', height: '22px',
+                                                cursor: 'pointer', fontSize: '12px', fontWeight: 'bold',
+                                                display: 'flex', justifyContent: 'center', alignItems: 'center'
+                                            }}
+                                        >✕</button>
+                                    </div>
                                 ))}
                             </div>
                         )}
 
-                        <span style={{ display: 'block', marginTop: previewUrls.length > 0 ? '10px' : '0' }}>
-                            {images.length > 0 ? `${images.length} arquivo(s) selecionado(s)` : "📸 Clique para adicionar fotos do projeto"}
+                        <span style={{ display: 'block', marginTop: previewUrls.length > 0 ? '15px' : '0', color: '#f1c40f', fontWeight: '500' }}>
+                            {previewUrls.length > 0 ? `Adicionar mais fotos (${previewUrls.length})` : "📸 Clique para adicionar fotos do projeto"}
                         </span>
 
                         <input

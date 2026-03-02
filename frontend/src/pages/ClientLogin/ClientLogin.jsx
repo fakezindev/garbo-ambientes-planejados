@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api.js'; 
-import './ClientLogin.css'; // Crie este arquivo para estilizar a página de login do cliente
+import '../../components/Auth.css'; 
 import { Link } from 'react-router-dom';
 
 function Login() {
@@ -44,21 +44,21 @@ function Login() {
     };
 
     return (
-        <div className="login-container">
-            <div className="login-card">
-                <h2>Área do Cliente</h2>
-                <p>Acompanhe o seu projeto dos sonhos.</p>
+        <div className="auth-container">
+            <div className="auth-card">
+                <h2 className="auth-title">Área do Cliente</h2>
+                <p className="auth-subtitle">Acompanhe o seu projeto dos sonhos.</p>
 
-                {error && <div className="error-message">{error}</div>}
+                {error && <div style={{ color: '#ff4d4f', marginBottom: '15px', fontSize: '0.9rem' }}>{error}</div>}
 
-                <form onSubmit={handleLogin} className="login-form">
+                <form onSubmit={handleLogin} className="auth-form">
                     <input 
                         type="email" 
                         placeholder="Seu e-mail" 
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        className="input-field"
+                        className="auth-input"
                     />
                     
                     <input 
@@ -67,16 +67,16 @@ function Login() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="input-field"
+                        className="auth-input"
                     />
 
-                    <button type="submit" disabled={loading} className="btn-primary">
+                    <button type="submit" disabled={loading} className="auth-button">
                         {loading ? 'Entrando...' : 'Acessar Meus Projetos'}
                     </button>
                 </form>
 
-                <p style={{ marginTop: '15px', textAlign: 'center' }}>    
-                    Não possui uma conta? <Link to="/cadastro">Faça seu cadastro</Link>
+                <p style={{ marginTop: '20px', color: '#888', fontSize: '0.9rem' }}>    
+                    Não possui uma conta? <Link to="/cadastro" style={{ color: 'var(--gold-primary)', textDecoration: 'none', fontWeight: 'bold' }}>Faça seu cadastro</Link>
                 </p>
             </div>
         </div>

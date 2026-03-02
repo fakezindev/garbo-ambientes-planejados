@@ -15,7 +15,8 @@ public record ProjectResponseDTO(
         Long clientId,
         LocalDate completionDate,
         String coverImageUrl,
-        List<String> imageUrls
+        List<String> imageUrls,
+        String status
 ) {
     public ProjectResponseDTO(Project project) {
         this(
@@ -27,7 +28,8 @@ public record ProjectResponseDTO(
                 project.getClient() != null ? project.getClient().getId() : null,
                 project.getCompletionDate(),
                 project.getCoverImageUrl(),
-                project.getImageUrls()
+                project.getImageUrls(),
+                project.getStatus()
         );
     }
 }
