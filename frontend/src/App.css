@@ -24,7 +24,7 @@
 }
 
 body {
-  font-family: 'Montserrat', 'Inter', sans-serif; /* Sugestão: Fonte mais geométrica */
+  font-family: 'arial', sans-serif; /* Sugestão: Fonte mais geométrica */
   background-color: var(--bg-color);
   color: var(--text-main);
   line-height: 1.6;
