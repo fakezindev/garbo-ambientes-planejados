@@ -44,7 +44,6 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.POST, "/auth/client/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/projects").permitAll() // Clientes podem ver o portfólio
                         .requestMatchers(HttpMethod.GET, "/projects/*").permitAll()
-
                         .requestMatchers(HttpMethod.POST, "/leads").permitAll()
 
                         // BLOQUEADO (Só Admin com Token)

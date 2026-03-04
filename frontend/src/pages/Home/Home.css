@@ -6,51 +6,59 @@
     --gold-hover: #b5952f;
     --dark: #1a1a1a;
     --light-gray: #f9f9f9;
-    --text-color: #333;
+    --text-color: #e0e0e0;
     font-family: 'Inter', system-ui, sans-serif;
     color: var(--text-color);
-    background-color: white;
+    background-color: #121212;
+    padding-top: 70px;
 }
 
 /* =========================================
-   1. CABEÇALHO (HEADER) - AJUSTE EIXO (0,0)
+   1. CABEÇALHO (HEADER)
    ========================================= */
 .public-header {
+    position: fixed; /* Mudei para deixar apenas FIXED */
+    top: 0;
+    left: 0;
+    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    /* Alinhamento vertical perfeito no centro do eixo Y */
-
-    /* 🚨 Ajuste de Eixo: Reduzi o padding vertical de 50px para 15px 
-       e mantive 5% nas laterais para não encostar na borda do monitor */
-    padding: 15px 5%;
-
-    background-color: var(--dark);
+    padding: 10px 5%;
+    background-color: #121212;
     color: white;
-    position: sticky;
-    top: 0;
     z-index: 1000;
-
-    /* 🛡️ Bloqueio da Barra Branca: Removemos qualquer margem ou borda 
-       que possa fazer o fundo do body vazar */
     margin: 0 !important;
     border: none !important;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    /* Sombra leve para separar do conteúdo */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    transition: transform 0.3s ease-in-out; /* Mágica da animação */
+}
+
+/* 🚨 A CLASSE QUE FALTAVA PARA A ANIMAÇÃO FUNCIONAR */
+.header-hidden {
+    transform: translateY(-100%);
 }
 
 .logo-garbo {
-    /* 📏 Alinhamento X=0: Garantindo que o texto comece no limite da caixa */
     margin: 0;
     padding: 0;
-    line-height: 1;
-
-    font-size: 1.8rem;
-    font-weight: 800;
-    letter-spacing: 3px;
-    color: var(--gold);
     display: flex;
     align-items: center;
+}
+
+/* Estilos para o link que envolve a imagem */
+.logo-garbo a {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+/* Estilos para a imagem do logo */
+.logo-garbo img {
+    /* Mantenha o tamanho definido no JSX, ou controle-o por aqui */
+    /* height: 50px; /* Exemplo: altura de 50px */
+    width: auto; /* Mantém a proporção */
+    display: block;
 }
 
 .main-nav {
@@ -508,4 +516,108 @@
     background-color: #111;
     color: #888;
     font-size: 0.9rem;
+}
+
+/* =========================================
+   🚀 RESPONSIVIDADE (MOBILE & TABLET)
+   ========================================= */
+
+@media (max-width: 768px) {
+
+  /* 1. Ajustes Globais de Espaçamento e Títulos */
+  .section-title h2 {
+    font-size: 2rem !important;
+    /* Títulos menores para não quebrar a tela */
+  }
+
+  .location-section,
+  .contact-section,
+  .public-footer {
+    padding: 40px 5% !important;
+    /* Reduz o respiro gigante nas laterais e topo */
+  }
+
+  /* 2. Grades (Portfólio, Quem Somos, Propósito) */
+  .projects-grid,
+  .team-grid,
+  .mvv-grid {
+    grid-template-columns: 1fr !important;
+    /* Transforma tudo em 1 única coluna empilhada */
+    gap: 30px;
+  }
+
+  /* 3. Ajuste do Mapa */
+  .map-container {
+    height: 300px !important;
+    /* Mapa mais baixo para não ocupar a tela toda do celular */
+  }
+
+  /* 4. Formulário de Contato */
+  .contact-box {
+    padding: 25px !important;
+    /* Menos borda interna no formulário */
+  }
+
+  .form-row-mobile {
+    grid-template-columns: 1fr !important;
+    /* Empilha Nome e WhatsApp */
+  }
+
+  /* 5. Footer (Rodapé) Centralizado */
+  .public-footer>div {
+    flex-direction: column !important;
+    text-align: center !important;
+    align-items: center !important;
+  }
+
+  .public-footer ul {
+    text-align: center !important;
+    margin: 0 auto;
+  }
+
+  /* 🚨 6. AJUSTES DO CABEÇALHO E MENU (NAVBAR) */
+    header {
+        flex-direction: column !important; /* Empilha a logo e os links */
+        padding: 15px 10px !important;
+        gap: 15px !important;
+        text-align: center;
+    }
+    header nav {
+        display: flex;
+        flex-wrap: wrap; /* Permite que os links quebrem de linha sem espremer */
+        justify-content: center;
+        gap: 15px !important;
+    }
+    header nav a {
+        font-size: 0.9rem !important; /* Deixa os links menores no celular */
+    }
+
+    /* 🚨 7. AJUSTES DO BANNER PRINCIPAL (TEXTO GIGANTE VAZANDO) */
+    /* Assumindo que o título principal seja um <h1> e o subtítulo um <p> logo abaixo */
+    h1 {
+        font-size: 2.4rem !important; /* Reduz drasticamente para caber na tela */
+        line-height: 1.2 !important;
+        padding: 0 15px !important; /* Adiciona respiro nas laterais */
+        word-wrap: break-word !important; /* Força a quebra de palavra se for maior que a tela */
+    }
+    
+    h1 + p { /* Pega o parágrafo que vem logo depois do h1 (Subtítulo) */
+        font-size: 1rem !important;
+        padding: 0 20px !important;
+        line-height: 1.5 !important;
+    }
+
+  /* Centraliza a base de direitos autorais e assinatura */
+  .developer-signature {
+    justify-content: center !important;
+    width: 100%;
+    margin-top: 15px;
+  }
+}
+
+/* Regra padrão (Desktop) para a linha do Nome e Telefone no formulário */
+.form-row-mobile {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
 }

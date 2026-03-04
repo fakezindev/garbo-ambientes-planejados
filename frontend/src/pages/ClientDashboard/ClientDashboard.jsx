@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
+import logoGarbo from "../../assets/logo_header.png";
 
 // 🪄 Imports mágicos do Swiper
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -45,10 +46,6 @@ const ClientDashboard = () => {
         navigate("/");
     };
 
-    const formatCurrency = (value) => {
-        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
-    };
-
     const statusList = ["PROJETO", "FABRICAÇÃO", "MONTAGEM", "CONCLUÍDO"];
 
     // ⏳ 1. TELA DE CARREGAMENTO
@@ -65,7 +62,13 @@ const ClientDashboard = () => {
         return (
             <div style={{ padding: '2rem', textAlign: 'center', backgroundColor: '#121212', minHeight: '100vh', color: '#fff' }}>
                 <header style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3rem', maxWidth: '1200px', margin: '0 auto 3rem auto' }}>
-                    <h1 style={{ color: '#f1c40f', margin: 0 }}>GARBO</h1>
+                    <div className="logo-garbo">
+                        <img
+                            src={logoGarbo}
+                            alt="Garbo Arquitetura e Planejados"
+                            style={{ height: '100px', width: 'auto' }}
+                        />
+                    </div>
                     <button onClick={handleLogout} style={{ padding: '8px 16px', cursor: 'pointer', background: '#e74c3c', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold' }}>Sair</button>
                 </header>
                 <h2>Olá! Ainda não há projetos vinculados ao seu perfil.</h2>
@@ -82,11 +85,17 @@ const ClientDashboard = () => {
     // ✨ 4. TELA PRINCIPAL DO CLIENTE (O RETURN PRINCIPAL)
     return (
         <div style={{ backgroundColor: '#121212', minHeight: '100vh', padding: '20px', color: '#fff' }}>
-            <div style={{margin: '0 auto' }}>
+            <div style={{ margin: '0 auto' }}>
 
                 {/* CABEÇALHO GERAL (LOGO E SAIR) */}
                 <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                    <h1 style={{ color: '#f1c40f', margin: 0, fontSize: '1.8rem' }}>GARBO</h1>
+                    <div className="logo-garbo">
+                        <img
+                            src={logoGarbo}
+                            alt="Garbo Arquitetura e Planejados"
+                            style={{ height: '100px', width: 'auto' }}
+                        />
+                    </div>
                     <button onClick={handleLogout} style={{ padding: '8px 16px', cursor: 'pointer', background: '#333', color: '#fff', border: '1px solid #444', borderRadius: '4px', fontWeight: 'bold' }}>Sair da Conta</button>
                 </header>
 

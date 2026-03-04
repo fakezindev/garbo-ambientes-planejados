@@ -1,9 +1,10 @@
 package com.fakezindev.garbo.service;
 
 import com.fakezindev.garbo.dto.LeadRequestDTO;
+import com.fakezindev.garbo.dto.LeadResponseDTO;
 import com.fakezindev.garbo.model.entities.Lead;
-import com.fakezindev.garbo.model.enums.LeadStatus;
 import com.fakezindev.garbo.repository.LeadRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,13 +14,21 @@ public class LeadService {
 
     private final LeadRepository leadRepository;
 
-    public Lead savelead(LeadRequestDTO dto) {
+    @Transactional
+    public LeadResponseDTO create(LeadRequestDTO dto) {
         Lead lead = new Lead();
-        lead.setStatus(LeadStatus.NOVO);
         lead.setName(dto.name());
-        lead.setEmail(dto.email());
         lead.setPhone(dto.phone());
+        lead.setEmail(dto.email());
+        lead.setService(dto.service());
         lead.setEnvironment(dto.environment());
-        return leadRepository.save(lead);
+
+        lead = leadRepository.save(lead);
+        return new LeadResponseDTO(lead);
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        leadRepository.deleteById(id);
     }
 }

@@ -2,6 +2,29 @@
    1. ESTRUTURA PRINCIPAL DO ADMIN
    ========================================= */
 
+.logo-garbo {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+/* Estilos para o link que envolve a imagem */
+.logo-garbo a {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+/* Estilos para a imagem do logo */
+.logo-garbo img {
+    /* Mantenha o tamanho definido no JSX, ou controle-o por aqui */
+    /* height: 50px; /* Exemplo: altura de 50px */
+    width: auto;
+    /* Mantém a proporção */
+    display: block;
+}
+
 .admin-container {
     padding: 20px;
     max-width: 1200px;
@@ -13,7 +36,8 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 2rem;
-    flex-wrap: wrap; /* 📱 No celular, se faltar espaço, o botão desce */
+    flex-wrap: wrap;
+    /* 📱 No celular, se faltar espaço, o botão desce */
     gap: 15px;
 }
 
@@ -24,20 +48,24 @@
     margin-bottom: 2rem;
     border-bottom: 2px solid #333;
     padding-bottom: 10px;
-    overflow-x: auto; /* 📱 Permite rolar as abas horizontalmente no celular */
-    white-space: nowrap; /* Impede que o texto dos botões quebre no meio */
-    -webkit-overflow-scrolling: touch; /* Deixa o scroll suave no iPhone */
+    overflow-x: auto;
+    /* 📱 Permite rolar as abas horizontalmente no celular */
+    white-space: nowrap;
+    /* Impede que o texto dos botões quebre no meio */
+    -webkit-overflow-scrolling: touch;
+    /* Deixa o scroll suave no iPhone */
 }
 
 /* Esconde a barra de rolagem visual das abas, mas mantém a função */
 .admin-tabs::-webkit-scrollbar {
-    display: none; 
+    display: none;
 }
 
 /* 💰 Layout do Financeiro */
 .finance-layout {
     display: grid;
-    grid-template-columns: 1fr 2fr; /* PC: Form na esquerda, Tabela na direita */
+    grid-template-columns: 1fr 2fr;
+    /* PC: Form na esquerda, Tabela na direita */
     gap: 2rem;
     align-items: start;
 }
@@ -46,33 +74,40 @@
    2. AJUSTES DO CARROSSEL (SWIPER) NOS CARDS
    ========================================= */
 .card-image-container {
-  --swiper-navigation-size: 18px; /* Tamanho original é 44px (gigante) */
-  --swiper-theme-color: #ffffff;  /* Deixa setas e bolinhas brancas */
-  position: relative; /* Garante que as setas obedeçam ao limite da foto */
+    --swiper-navigation-size: 18px;
+    /* Tamanho original é 44px (gigante) */
+    --swiper-theme-color: #ffffff;
+    /* Deixa setas e bolinhas brancas */
+    position: relative;
+    /* Garante que as setas obedeçam ao limite da foto */
 }
 
 .card-image-container .swiper-button-next,
 .card-image-container .swiper-button-prev {
-  background-color: rgba(0, 0, 0, 0.3); /* Fundo pretinho transparente */
-  padding: 18px 12px;
-  border-radius: 8px; /* Borda arredondada elegante */
-  transition: background-color 0.3s ease;
+    background-color: rgba(0, 0, 0, 0.3);
+    /* Fundo pretinho transparente */
+    padding: 18px 12px;
+    border-radius: 8px;
+    /* Borda arredondada elegante */
+    transition: background-color 0.3s ease;
 }
 
 .card-image-container .swiper-button-next:hover,
 .card-image-container .swiper-button-prev:hover {
-  background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.7);
 }
 
 .card-image-container .swiper-pagination-bullet {
-  background: #ffffff;
-  opacity: 0.5;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.5); /* Sombra para dar leitura */
+    background: #ffffff;
+    opacity: 0.5;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    /* Sombra para dar leitura */
 }
 
 .card-image-container .swiper-pagination-bullet-active {
-  opacity: 1;
-  transform: scale(1.2); /* Fica um pouquinho maior */
+    opacity: 1;
+    transform: scale(1.2);
+    /* Fica um pouquinho maior */
 }
 
 /* =========================================
@@ -89,21 +124,24 @@
 
     /* 📱 Coloca o Form Financeiro em cima e a Tabela embaixo */
     .finance-layout {
-        grid-template-columns: 1fr; 
+        grid-template-columns: 1fr;
     }
 
     /* 📱 Ajustes para não quebrar a grade de projetos no celular */
     .projects-grid {
         display: grid;
-        grid-template-columns: 1fr !important; /* Força 1 card por linha */
+        grid-template-columns: 1fr !important;
+        /* Força 1 card por linha */
         gap: 20px;
     }
 
     /* 📱 Ajuste cirúrgico do Swiper para telas pequenas */
     .card-image-container .swiper-button-next,
     .card-image-container .swiper-button-prev {
-        padding: 12px 8px; /* Reduz o fundo preto */
-        --swiper-navigation-size: 14px; /* Setas um pouco mais discretas */
+        padding: 12px 8px;
+        /* Reduz o fundo preto */
+        --swiper-navigation-size: 14px;
+        /* Setas um pouco mais discretas */
     }
 }
 
@@ -121,13 +159,15 @@
 }
 
 .input-field:focus {
-    border-color: #f1c40f !important; /* Dourado da Garbo ao focar */
+    border-color: #f1c40f !important;
+    /* Dourado da Garbo ao focar */
     box-shadow: 0 0 0 2px rgba(241, 196, 15, 0.1) !important;
     background-color: #252525 !important;
 }
 
 /* Ajuste específico para o seletor de data (ícone do calendário) */
 input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: invert(1); /* Deixa o ícone do calendário branco */
+    filter: invert(1);
+    /* Deixa o ícone do calendário branco */
     cursor: pointer;
 }

@@ -1,20 +1,29 @@
 /* --- IDENTIDADE GARBO: DARK & GOLD --- */
 :root {
   /* Cores Extraídas da Logo */
-  --bg-color: #121212;        /* Preto Fundo (quase absoluto) */
-  --card-bg: #1e1e1e;         /* Cinza Chumbo (para destacar do fundo) */
-  
-  --gold-primary: #d4af37;    /* Dourado Clássico */
-  --gold-light: #f1c40f;      /* Dourado Brilhante */
-  --gold-dark: #b8860b;       /* Dourado Escuro (Sombra) */
-  
-  --text-main: #f0f0f0;       /* Branco Gelo */
-  --text-muted: #a0a0a0;      /* Cinza Prata */
-  
-  --danger: #e74c3c;          /* Vermelho (Excluir) - mantido mas suavizado */
-  
+  --bg-color: #121212;
+  /* Preto Fundo (quase absoluto) */
+  --card-bg: #1e1e1e;
+  /* Cinza Chumbo (para destacar do fundo) */
+
+  --gold-primary: #d4af37;
+  /* Dourado Clássico */
+  --gold-light: #f1c40f;
+  /* Dourado Brilhante */
+  --gold-dark: #b8860b;
+  /* Dourado Escuro (Sombra) */
+
+  --text-main: #f0f0f0;
+  /* Branco Gelo */
+  --text-muted: #a0a0a0;
+  /* Cinza Prata */
+
+  --danger: #e74c3c;
+  /* Vermelho (Excluir) - mantido mas suavizado */
+
   --radius: 8px;
-  --shadow: 0 8px 16px rgba(0, 0, 0, 0.4); /* Sombra mais dramática */
+  --shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+  /* Sombra mais dramática */
 }
 
 * {
@@ -24,7 +33,8 @@
 }
 
 body {
-  font-family: 'arial', sans-serif; /* Sugestão: Fonte mais geométrica */
+  font-family: 'arial', sans-serif;
+  /* Sugestão: Fonte mais geométrica */
   background-color: var(--bg-color);
   color: var(--text-main);
   line-height: 1.6;
@@ -51,12 +61,13 @@ header h1 {
   letter-spacing: 2px;
   text-transform: uppercase;
   margin-bottom: 0.5rem;
-  
+
   /* Gradiente Dourado no Texto */
   background: linear-gradient(to right, var(--gold-dark), var(--gold-light), var(--gold-primary), var(--gold-dark));
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent; /* Deixa o texto transparente para mostrar o fundo dourado */
+  color: transparent;
+  /* Deixa o texto transparente para mostrar o fundo dourado */
 }
 
 header p {
@@ -153,20 +164,21 @@ header p {
 }
 
 .preview-image {
-  max-width: 100%;   
-  max-height: 350px;  
-  object-fit: cover;  
+  max-width: 100%;
+  max-height: 350px;
+  object-fit: cover;
   border-radius: var(--radius);
-  border: 3px solid var(--gold-primary); 
-  box-shadow: 0 8px 16px rgba(0,0,0,0.5); 
-  margin-bottom: 1rem; 
+  border: 3px solid var(--gold-primary);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+  margin-bottom: 1rem;
 }
 
 /* --- BOTÕES PREMIUM --- */
 .btn {
   padding: 14px 28px;
   border: none;
-  border-radius: 4px; /* Bordas mais quadradas combinam com luxo */
+  border-radius: 4px;
+  /* Bordas mais quadradas combinam com luxo */
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -177,7 +189,8 @@ header p {
 
 .btn-primary {
   background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
-  color: #121212; /* Texto preto no fundo dourado fica muito legível */
+  color: #121212;
+  /* Texto preto no fundo dourado fica muito legível */
 }
 
 .btn-primary:hover {
@@ -234,7 +247,8 @@ header p {
   font-size: 2rem;
   color: var(--text-main);
   margin-bottom: 2rem;
-  border-left: 5px solid var(--gold-primary); /* Linha dourada vertical */
+  border-left: 5px solid var(--gold-primary);
+  /* Linha dourada vertical */
   padding-left: 1rem;
 }
 
@@ -259,7 +273,8 @@ header p {
 }
 
 .card-image-container {
-  height: 240px; /* Imagens mais altas */
+  height: 240px;
+  /* Imagens mais altas */
   background-color: #2d2d2d;
   position: relative;
 }
@@ -268,7 +283,8 @@ header p {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.9; /* Levemente escurecida para manter o mood */
+  opacity: 0.9;
+  /* Levemente escurecida para manter o mood */
   transition: opacity 0.3s;
 }
 
@@ -297,7 +313,8 @@ header p {
 }
 
 .badge {
-  background: rgba(212, 175, 55, 0.1); /* Dourado bem transparente */
+  background: rgba(212, 175, 55, 0.1);
+  /* Dourado bem transparente */
   color: var(--gold-primary);
   border: 1px solid var(--gold-dark);
   font-size: 0.7rem;
@@ -337,7 +354,8 @@ header p {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: var(--bg-light); /* Fundo suave, mude se seu site for escuro */
+  background-color: var(--bg-light);
+  /* Fundo suave, mude se seu site for escuro */
   padding: 20px;
 }
 
@@ -359,7 +377,8 @@ header p {
   margin: 0;
   font-size: 2rem;
   letter-spacing: 2px;
-  color: var(--gold-primary); /* Ou a cor dourada que você usa: var(--gold) */
+  color: var(--gold-primary);
+  /* Ou a cor dourada que você usa: var(--gold) */
 }
 
 .login-header p {
@@ -401,14 +420,16 @@ header p {
 
 .form-group input:focus {
   outline: none;
-  border-color: var(--gold-primary); /* Mude para a cor principal do seu site */
+  border-color: var(--gold-primary);
+  /* Mude para a cor principal do seu site */
   box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
 }
 
 .btn-submit {
   margin-top: 10px;
   padding: 14px;
-  background-color: var(--gold-dark); /* Mude para a cor do seu botão de Salvar Projeto */
+  background-color: var(--gold-dark);
+  /* Mude para a cor do seu botão de Salvar Projeto */
   color: white;
   border: none;
   border-radius: 6px;
@@ -421,7 +442,8 @@ header p {
 }
 
 .btn-submit:hover {
-  background-color: var(--gold-light); /* Mude para a cor de hover do seu botão de Salvar Projeto */
+  background-color: var(--gold-light);
+  /* Mude para a cor de hover do seu botão de Salvar Projeto */
 }
 
 .btn-submit:disabled {
@@ -439,4 +461,108 @@ header p {
   font-weight: 600;
   font-size: 0.9rem;
   border-left: 4px solid #d63031;
+}
+
+/* =========================================
+   🚀 RESPONSIVIDADE (MOBILE & TABLET)
+   ========================================= */
+
+@media (max-width: 768px) {
+
+  /* 1. Ajustes Globais de Espaçamento e Títulos */
+  .section-title h2 {
+    font-size: 2rem !important;
+    /* Títulos menores para não quebrar a tela */
+  }
+
+  .location-section,
+  .contact-section,
+  .public-footer {
+    padding: 40px 5% !important;
+    /* Reduz o respiro gigante nas laterais e topo */
+  }
+
+  /* 2. Grades (Portfólio, Quem Somos, Propósito) */
+  .projects-grid,
+  .team-grid,
+  .mvv-grid {
+    grid-template-columns: 1fr !important;
+    /* Transforma tudo em 1 única coluna empilhada */
+    gap: 30px;
+  }
+
+  /* 3. Ajuste do Mapa */
+  .map-container {
+    height: 300px !important;
+    /* Mapa mais baixo para não ocupar a tela toda do celular */
+  }
+
+  /* 4. Formulário de Contato */
+  .contact-box {
+    padding: 25px !important;
+    /* Menos borda interna no formulário */
+  }
+
+  .form-row-mobile {
+    grid-template-columns: 1fr !important;
+    /* Empilha Nome e WhatsApp */
+  }
+
+  /* 5. Footer (Rodapé) Centralizado */
+  .public-footer>div {
+    flex-direction: column !important;
+    text-align: center !important;
+    align-items: center !important;
+  }
+
+  .public-footer ul {
+    text-align: center !important;
+    margin: 0 auto;
+  }
+
+  /* 🚨 6. AJUSTES DO CABEÇALHO E MENU (NAVBAR) */
+    header {
+        flex-direction: column !important; /* Empilha a logo e os links */
+        padding: 15px 10px !important;
+        gap: 15px !important;
+        text-align: center;
+    }
+    header nav {
+        display: flex;
+        flex-wrap: wrap; /* Permite que os links quebrem de linha sem espremer */
+        justify-content: center;
+        gap: 15px !important;
+    }
+    header nav a {
+        font-size: 0.9rem !important; /* Deixa os links menores no celular */
+    }
+
+    /* 🚨 7. AJUSTES DO BANNER PRINCIPAL (TEXTO GIGANTE VAZANDO) */
+    /* Assumindo que o título principal seja um <h1> e o subtítulo um <p> logo abaixo */
+    h1 {
+        font-size: 2.4rem !important; /* Reduz drasticamente para caber na tela */
+        line-height: 1.2 !important;
+        padding: 0 15px !important; /* Adiciona respiro nas laterais */
+        word-wrap: break-word !important; /* Força a quebra de palavra se for maior que a tela */
+    }
+    
+    h1 + p { /* Pega o parágrafo que vem logo depois do h1 (Subtítulo) */
+        font-size: 1rem !important;
+        padding: 0 20px !important;
+        line-height: 1.5 !important;
+    }
+
+  /* Centraliza a base de direitos autorais e assinatura */
+  .developer-signature {
+    justify-content: center !important;
+    width: 100%;
+    margin-top: 15px;
+  }
+}
+
+/* Regra padrão (Desktop) para a linha do Nome e Telefone no formulário */
+.form-row-mobile {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
 }

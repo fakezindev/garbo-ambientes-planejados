@@ -1,10 +1,13 @@
 /* Auth.css - Padrão para todas as telas de Login e Registro */
+
+
 .auth-container {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #121212; /* Fundo escuro e elegante */
+    background-color: #121212;
+    /* Fundo escuro e elegante */
     padding: 20px;
 }
 
@@ -14,7 +17,8 @@
     border-radius: 8px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
     width: 100%;
-    max-width: 400px; /* Não deixa a caixa ficar gigante no PC */
+    max-width: 400px;
+    /* Não deixa a caixa ficar gigante no PC */
     text-align: center;
 }
 
@@ -48,11 +52,12 @@
 
 .auth-input:focus {
     outline: none;
-    border-color: var(--gold-primary); /* Um verde elegante quando clica no campo */
+    border-color: var(--gold-primary);
+    /* Um verde elegante quando clica no campo */
 }
 
 .auth-button {
-    background-color: var(--gold-dark); 
+    background-color: var(--gold-dark);
     color: #fff;
     padding: 12px;
     border: none;
@@ -65,12 +70,110 @@
 }
 
 .auth-button:hover {
-    filter: brightness(1.2); /* Fica mais claro ao passar o mouse */
+    filter: brightness(1.2);
+    /* Fica mais claro ao passar o mouse */
 }
 
-/* 📱 Responsividade para celulares pequenos */
-@media (max-width: 480px) {
-    .auth-card {
-        padding: 1.5rem; /* Diminui as bordas internas para dar mais espaço */
+/* =========================================
+   🚀 RESPONSIVIDADE (MOBILE & TABLET)
+   ========================================= */
+
+@media (max-width: 768px) {
+
+    /* 1. Ajustes Globais de Espaçamento e Títulos */
+    .section-title h2 {
+        font-size: 2rem !important;
+        /* Títulos menores para não quebrar a tela */
     }
+
+    .location-section,
+    .contact-section,
+    .public-footer {
+        padding: 40px 5% !important;
+        /* Reduz o respiro gigante nas laterais e topo */
+    }
+
+    /* 2. Grades (Portfólio, Quem Somos, Propósito) */
+    .projects-grid,
+    .team-grid,
+    .mvv-grid {
+        grid-template-columns: 1fr !important;
+        /* Transforma tudo em 1 única coluna empilhada */
+        gap: 30px;
+    }
+
+    /* 3. Ajuste do Mapa */
+    .map-container {
+        height: 300px !important;
+        /* Mapa mais baixo para não ocupar a tela toda do celular */
+    }
+
+    /* 4. Formulário de Contato */
+    .contact-box {
+        padding: 25px !important;
+        /* Menos borda interna no formulário */
+    }
+
+    .form-row-mobile {
+        grid-template-columns: 1fr !important;
+        /* Empilha Nome e WhatsApp */
+    }
+
+    /* 5. Footer (Rodapé) Centralizado */
+    .public-footer>div {
+        flex-direction: column !important;
+        text-align: center !important;
+        align-items: center !important;
+    }
+
+    .public-footer ul {
+        text-align: center !important;
+        margin: 0 auto;
+    }
+
+    /* 🚨 6. AJUSTES DO CABEÇALHO E MENU (NAVBAR) */
+    header {
+        flex-direction: column !important; /* Empilha a logo e os links */
+        padding: 15px 10px !important;
+        gap: 15px !important;
+        text-align: center;
+    }
+    header nav {
+        display: flex;
+        flex-wrap: wrap; /* Permite que os links quebrem de linha sem espremer */
+        justify-content: center;
+        gap: 15px !important;
+    }
+    header nav a {
+        font-size: 0.9rem !important; /* Deixa os links menores no celular */
+    }
+
+    /* 🚨 7. AJUSTES DO BANNER PRINCIPAL (TEXTO GIGANTE VAZANDO) */
+    /* Assumindo que o título principal seja um <h1> e o subtítulo um <p> logo abaixo */
+    h1 {
+        font-size: 2.4rem !important; /* Reduz drasticamente para caber na tela */
+        line-height: 1.2 !important;
+        padding: 0 15px !important; /* Adiciona respiro nas laterais */
+        word-wrap: break-word !important; /* Força a quebra de palavra se for maior que a tela */
+    }
+    
+    h1 + p { /* Pega o parágrafo que vem logo depois do h1 (Subtítulo) */
+        font-size: 1rem !important;
+        padding: 0 20px !important;
+        line-height: 1.5 !important;
+    }
+
+    /* Centraliza a base de direitos autorais e assinatura */
+    .developer-signature {
+        justify-content: center !important;
+        width: 100%;
+        margin-top: 15px;
+    }
+}
+
+/* Regra padrão (Desktop) para a linha do Nome e Telefone no formulário */
+.form-row-mobile {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
 }

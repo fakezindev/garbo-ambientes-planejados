@@ -1,6 +1,5 @@
 package com.fakezindev.garbo.model.entities;
 
-import com.fakezindev.garbo.model.enums.LeadStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -19,11 +18,10 @@ public class Lead {
     private String name;
     private String email;
     private String phone;
+    private String service;
 
+    @Column(columnDefinition = "TEXT")
     private String environment;
-
-    @Enumerated(EnumType.STRING)
-    private LeadStatus status = LeadStatus.NOVO;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

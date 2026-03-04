@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import api from "../../services/api"; // Ajuste o caminho se necessário
 import "./Home.css";
 import imgEdna from "../../assets/edna_arquiteta.jpeg";
+import logoGarbo from "../../assets/logo_header.png";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
@@ -16,50 +18,95 @@ const Home = () => {
   const [leadName, setLeadName] = useState("");
   const [leadEmail, setLeadEmail] = useState("");
   const [leadPhone, setLeadPhone] = useState("");
-  const [leadEnvironment, setLeadEnvironment] = useState("");
-  const [leadStatus, setLeadStatus] = useState("");
+  const [leadService, setLeadService] = useState('');
+  const [leadEnvironment, setLeadEnvironment] = useState('');
+  const [isSubmittingLead, setIsSubmittingLead] = useState(false);
 
-  // Busca os projetos reais do seu banco de dados ao carregar a página
+  const [showHeader, setShowHeader] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  // 1️⃣ EFFECT DOS PROJETOS (Roda apenas uma vez ao abrir o site)
   useEffect(() => {
     api
       .get("/projects")
       .then((response) => setProjects(response.data))
       .catch((err) => console.error("Erro ao buscar projetos:", err));
-  }, []);
+  }, []); // 👈 Array vazio garante que roda só 1 vez!
+
+  // 2️⃣ EFFECT DO SCROLL (Controla o Menu Inteligente)
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY > lastScrollY && currentScrollY > 80) {
+        setShowHeader(false); // Esconde ao rolar para baixo
+      } else {
+        setShowHeader(true); // Mostra ao rolar para cima
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [lastScrollY]);
 
   const handleSubmitLead = async (e) => {
     e.preventDefault();
-    setLeadStatus("Enviando...");
+    setIsSubmittingLead(true);
 
     try {
-      await api.post("/leads", {
+      const leadData = {
         name: leadName,
         email: leadEmail,
         phone: leadPhone,
+        service: leadService,
         environment: leadEnvironment,
+      };
+      await api.post("/leads", leadData);
+
+      toast.success('Solicitação enviada com sucesso! A equipe da Garbo entrará em contato em breve.', {
+        position: "bottom-right", // Fica elegante no canto inferior
+        theme: "dark" // Combina com o site da Garbo!
       });
 
-      setLeadStatus("Sucesso! Em breve nossa equipe entrará em contato.");
-      // Limpa o formulário
       setLeadName("");
       setLeadEmail("");
       setLeadPhone("");
+      setLeadService("");
       setLeadEnvironment("");
+
     } catch (error) {
-      console.error("Erro ao enviar lead:", error);
-      setLeadStatus("Erro ao enviar. Tente novamente mais tarde.");
+      console.error("Erro ao enviar contato:", error);
+      toast.error('Ocorreu um erro ao enviar sua solicitação. Por favor, tente pelo WhatsApp.', {
+        position: "bottom-right",
+        theme: "dark"
+      });
+    } finally {
+      setIsSubmittingLead(false);
     }
   };
 
   return (
     <div className="home-container">
       {/* 1. CABEÇALHO (Menu de Navegação) */}
-      <header className="public-header">
-        <div className="logo-garbo">GARBO</div>
+      <header className={`public-header ${showHeader ? '' : 'header-hidden'}`}>
+        <div className="logo-garbo">
+          <a href="/" style={{ display: 'flex', alignItems: 'center' }}>
+            <img
+              src={logoGarbo}
+              alt="Garbo Arquitetura e Planejados"
+              style={{ height: '50px', width: 'auto' }} // Ajuste a altura conforme necessário
+            />
+          </a>
+        </div>
         <nav className="main-nav">
           <a href="#sobre">Sobre Nós</a>
           <a href="#portfolio">Projetos</a>
-          <a href="#contato">Orçamento</a>
+          <a href="#orcamento">Orçamento</a>
           <Link to="/area-cliente" className="btn-area-cliente">
             Área do Cliente
           </Link>
@@ -74,7 +121,7 @@ const Home = () => {
             Design exclusivo, marcenaria de alto padrão e pontualidade na
             entrega. O seu ambiente perfeito começa aqui.
           </p>
-          <a href="#contato" className="btn-hero">
+          <a href="#orcamento" className="btn-hero">
             Solicite um Orçamento
           </a>
         </div>
@@ -341,8 +388,7 @@ const Home = () => {
           }}
         >
           <p style={{ margin: 0 }}>
-            📍 <strong>Avenida André Luiz, 296</strong> - Picanço / Guarulhos -
-            SP
+            📍 <strong>Av. André Luiz, 296 - </strong> Picanço, Guarulhos - SP, 07082-050
           </p>
         </div>
       </section>
@@ -390,13 +436,10 @@ const Home = () => {
           <form
             className="lead-form"
             style={{ display: "flex", flexDirection: "column", gap: "20px" }}
+            onSubmit={handleSubmitLead}
           >
             <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "20px",
-              }}
+              className="form-row-mobile"
             >
               <input
                 type="text"
@@ -404,6 +447,8 @@ const Home = () => {
                 required
                 className="input-field"
                 style={{ width: "100%", boxSizing: "border-box" }}
+                value={leadName}
+                onChange={(e) => setLeadName(e.target.value)}
               />
               <input
                 type="tel"
@@ -411,6 +456,8 @@ const Home = () => {
                 required
                 className="input-field"
                 style={{ width: "100%", boxSizing: "border-box" }}
+                value={leadPhone}
+                onChange={(e) => setLeadPhone(e.target.value)}
               />
             </div>
 
@@ -420,28 +467,25 @@ const Home = () => {
               required
               className="input-field"
               style={{ width: "100%", boxSizing: "border-box" }}
+              value={leadEmail}
+              onChange={(e) => setLeadEmail(e.target.value)}
             />
 
             {/* 🎯 AQUI O CLIENTE ESCOLHE O SERVIÇO EXATO DO BANNER */}
             <select
               required
               className="input-field"
-              defaultValue=""
               style={{ width: "100%", boxSizing: "border-box" }}
+              value={leadService}
+              onChange={(e) => setLeadService(e.target.value)}
             >
-              <option value="" disabled>
-                Qual serviço deseja solicitar?
-              </option>
+              <option value="" disabled> Qual serviço deseja solicitar?</option>
               <option value="Móveis planejados">Móveis planejados</option>
               <option value="Serviço em gesso">Serviço em gesso</option>
               <option value="Designer de interior">Designer de interior</option>
               <option value="Reforma em geral">Reforma em geral</option>
-              <option value="Projetos Arquitetônicos">
-                Projetos Arquitetônicos
-              </option>
-              <option value="Piso vinílico e Laminado">
-                Piso vinílico e Laminado
-              </option>
+              <option value="Projetos Arquitetônicos"> Projetos Arquitetônicos</option>
+              <option value="Piso vinílico e Laminado">Piso vinílico e Laminado</option>
               <option value="RRT">RRT</option>
               <option value="Laudo técnico">Laudo técnico</option>
               <option value="Persianas e cortinas">Persianas e cortinas</option>
@@ -457,6 +501,8 @@ const Home = () => {
                 width: "100%",
                 boxSizing: "border-box",
               }}
+              value={leadEnvironment}
+              onChange={(e) => setLeadEnvironment(e.target.value)}
             ></textarea>
 
             <button
@@ -471,7 +517,7 @@ const Home = () => {
                 letterSpacing: "1px",
               }}
             >
-              Enviar Solicitação
+              {isSubmittingLead ? 'Enviando...' : 'Enviar Solicitação'}
             </button>
           </form>
         </div>
@@ -484,9 +530,10 @@ const Home = () => {
         className="public-footer"
         style={{
           backgroundColor: "#0a0a0a",
-          padding: "60px 5% 20px",
+          padding: "50px 5% 20px",
           borderTop: "1px solid #222",
           margin: 0,
+          height: "auto",
         }}
       >
         {/* Container principal das colunas */}
@@ -504,38 +551,18 @@ const Home = () => {
         >
           {/* COLUNA 1: Marca e Endereço */}
           <div style={{ flex: "1", minWidth: "250px" }}>
-            <h2
-              style={{
-                color: "#d4af37",
-                margin: "0 0 15px 0",
-                letterSpacing: "3px",
-                fontSize: "1.8rem",
-                fontWeight: "800",
-              }}
-            >
-              GARBO
-            </h2>
-            <p
-              style={{
-                color: "#aaa",
-                fontSize: "0.95rem",
-                lineHeight: "1.6",
-                margin: "0 0 15px 0",
-              }}
-            >
-              Arquitetura e Planejados.
+            <a href="/" style={{ display: 'inline-block', marginBottom: '15px' }}>
+              <img
+                src={logoGarbo}
+                alt="Garbo Arquitetura e Planejados"
+                style={{ height: '60px', width: 'auto' }} /* Deixei com 60px para dar um destaque bonito no rodapé */
+              />
+            </a>
+            {/* 🚨 PREENCHA O CNPJ AQUI */}
+            <p style={{ color: "#666", fontSize: "0.85rem", margin: 0 }}>
+              GARBO ARQUITETURA E PLANEJADOS LTDA - ME
               <br />
-              Transformando espaços em verdadeiros lares.
-            </p>
-            <p
-              style={{
-                color: "#888",
-                fontSize: "0.9rem",
-                margin: 0,
-                lineHeight: "1.5",
-              }}
-            >
-              📍 Avenida André Luiz, 296 Picanço - Guarulhos / SP
+              CNPJ: 56.745.608/0001-08
             </p>
           </div>
 
@@ -662,12 +689,6 @@ const Home = () => {
                 </a>
               </li>
             </ul>
-            {/* 🚨 PREENCHA O CNPJ AQUI */}
-            <p style={{ color: "#666", fontSize: "0.85rem", margin: 0 }}>
-              GARBO ARQUITETURA E PLANEJADOS LTDA - ME
-              <br />
-              CNPJ: 56.745.608/0001-08
-            </p>
           </div>
         </div>
 
@@ -676,7 +697,7 @@ const Home = () => {
           style={{
             borderTop: "1px solid #222", /* Um tom um pouquinho mais claro que o fundo para dar destaque */
             width: "100%",
-            margin: "40px 0 20px 0",
+            margin: "0px 0 20px 0",
           }}
         ></div>
 
@@ -696,16 +717,16 @@ const Home = () => {
           }}
         >
           <p style={{ margin: 0, letterSpacing: "0.5px" }}>
-            © {new Date().getFullYear()} Garbo. Todos os direitos reservados.
+            © {new Date().getFullYear()} Garbo Arquitetura e Planejados. Todos os direitos reservados.
           </p>
 
           {/* SUA ASSINATURA VIP 💻✨ */}
           <div
             className="developer-signature"
-            style={{ 
-              display: "flex", 
-              alignItems: "center", 
-              gap: "6px" 
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px"
             }}
           >
             <span>Desenvolvido com 💻 por</span>

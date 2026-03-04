@@ -1,3 +1,25 @@
+.logo-garbo {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+/* Estilos para o link que envolve a imagem */
+.logo-garbo a {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+/* Estilos para a imagem do logo */
+.logo-garbo img {
+    /* Mantenha o tamanho definido no JSX, ou controle-o por aqui */
+    /* height: 50px; /* Exemplo: altura de 50px */
+    width: auto; /* Mantém a proporção */
+    display: block;
+}
+
 .login-wrapper {
   display: flex;
   justify-content: center;
@@ -105,4 +127,76 @@
   font-weight: 600;
   font-size: 0.9rem;
   border-left: 4px solid #d63031;
+}
+
+/* =========================================
+   🚀 RESPONSIVIDADE (MOBILE & TABLET)
+   ========================================= */
+
+@media (max-width: 768px) {
+
+  /* 1. Ajustes Globais de Espaçamento e Títulos */
+  .section-title h2 {
+    font-size: 2rem !important;
+    /* Títulos menores para não quebrar a tela */
+  }
+
+  .location-section,
+  .contact-section,
+  .public-footer {
+    padding: 40px 5% !important;
+    /* Reduz o respiro gigante nas laterais e topo */
+  }
+
+  /* 2. Grades (Portfólio, Quem Somos, Propósito) */
+  .projects-grid,
+  .team-grid,
+  .mvv-grid {
+    grid-template-columns: 1fr !important;
+    /* Transforma tudo em 1 única coluna empilhada */
+    gap: 30px;
+  }
+
+  /* 3. Ajuste do Mapa */
+  .map-container {
+    height: 300px !important;
+    /* Mapa mais baixo para não ocupar a tela toda do celular */
+  }
+
+  /* 4. Formulário de Contato */
+  .contact-box {
+    padding: 25px !important;
+    /* Menos borda interna no formulário */
+  }
+
+  .form-row-mobile {
+    grid-template-columns: 1fr !important;
+    /* Empilha Nome e WhatsApp */
+  }
+
+  /* 5. Footer (Rodapé) Centralizado */
+  .public-footer>div {
+    flex-direction: column !important;
+    text-align: center !important;
+    align-items: center !important;
+  }
+
+  .public-footer ul {
+    text-align: center !important;
+    margin: 0 auto;
+  }
+
+  /* Centraliza a base de direitos autorais e assinatura */
+  .developer-signature {
+    justify-content: center !important;
+    width: 100%;
+    margin-top: 15px;
+  }
+}
+
+/* Regra padrão (Desktop) para a linha do Nome e Telefone no formulário */
+.form-row-mobile {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
 }

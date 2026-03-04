@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import api from "../../services/api"; // Ajuste o caminho se a sua pasta for diferente
 import ProjectForm from "../../components/ProjectForm"; // Ajuste o caminho se necessário
 import "./AdminDashboard.css"; // Vamos criar um CSS específico para o dashboard do admin
+import logoGarbo from "../../assets/logo_header.png";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
@@ -24,6 +25,7 @@ const AdminDashboard = () => {
     phone: "",
     password: "",
   });
+  const [selectedEnvironment, setSelectedEnvironment] = useState(null);
   const [transactions, setTransactions] = useState([]); // 👈 Guarda os lançamentos
   const [transactionForm, setTransactionForm] = useState({
     description: "",
@@ -212,6 +214,32 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleDeleteLead = async (id) => {
+    // 🛡️ Confirmação de segurança antes de apagar
+    const confirmDelete = window.confirm("Tem certeza que deseja excluir esta solicitação de orçamento?");
+
+    if (!confirmDelete) return;
+
+    try {
+      // Dispara o DELETE para o seu backend Java
+      await api.delete(`/leads/${id}`);
+
+      // ♻️ Atualiza a tela removendo o Lead apagado sem precisar recarregar a página
+      setLeads(prevLeads => prevLeads.filter(lead => lead.id !== id));
+
+      toast.success("Orçamento excluído com sucesso!", {
+        position: "bottom-right",
+        theme: "dark"
+      });
+    } catch (error) {
+      console.error("Erro ao excluir lead:", error);
+      toast.error("Erro ao excluir. Verifique se o backend está rodando.", {
+        position: "bottom-right",
+        theme: "dark"
+      });
+    }
+  };
+
   const handleDelete = async (id) => {
     if (
       window.confirm(
@@ -274,9 +302,12 @@ const AdminDashboard = () => {
           alignItems: "center",
         }}
       >
-        <div>
-          <h1>GARBO</h1>
-          <p>Arquitetura e Ambientes Planejados</p>
+        <div className="logo-garbo">
+          <img
+            src={logoGarbo}
+            alt="Garbo Arquitetura e Planejados"
+            style={{ height: '100px', width: 'auto' }} 
+          />
         </div>
         {/* 4. O botão de Logout elegante no canto direito */}
         <button
@@ -540,7 +571,7 @@ const AdminDashboard = () => {
                   <tr style={{ borderBottom: "1px solid #444" }}>
                     <th style={{ padding: "12px" }}>Nome</th>
                     <th style={{ padding: "12px" }}>E-mail</th>
-                    <th style={{ padding: "12px" }}>Ambiente</th>
+                    <th style={{ padding: "12px" }}>Serviço</th>
                     <th style={{ padding: "12px" }}>Ação</th>
                   </tr>
                 </thead>
@@ -554,21 +585,49 @@ const AdminDashboard = () => {
                       <td style={{ padding: "12px", color: "#aaa" }}>
                         {lead.email}
                       </td>
-                      <td style={{ padding: "12px" }}>
-                        <span
+                      <td style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: "15px" }}>
+                        <span style={{ flex: 1 }}>{lead.service}</span>
+
+                        {/* Botão de Mensagem 💬 */}
+                        <button
+                          onClick={() => setSelectedEnvironment(lead.environment ? lead.environment : 'Este cliente não deixou nenhuma informação sobre o ambiente.')}
                           style={{
-                            background: "#333",
-                            padding: "4px 10px",
-                            borderRadius: "15px",
-                            fontSize: "0.85rem",
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            fontSize: '1.2rem',
+                            padding: '5px',
+                            transition: 'transform 0.2s ease'
                           }}
+                          title="Ler mensagem do cliente"
+                          onMouseOver={(e) => e.target.style.transform = 'scale(1.2)'}
+                          onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
                         >
-                          {lead.environment}
-                        </span>
+                          💬
+                        </button>
+
+                        {/* Botão de Excluir 🗑️ */}
+                        <button
+                          onClick={() => handleDeleteLead(lead.id)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            fontSize: '1.2rem',
+                            padding: '5px',
+                            transition: 'transform 0.2s ease',
+                            color: '#ff4d4d' // Um tom de vermelho elegante
+                          }}
+                          title="Excluir orçamento"
+                          onMouseOver={(e) => e.target.style.transform = 'scale(1.2)'}
+                          onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
+                        >
+                          🗑️
+                        </button>
                       </td>
                       <td style={{ padding: "12px" }}>
                         <a
-                          href={`https://wa.me/55${lead.phone.replace(/\D/g, "")}?text=Olá ${lead.name}, sou da Garbo Ambientes Planejados. Recebemos seu pedido de orçamento para a sua ${lead.environment}! Como podemos ajudar?`}
+                          href={`https://wa.me/55${lead.phone.replace(/\D/g, "")}?text=Olá ${lead.name}, sou da Garbo Ambientes Planejados. Recebemos seu pedido de orçamento para ${lead.service}! Como podemos ajudar?`}
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{
@@ -591,458 +650,49 @@ const AdminDashboard = () => {
             </div>
           )}
         </section>
-      )}
+      )
+      }
 
       {/* 5. 🟡 TELA DE CLIENTES */}
-      {activeTab === "clientes" && (
-        <section
-          className="clients-section"
-          style={{
-            background: "#1e1e1e",
-            padding: "2rem",
-            borderRadius: "8px",
-          }}
-        >
-          <div
+      {
+        activeTab === "clientes" && (
+          <section
+            className="clients-section"
             style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "1.5rem",
-            }}
-          >
-            <h2 style={{ color: "#fff", margin: 0 }}>Clientes Registrados</h2>
-            <button
-              style={{
-                background: "#4CAF50",
-                color: "#fff",
-                border: "none",
-                padding: "10px 20px",
-                borderRadius: "4px",
-                cursor: "pointer",
-                fontWeight: "bold",
-              }}
-              onClick={() => handleOpenClientModal()}
-            >
-              ➕ Novo Cliente
-            </button>
-          </div>
-
-          {clients.length === 0 ? (
-            <p style={{ color: "#888" }}>Nenhum cliente registrado ainda.</p>
-          ) : (
-            <div style={{ overflowX: "auto" }}>
-              <table
-                style={{
-                  width: "100%",
-                  borderCollapse: "collapse",
-                  color: "#fff",
-                  textAlign: "left",
-                }}
-              >
-                <thead>
-                  <tr style={{ borderBottom: "1px solid #444" }}>
-                    <th style={{ padding: "12px" }}>Nome</th>
-                    <th style={{ padding: "12px" }}>E-mail</th>
-                    <th style={{ padding: "12px" }}>Telefone</th>
-                    <th style={{ padding: "12px" }}>Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {clients.map((client) => (
-                    <tr
-                      key={client.id}
-                      style={{ borderBottom: "1px solid #333" }}
-                    >
-                      <td style={{ padding: "12px", fontWeight: "bold" }}>
-                        {client.name}
-                      </td>
-                      <td style={{ padding: "12px", color: "#aaa" }}>
-                        {client.email}
-                      </td>
-                      <td style={{ padding: "12px", color: "#aaa" }}>
-                        {client.phone || "Não informado"}
-                      </td>
-                      <td style={{ padding: "12px" }}>
-                        <button
-                          onClick={() => handleOpenClientModal(client)}
-                          style={{
-                            background: "transparent",
-                            border: "none",
-                            cursor: "pointer",
-                            fontSize: "1.2rem",
-                            marginRight: "10px",
-                          }}
-                          title="Editar"
-                        >
-                          ✏️
-                        </button>
-                        <button
-                          onClick={() => handleDeleteClient(client.id)}
-                          style={{
-                            background: "transparent",
-                            border: "none",
-                            cursor: "pointer",
-                            fontSize: "1.2rem",
-                          }}
-                          title="Eliminar"
-                        >
-                          🗑️
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
-      )}
-
-      {/* 5.1 MODAL DE CLIENTE */}
-      {showClientModal && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(0,0,0,0.7)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 1000,
-          }}
-        >
-          <div
-            style={{
-              background: "#2c2c2c",
+              background: "#1e1e1e",
               padding: "2rem",
               borderRadius: "8px",
-              width: "400px",
-              maxWidth: "90%",
-            }}
-          >
-            <h3 style={{ color: "#fff", marginTop: 0 }}>
-              {editingClient ? "Editar Cliente" : "Novo Cliente"}
-            </h3>
-            <form
-              onSubmit={handleSaveClient}
-              style={{ display: "flex", flexDirection: "column", gap: "15px" }}
-            >
-              <input
-                type="text"
-                placeholder="Nome do Cliente"
-                required
-                value={clientForm.name}
-                onChange={(e) =>
-                  setClientForm({ ...clientForm, name: e.target.value })
-                }
-                style={{
-                  padding: "10px",
-                  borderRadius: "4px",
-                  border: "1px solid #444",
-                  background: "#1e1e1e",
-                  color: "#fff",
-                }}
-              />
-              <input
-                type="email"
-                placeholder="E-mail"
-                required
-                value={clientForm.email}
-                onChange={(e) =>
-                  setClientForm({ ...clientForm, email: e.target.value })
-                }
-                style={{
-                  padding: "10px",
-                  borderRadius: "4px",
-                  border: "1px solid #444",
-                  background: "#1e1e1e",
-                  color: "#fff",
-                }}
-              />
-              <input
-                type="text"
-                placeholder="Telefone / WhatsApp"
-                value={clientForm.phone}
-                onChange={(e) =>
-                  setClientForm({ ...clientForm, phone: e.target.value })
-                }
-                style={{
-                  padding: "10px",
-                  borderRadius: "4px",
-                  border: "1px solid #444",
-                  background: "#1e1e1e",
-                  color: "#fff",
-                }}
-              />
-              {/* CAMPO DE SENHA INTELIGENTE */}
-              <input
-                type="password"
-                placeholder={
-                  editingClient
-                    ? "Nova Senha (deixe em branco para manter)"
-                    : "Palavra-passe de Acesso *"
-                }
-                required={!editingClient} // Só é obrigatório se for um cliente NOVO
-                value={clientForm.password}
-                onChange={(e) =>
-                  setClientForm({ ...clientForm, password: e.target.value })
-                }
-                style={{
-                  padding: "10px",
-                  borderRadius: "4px",
-                  border: "1px solid #444",
-                  background: "#1e1e1e",
-                  color: "#fff",
-                }}
-              />
-
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  gap: "10px",
-                  marginTop: "10px",
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={() => setShowClientModal(false)}
-                  style={{
-                    background: "transparent",
-                    color: "#aaa",
-                    border: "1px solid #555",
-                    padding: "8px 15px",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  style={{
-                    background: "#3498db",
-                    color: "#fff",
-                    border: "none",
-                    padding: "8px 15px",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Salvar
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* 6. 💰 TELA DO FINANCEIRO */}
-      {activeTab === "financeiro" && (
-        <section
-          className="finance-section"
-          style={{ display: "flex", flexDirection: "column", gap: "2rem" }}
-        >
-          {/* CARDS DE RESUMO (Visão de Dono) */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-              gap: "1.5rem",
             }}
           >
             <div
               style={{
-                background: "#1e1e1e",
-                padding: "1.5rem",
-                borderRadius: "8px",
-                borderLeft: "5px solid #4CAF50",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "1.5rem",
               }}
             >
-              <p style={{ margin: 0, color: "#aaa", fontSize: "0.9rem" }}>
-                Total de Entradas
-              </p>
-              <h2 style={{ margin: "10px 0 0 0", color: "#4CAF50" }}>
-                {formatCurrency(totalReceitas)}
-              </h2>
-            </div>
-            <div
-              style={{
-                background: "#1e1e1e",
-                padding: "1.5rem",
-                borderRadius: "8px",
-                borderLeft: "5px solid #e74c3c",
-              }}
-            >
-              <p style={{ margin: 0, color: "#aaa", fontSize: "0.9rem" }}>
-                Total de Saídas
-              </p>
-              <h2 style={{ margin: "10px 0 0 0", color: "#e74c3c" }}>
-                {formatCurrency(totalDespesas)}
-              </h2>
-            </div>
-            <div
-              style={{
-                background: "#1e1e1e",
-                padding: "1.5rem",
-                borderRadius: "8px",
-                borderLeft: `5px solid ${saldoAtual >= 0 ? "#3498db" : "#e74c3c"}`,
-              }}
-            >
-              <p style={{ margin: 0, color: "#aaa", fontSize: "0.9rem" }}>
-                Saldo Atual
-              </p>
-              <h2
+              <h2 style={{ color: "#fff", margin: 0 }}>Clientes Registrados</h2>
+              <button
                 style={{
-                  margin: "10px 0 0 0",
-                  color: saldoAtual >= 0 ? "#3498db" : "#e74c3c",
+                  background: "#4CAF50",
+                  color: "#fff",
+                  border: "none",
+                  padding: "10px 20px",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  fontWeight: "bold",
                 }}
+                onClick={() => handleOpenClientModal()}
               >
-                {formatCurrency(saldoAtual)}
-              </h2>
-            </div>
-          </div>
-
-          {/* FORMULÁRIO DE NOVO LANÇAMENTO & TABELA */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 2fr",
-              gap: "2rem",
-              alignItems: "start",
-            }}
-          >
-            {/* Formulário Fixo na Esquerda */}
-            <div
-              style={{
-                background: "#1e1e1e",
-                padding: "1.5rem",
-                borderRadius: "8px",
-              }}
-            >
-              <h3 style={{ marginTop: 0, color: "#fff" }}>Novo Lançamento</h3>
-              <br />
-              <form
-                onSubmit={handleSaveTransaction}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "15px",
-                }}
-              >
-                <input
-                  type="text"
-                  placeholder="Descrição (Ex: Compra MDF)"
-                  required
-                  value={transactionForm.description}
-                  onChange={(e) =>
-                    setTransactionForm({
-                      ...transactionForm,
-                      description: e.target.value,
-                    })
-                  }
-                  style={{
-                    padding: "10px",
-                    borderRadius: "4px",
-                    border: "1px solid #444",
-                    background: "#2c2c2c",
-                    color: "#fff",
-                  }}
-                />
-                <input
-                  type="number"
-                  step="0.01"
-                  placeholder="Valor (R$)"
-                  required
-                  value={transactionForm.amount}
-                  onChange={(e) =>
-                    setTransactionForm({
-                      ...transactionForm,
-                      amount: e.target.value,
-                    })
-                  }
-                  style={{
-                    padding: "10px",
-                    borderRadius: "4px",
-                    border: "1px solid #444",
-                    background: "#2c2c2c",
-                    color: "#fff",
-                  }}
-                />
-                <input
-                  type="date"
-                  value={transactionForm.date}
-                  onChange={(e) =>
-                    setTransactionForm({
-                      ...transactionForm,
-                      date: e.target.value,
-                    })
-                  }
-                  style={{
-                    padding: "10px",
-                    borderRadius: "4px",
-                    border: "1px solid #444",
-                    background: "#2c2c2c",
-                    color: "#fff",
-                  }}
-                />
-                <select
-                  value={transactionForm.type}
-                  onChange={(e) =>
-                    setTransactionForm({
-                      ...transactionForm,
-                      type: e.target.value,
-                    })
-                  }
-                  style={{
-                    padding: "10px",
-                    borderRadius: "4px",
-                    border: "1px solid #444",
-                    background: "#2c2c2c",
-                    color: "#fff",
-                  }}
-                >
-                  <option value="RECEITA">Entrada (Receita)</option>
-                  <option value="DESPESA">Saída (Despesa)</option>
-                </select>
-                <button
-                  type="submit"
-                  style={{
-                    background: "#4CAF50",
-                    color: "#fff",
-                    border: "none",
-                    padding: "10px",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                    fontWeight: "bold",
-                  }}
-                >
-                  ➕ Adicionar
-                </button>
-              </form>
+                ➕ Novo Cliente
+              </button>
             </div>
 
-            {/* Tabela de Transações na Direita */}
-            <div
-              style={{
-                background: "#1e1e1e",
-                padding: "1.5rem",
-                borderRadius: "8px",
-                overflowX: "auto",
-              }}
-            >
-              <h3 style={{ marginTop: 0, color: "#fff" }}>Extrato Recente</h3>
-              <br />
-              {transactions.length === 0 ? (
-                <p style={{ color: "#888" }}>
-                  Nenhuma movimentação registrada.
-                </p>
-              ) : (
+            {clients.length === 0 ? (
+              <p style={{ color: "#888" }}>Nenhum cliente registrado ainda.</p>
+            ) : (
+              <div style={{ overflowX: "auto" }}>
                 <table
                   style={{
                     width: "100%",
@@ -1053,61 +703,543 @@ const AdminDashboard = () => {
                 >
                   <thead>
                     <tr style={{ borderBottom: "1px solid #444" }}>
-                      <th style={{ padding: "12px" }}>Data</th>
-                      <th style={{ padding: "12px" }}>Descrição</th>
-                      <th style={{ padding: "12px" }}>Valor</th>
-                      <th style={{ padding: "12px" }}>Ação</th>
+                      <th style={{ padding: "12px" }}>Nome</th>
+                      <th style={{ padding: "12px" }}>E-mail</th>
+                      <th style={{ padding: "12px" }}>Telefone</th>
+                      <th style={{ padding: "12px" }}>Ações</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {transactions
-                      .sort((a, b) => new Date(b.date) - new Date(a.date))
-                      .map((t) => (
-                        <tr
-                          key={t.id}
-                          style={{ borderBottom: "1px solid #333" }}
-                        >
-                          <td style={{ padding: "12px", color: "#aaa" }}>
-                            {new Date(t.date).toLocaleDateString("pt-BR", {
-                              timeZone: "UTC",
-                            })}
-                          </td>
-                          <td style={{ padding: "12px" }}>{t.description}</td>
-                          <td
+                    {clients.map((client) => (
+                      <tr
+                        key={client.id}
+                        style={{ borderBottom: "1px solid #333" }}
+                      >
+                        <td style={{ padding: "12px", fontWeight: "bold" }}>
+                          {client.name}
+                        </td>
+                        <td style={{ padding: "12px", color: "#aaa" }}>
+                          {client.email}
+                        </td>
+                        <td style={{ padding: "12px", color: "#aaa" }}>
+                          {client.phone || "Não informado"}
+                        </td>
+                        <td style={{ padding: "12px" }}>
+                          <button
+                            onClick={() => handleOpenClientModal(client)}
                             style={{
-                              padding: "12px",
-                              color:
-                                t.type === "RECEITA" ? "#4CAF50" : "#e74c3c",
-                              fontWeight: "bold",
+                              background: "transparent",
+                              border: "none",
+                              cursor: "pointer",
+                              fontSize: "1.2rem",
+                              marginRight: "10px",
                             }}
+                            title="Editar"
                           >
-                            {t.type === "RECEITA" ? "+" : "-"}{" "}
-                            {formatCurrency(t.amount)}
-                          </td>
-                          <td style={{ padding: "12px" }}>
-                            <button
-                              onClick={() => handleDeleteTransaction(t.id)}
-                              style={{
-                                background: "transparent",
-                                border: "none",
-                                cursor: "pointer",
-                                fontSize: "1.2rem",
-                              }}
-                              title="Excluir"
-                            >
-                              🗑️
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
+                            ✏️
+                          </button>
+                          <button
+                            onClick={() => handleDeleteClient(client.id)}
+                            style={{
+                              background: "transparent",
+                              border: "none",
+                              cursor: "pointer",
+                              fontSize: "1.2rem",
+                            }}
+                            title="Eliminar"
+                          >
+                            🗑️
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
-              )}
+              </div>
+            )}
+          </section>
+        )
+      }
+
+      {/* 5.1 MODAL DE CLIENTE */}
+      {
+        showClientModal && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "rgba(0,0,0,0.7)",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              zIndex: 1000,
+            }}
+          >
+            <div
+              style={{
+                background: "#2c2c2c",
+                padding: "2rem",
+                borderRadius: "8px",
+                width: "400px",
+                maxWidth: "90%",
+              }}
+            >
+              <h3 style={{ color: "#fff", marginTop: 0 }}>
+                {editingClient ? "Editar Cliente" : "Novo Cliente"}
+              </h3>
+              <form
+                onSubmit={handleSaveClient}
+                style={{ display: "flex", flexDirection: "column", gap: "15px" }}
+              >
+                <input
+                  type="text"
+                  placeholder="Nome do Cliente"
+                  required
+                  value={clientForm.name}
+                  onChange={(e) =>
+                    setClientForm({ ...clientForm, name: e.target.value })
+                  }
+                  style={{
+                    padding: "10px",
+                    borderRadius: "4px",
+                    border: "1px solid #444",
+                    background: "#1e1e1e",
+                    color: "#fff",
+                  }}
+                />
+                <input
+                  type="email"
+                  placeholder="E-mail"
+                  required
+                  value={clientForm.email}
+                  onChange={(e) =>
+                    setClientForm({ ...clientForm, email: e.target.value })
+                  }
+                  style={{
+                    padding: "10px",
+                    borderRadius: "4px",
+                    border: "1px solid #444",
+                    background: "#1e1e1e",
+                    color: "#fff",
+                  }}
+                />
+                <input
+                  type="text"
+                  placeholder="Telefone / WhatsApp"
+                  value={clientForm.phone}
+                  onChange={(e) =>
+                    setClientForm({ ...clientForm, phone: e.target.value })
+                  }
+                  style={{
+                    padding: "10px",
+                    borderRadius: "4px",
+                    border: "1px solid #444",
+                    background: "#1e1e1e",
+                    color: "#fff",
+                  }}
+                />
+                {/* CAMPO DE SENHA INTELIGENTE */}
+                <input
+                  type="password"
+                  placeholder={
+                    editingClient
+                      ? "Nova Senha (deixe em branco para manter)"
+                      : "Palavra-passe de Acesso *"
+                  }
+                  required={!editingClient} // Só é obrigatório se for um cliente NOVO
+                  value={clientForm.password}
+                  onChange={(e) =>
+                    setClientForm({ ...clientForm, password: e.target.value })
+                  }
+                  style={{
+                    padding: "10px",
+                    borderRadius: "4px",
+                    border: "1px solid #444",
+                    background: "#1e1e1e",
+                    color: "#fff",
+                  }}
+                />
+
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    gap: "10px",
+                    marginTop: "10px",
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setShowClientModal(false)}
+                    style={{
+                      background: "transparent",
+                      color: "#aaa",
+                      border: "1px solid #555",
+                      padding: "8px 15px",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    style={{
+                      background: "#3498db",
+                      color: "#fff",
+                      border: "none",
+                      padding: "8px 15px",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Salvar
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
-        </section>
+        )
+      }
+
+      {/* 6. 💰 TELA DO FINANCEIRO */}
+      {
+        activeTab === "financeiro" && (
+          <section
+            className="finance-section"
+            style={{ display: "flex", flexDirection: "column", gap: "2rem" }}
+          >
+            {/* CARDS DE RESUMO (Visão de Dono) */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+                gap: "1.5rem",
+              }}
+            >
+              <div
+                style={{
+                  background: "#1e1e1e",
+                  padding: "1.5rem",
+                  borderRadius: "8px",
+                  borderLeft: "5px solid #4CAF50",
+                }}
+              >
+                <p style={{ margin: 0, color: "#aaa", fontSize: "0.9rem" }}>
+                  Total de Entradas
+                </p>
+                <h2 style={{ margin: "10px 0 0 0", color: "#4CAF50" }}>
+                  {formatCurrency(totalReceitas)}
+                </h2>
+              </div>
+              <div
+                style={{
+                  background: "#1e1e1e",
+                  padding: "1.5rem",
+                  borderRadius: "8px",
+                  borderLeft: "5px solid #e74c3c",
+                }}
+              >
+                <p style={{ margin: 0, color: "#aaa", fontSize: "0.9rem" }}>
+                  Total de Saídas
+                </p>
+                <h2 style={{ margin: "10px 0 0 0", color: "#e74c3c" }}>
+                  {formatCurrency(totalDespesas)}
+                </h2>
+              </div>
+              <div
+                style={{
+                  background: "#1e1e1e",
+                  padding: "1.5rem",
+                  borderRadius: "8px",
+                  borderLeft: `5px solid ${saldoAtual >= 0 ? "#3498db" : "#e74c3c"}`,
+                }}
+              >
+                <p style={{ margin: 0, color: "#aaa", fontSize: "0.9rem" }}>
+                  Saldo Atual
+                </p>
+                <h2
+                  style={{
+                    margin: "10px 0 0 0",
+                    color: saldoAtual >= 0 ? "#3498db" : "#e74c3c",
+                  }}
+                >
+                  {formatCurrency(saldoAtual)}
+                </h2>
+              </div>
+            </div>
+
+            {/* FORMULÁRIO DE NOVO LANÇAMENTO & TABELA */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 2fr",
+                gap: "2rem",
+                alignItems: "start",
+              }}
+            >
+              {/* Formulário Fixo na Esquerda */}
+              <div
+                style={{
+                  background: "#1e1e1e",
+                  padding: "1.5rem",
+                  borderRadius: "8px",
+                }}
+              >
+                <h3 style={{ marginTop: 0, color: "#fff" }}>Novo Lançamento</h3>
+                <br />
+                <form
+                  onSubmit={handleSaveTransaction}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "15px",
+                  }}
+                >
+                  <input
+                    type="text"
+                    placeholder="Descrição (Ex: Compra MDF)"
+                    required
+                    value={transactionForm.description}
+                    onChange={(e) =>
+                      setTransactionForm({
+                        ...transactionForm,
+                        description: e.target.value,
+                      })
+                    }
+                    style={{
+                      padding: "10px",
+                      borderRadius: "4px",
+                      border: "1px solid #444",
+                      background: "#2c2c2c",
+                      color: "#fff",
+                    }}
+                  />
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="Valor (R$)"
+                    required
+                    value={transactionForm.amount}
+                    onChange={(e) =>
+                      setTransactionForm({
+                        ...transactionForm,
+                        amount: e.target.value,
+                      })
+                    }
+                    style={{
+                      padding: "10px",
+                      borderRadius: "4px",
+                      border: "1px solid #444",
+                      background: "#2c2c2c",
+                      color: "#fff",
+                    }}
+                  />
+                  <input
+                    type="date"
+                    value={transactionForm.date}
+                    onChange={(e) =>
+                      setTransactionForm({
+                        ...transactionForm,
+                        date: e.target.value,
+                      })
+                    }
+                    style={{
+                      padding: "10px",
+                      borderRadius: "4px",
+                      border: "1px solid #444",
+                      background: "#2c2c2c",
+                      color: "#fff",
+                    }}
+                  />
+                  <select
+                    value={transactionForm.type}
+                    onChange={(e) =>
+                      setTransactionForm({
+                        ...transactionForm,
+                        type: e.target.value,
+                      })
+                    }
+                    style={{
+                      padding: "10px",
+                      borderRadius: "4px",
+                      border: "1px solid #444",
+                      background: "#2c2c2c",
+                      color: "#fff",
+                    }}
+                  >
+                    <option value="RECEITA">Entrada (Receita)</option>
+                    <option value="DESPESA">Saída (Despesa)</option>
+                  </select>
+                  <button
+                    type="submit"
+                    style={{
+                      background: "#4CAF50",
+                      color: "#fff",
+                      border: "none",
+                      padding: "10px",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    ➕ Adicionar
+                  </button>
+                </form>
+              </div>
+
+              {/* Tabela de Transações na Direita */}
+              <div
+                style={{
+                  background: "#1e1e1e",
+                  padding: "1.5rem",
+                  borderRadius: "8px",
+                  overflowX: "auto",
+                }}
+              >
+                <h3 style={{ marginTop: 0, color: "#fff" }}>Extrato Recente</h3>
+                <br />
+                {transactions.length === 0 ? (
+                  <p style={{ color: "#888" }}>
+                    Nenhuma movimentação registrada.
+                  </p>
+                ) : (
+                  <table
+                    style={{
+                      width: "100%",
+                      borderCollapse: "collapse",
+                      color: "#fff",
+                      textAlign: "left",
+                    }}
+                  >
+                    <thead>
+                      <tr style={{ borderBottom: "1px solid #444" }}>
+                        <th style={{ padding: "12px" }}>Data</th>
+                        <th style={{ padding: "12px" }}>Descrição</th>
+                        <th style={{ padding: "12px" }}>Valor</th>
+                        <th style={{ padding: "12px" }}>Ação</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {transactions
+                        .sort((a, b) => new Date(b.date) - new Date(a.date))
+                        .map((t) => (
+                          <tr
+                            key={t.id}
+                            style={{ borderBottom: "1px solid #333" }}
+                          >
+                            <td style={{ padding: "12px", color: "#aaa" }}>
+                              {new Date(t.date).toLocaleDateString("pt-BR", {
+                                timeZone: "UTC",
+                              })}
+                            </td>
+                            <td style={{ padding: "12px" }}>{t.description}</td>
+                            <td
+                              style={{
+                                padding: "12px",
+                                color:
+                                  t.type === "RECEITA" ? "#4CAF50" : "#e74c3c",
+                                fontWeight: "bold",
+                              }}
+                            >
+                              {t.type === "RECEITA" ? "+" : "-"}{" "}
+                              {formatCurrency(t.amount)}
+                            </td>
+                            <td style={{ padding: "12px" }}>
+                              <button
+                                onClick={() => handleDeleteTransaction(t.id)}
+                                style={{
+                                  background: "transparent",
+                                  border: "none",
+                                  cursor: "pointer",
+                                  fontSize: "1.2rem",
+                                }}
+                                title="Excluir"
+                              >
+                                🗑️
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </div>
+          </section>
+        )
+      }
+
+      {/* =========================================
+        MODAL DE MENSAGEM DO LEAD
+      ========================================= */}
+      {selectedEnvironment && (
+        <div
+          className="modal-overlay"
+          onClick={() => setSelectedEnvironment(null)} // Fecha ao clicar fora da caixinha
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(0, 0, 0, 0.8)', // Fundo escuro transparente
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 9999, // Garante que fique por cima de tudo
+            backdropFilter: 'blur(3px)' // Efeito de desfoque moderno
+          }}
+        >
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()} // Impede que clicar dentro feche o modal
+            style={{
+              backgroundColor: '#121212',
+              border: '1px solid #d4af37', // Borda dourada Garbo
+              borderRadius: '12px',
+              padding: '30px',
+              maxWidth: '500px',
+              width: '90%',
+              boxShadow: '0 10px 40px rgba(0,0,0,0.8)',
+              animation: 'fadeIn 0.3s ease'
+            }}
+          >
+            <h3 style={{ color: '#d4af37', marginTop: 0, marginBottom: '20px', fontSize: '1.5rem' }}>
+              Detalhes do Pedido
+            </h3>
+
+            {/* O whiteSpace 'pre-wrap' garante que as quebras de linha que o cliente digitou no textarea sejam mantidas */}
+            <p style={{ color: '#ccc', lineHeight: '1.6', fontSize: '1rem', whiteSpace: 'pre-wrap', maxHeight: '400px', overflowY: 'auto' }}>
+              {selectedEnvironment}
+            </p>
+
+            <div style={{ textAlign: 'right', marginTop: '30px' }}>
+              <button
+                onClick={() => setSelectedEnvironment(null)}
+                style={{
+                  backgroundColor: '#d4af37',
+                  color: '#000',
+                  border: 'none',
+                  padding: '10px 24px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px'
+                }}
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
-    </div>
+    </div >
   );
 };
 

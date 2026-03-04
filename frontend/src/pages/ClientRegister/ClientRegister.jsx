@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import api from '../../services/api.js'; 
-import '../../components/Auth.css'; 
+import api from '../../services/api.js';
+import '../../components/Auth.css';
 
 function ClientRegister() {
     const [formData, setFormData] = useState({
@@ -46,20 +46,46 @@ function ClientRegister() {
 
                 {error && <div style={{ color: '#ff4d4f', marginBottom: '15px', fontSize: '0.9rem' }}>{error}</div>}
 
+                <div style={{ width: '100%', maxWidth: '400px', margin: '0 auto 20px', textAlign: 'left' }}>
+                    <Link
+                        to="/"
+                        style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            color: '#aaa',
+                            textDecoration: 'none',
+                            fontSize: '0.95rem',
+                            fontWeight: '500',
+                            transition: 'color 0.3s ease'
+                        }}
+                        onMouseOver={(e) => {
+                            e.currentTarget.style.color = '#d4af37';
+                            e.currentTarget.style.transform = 'translateX(-3px)';
+                        }}
+                        onMouseOut={(e) => {
+                            e.currentTarget.style.color = '#aaa';
+                            e.currentTarget.style.transform = 'translateX(0)';
+                        }}
+                    >
+                        <span style={{ fontSize: '1.2rem', lineHeight: '1' }}>←</span>
+                        Voltar para a Home
+                    </Link>
+                </div>
                 <form onSubmit={handleRegister} className="auth-form">
                     <input type="text" name="name" placeholder="Seu nome completo" value={formData.name} onChange={handleChange} required className="auth-input" />
-                    <input type="email" name="email" placeholder="Seu e-mail" value={formData.email} onChange={handleChange} required className="auth-input" /> 
+                    <input type="email" name="email" placeholder="Seu e-mail" value={formData.email} onChange={handleChange} required className="auth-input" />
                     <input type="text" name="cpfCnpj" placeholder="CPF ou CNPJ" value={formData.cpfCnpj} onChange={handleChange} required className="auth-input" />
                     <input type="text" name="phone" placeholder="Telefone para contato" value={formData.phone} onChange={handleChange} required className="auth-input" />
                     <input type="password" name="password" placeholder="Crie uma senha" value={formData.password} onChange={handleChange} required className="auth-input" />
 
-                    <button type="submit" disabled={loading} className="auth-button" style={{marginTop: '15px'}}>
+                    <button type="submit" disabled={loading} className="auth-button" style={{ marginTop: '15px' }}>
                         {loading ? 'Cadastrando...' : 'Registrar'}
                     </button>
                 </form>
 
-                <p style={{ marginTop: '20px', color: '#888', fontSize: '0.9rem' }}>    
-                    Já possui uma conta? <Link to="/area-cliente" style={{ color: 'var(--gold-primary)', textDecoration: 'none', fontWeight: 'bold' }}>Faça login</Link>
+                <p style={{ marginTop: '20px', color: '#888', fontSize: '0.9rem' }}>
+                    Já possui uma conta? <br /><Link to="/area-cliente" style={{ color: 'var(--gold-primary)', textDecoration: 'none', fontWeight: 'bold' }}>Faça login</Link>
                 </p>
             </div>
         </div>
