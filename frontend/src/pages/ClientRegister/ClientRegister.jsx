@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { toast } from "react-toastify";
 import api from '../../services/api.js';
 import '../../components/Auth.css';
+import logoGarbo from "../../assets/admin_logo.png";
 
 function ClientRegister() {
     const [formData, setFormData] = useState({
@@ -28,11 +30,28 @@ function ClientRegister() {
         try {
             // Chama a rota nova que acabamos de criar no Java para registrar clientes
             await api.post('/auth/client/register', formData);
-            alert('Cadastro realizado com sucesso! Faça login para acessar sua área.');
+
+            // ✨ Toast de Sucesso Premium
+            toast.success('Cadastro realizado com sucesso! Faça login para acessar sua área.', {
+                position: "bottom-right",
+                theme: "dark"
+            });
+
             navigate('/area-cliente'); // Redireciona para a tela de login
+
         } catch (err) {
             console.error(err);
-            setError(err.response?.data?.message || 'Erro ao realizar cadastro.');
+
+            const mensagemErro = err.response?.data?.message || 'Erro ao realizar cadastro.';
+
+            // ✨ Toast de Erro (Opcional, mas altamente recomendado para manter o padrão)
+            toast.error(mensagemErro, {
+                position: "bottom-right",
+                theme: "dark"
+            });
+
+            setError(mensagemErro); // Mantido caso você ainda exiba o erro em texto vermelho no formulário
+
         } finally {
             setLoading(false);
         }
@@ -41,6 +60,15 @@ function ClientRegister() {
     return (
         <div className="auth-container">
             <div className="auth-card">
+                <div className="logo-garbo" style={{ display: 'flex', justifyContent: 'center' }}>
+                    <a href="/" style={{ display: 'flex', alignItems: 'center' }}>
+                        <img
+                            src={logoGarbo}
+                            alt="Garbo Arquitetura e Planejados"
+                            style={{ height: '100px', width: 'auto', objectFit: 'contain' }} // Ajuste a altura conforme necessário
+                        />
+                    </a>
+                </div>
                 <h2 className="auth-title">Crie sua conta</h2>
                 <p className="auth-subtitle">Acompanhe o projeto dos seus sonhos.</p>
 

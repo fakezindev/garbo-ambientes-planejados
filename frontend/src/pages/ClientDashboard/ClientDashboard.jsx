@@ -61,7 +61,8 @@ const ClientDashboard = () => {
     if (!project) {
         return (
             <div style={{ padding: '2rem', textAlign: 'center', backgroundColor: '#121212', minHeight: '100vh', color: '#fff' }}>
-                <header style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3rem', maxWidth: '1200px', margin: '0 auto 3rem auto' }}>
+                {/* CABEÇALHO GERAL (LOGO E SAIR) */}
+                <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                     <div className="logo-garbo">
                         <img
                             src={logoGarbo}
@@ -69,7 +70,7 @@ const ClientDashboard = () => {
                             style={{ height: '100px', width: 'auto' }}
                         />
                     </div>
-                    <button onClick={handleLogout} style={{ padding: '8px 16px', cursor: 'pointer', background: '#e74c3c', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold' }}>Sair</button>
+                    <button onClick={handleLogout} style={{ padding: '8px 16px', cursor: 'pointer', background: '#333', color: '#fff', border: '1px solid #444', borderRadius: '4px', fontWeight: 'bold' }}>Sair da Conta</button>
                 </header>
                 <h2>Olá! Ainda não há projetos vinculados ao seu perfil.</h2>
                 <p style={{ color: '#aaa' }}>Nossa equipe está trabalhando nisso. Em breve as novidades aparecerão aqui!</p>
@@ -109,13 +110,13 @@ const ClientDashboard = () => {
                                 {project.title || "Gargamel"}
                                 <span className="vip-tag">{project.category || "PLANEJADOS"}</span>
                             </h2>
-                            <p style={{ color: '#aaa', margin: 0 }}>Acompanhamento em tempo real</p>
+                            <p style={{ color: '#aaa', margin: 0 }}>{project.description}</p>
                         </div>
                     </div>
 
                     {/* LINHA DO TEMPO (PROGRESSO) */}
                     <div className="status-timeline">
-                        <div className="status-progress-line" style={{ width: progressWidth }}></div>
+                        <div className="status-progress-line" style={{ '--progress': progressWidth }}></div>
 
                         {statusList.map((status, index) => {
                             let stepClass = "";

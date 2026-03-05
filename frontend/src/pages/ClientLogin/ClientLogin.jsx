@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../services/api.js';
 import '../../components/Auth.css';
 import { Link } from 'react-router-dom';
+import logoGarbo from "../../assets/admin_logo.png";
 
 function Login() {
     const [email, setEmail] = useState('');
@@ -46,6 +47,15 @@ function Login() {
     return (
         <div className="auth-container">
             <div className="auth-card">
+                <div className="logo-garbo" style={{ display: 'flex', justifyContent: 'center' }}>
+                    <a href="/" style={{ display: 'flex', alignItems: 'center' }}>
+                        <img
+                            src={logoGarbo}
+                            alt="Garbo Arquitetura e Planejados"
+                            style={{ height: '100px', width: 'auto', objectFit: 'contain' }} // Ajuste a altura conforme necessário
+                        />
+                    </a>
+                </div>
                 <h2 className="auth-title">Área do Cliente</h2>
                 <p className="auth-subtitle">Acompanhe o seu projeto dos sonhos.</p>
 
@@ -77,7 +87,7 @@ function Login() {
                         Voltar para a Home
                     </Link>
                 </div>
-                
+
                 <form onSubmit={handleLogin} className="auth-form">
                     <input
                         type="email"

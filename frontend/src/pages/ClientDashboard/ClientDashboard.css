@@ -77,6 +77,7 @@
     top: 15px;
     left: 0;
     height: 3px;
+    width: var(--progress);
     background-color: #f1c40f;
     z-index: 2;
     transition: width 0.5s ease;
@@ -163,9 +164,72 @@
     display: block;
 }
 
-/* 📱 4. Responsividade para não ficar um buraco gigante no celular */
+/* =========================================
+   🚀 RESPONSIVIDADE (MOBILE) - ÁREA DO CLIENTE
+   ========================================= */
+
 @media (max-width: 768px) {
+    
+    /* 1. Ajustes Gerais */
+    header {
+        flex-direction: column !important;
+        gap: 20px !important;
+        text-align: center;
+    }
+
+    .logo-garbo img {
+        height: 65px !important; 
+        width: auto !important;
+    }
+    
+    .vip-project-title h2 {
+        flex-direction: column;
+        align-items: flex-start;
+        font-size: 1.5rem !important;
+    }
+
+    /* =========================================
+       🔥 LINHA DO TEMPO VERTICAL (O SEGREDO)
+       ========================================= */
+    .status-timeline {
+        flex-direction: column !important; /* Empilha de cima para baixo */
+        gap: 30px !important; /* Espaçamento entre os passos */
+        align-items: flex-start !important;
+        padding-left: 10px; /* Dá um respiro na borda esquerda */
+    }
+
+    /* A linha cinza de fundo gira para a vertical */
+    .status-timeline::before {
+        top: 0 !important;
+        bottom: 0 !important;
+        left: 24px !important; /* Fica exatamente no meio da bolinha (10px padding + 15px raio) */
+        width: 3px !important;
+        height: 100% !important;
+    }
+
+    /* A linha amarela animada gira para a vertical */
+    .status-progress-line {
+        top: 0 !important;
+        left: 24px !important;
+        width: 3px !important; /* Deixa de crescer pro lado */
+        height: var(--progress) !important; /* Passa a crescer para baixo! */
+    }
+
+    /* As bolinhas e os textos se alinham lado a lado */
+    .status-step {
+        width: 100% !important;
+        flex-direction: row !important; /* Bolinha na esquerda, texto na direita */
+        justify-content: flex-start !important;
+        gap: 20px !important;
+    }
+
+    .step-text {
+        text-align: left !important;
+        font-size: 1rem !important; /* Fonte num tamanho agradável de ler */
+    }
+
+    /* Ajuste para não bugar a tela com a foto grande no celular */
     .card-image-container {
-        height: 300px; 
+        height: 300px !important;
     }
 }

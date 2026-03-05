@@ -3,8 +3,19 @@ import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../../services/api"; // Ajuste o caminho se necessário
 import "./Home.css";
+
 import imgEdna from "../../assets/edna_arquiteta.jpeg";
+import imgMarcia from "../../assets/marcia_arquiteta.png";
 import logoGarbo from "../../assets/logo_header.png";
+import iconMissao from "../../assets/alvo-de-dardos.png";
+import iconVisao from "../../assets/visao.png";
+import iconValores from "../../assets/diamante.png";
+import iconLocalizacao from "../../assets/pino-de-localizacao.png";
+import iconWhatsapp from "../../assets/whatsapp.png";
+import iconInstagram from "../../assets/instagram.png";
+import iconTiktok from "../../assets/tik-tok.png";
+import iconGmail from "../../assets/gmail.png";
+import iconCode from "../../assets/codigo.png";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
@@ -158,25 +169,10 @@ const Home = () => {
           {/* CARD 2: MARCIA */}
           <div className="team-card">
             <div className="team-image-wrapper">
-              <div
-                className="placeholder-image"
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  height: "100%",
-                  backgroundColor: "#0a0a0a",
-                }}
-              >
-                <span style={{ fontSize: "3rem" }}>📸</span>
-                <p style={{ marginTop: "10px", color: "#666" }}>
-                  Foto da Marcia
-                </p>
-              </div>
+              <img src={imgMarcia} alt="Marcia Nascimento" className="team-image" />
             </div>
             <div className="team-info">
-              <h3>Marcia</h3>
+              <h3>Marcia Nascimento</h3>
               <span className="team-role">Sócia-Fundadora & Arquiteta</span>
               <p>
                 Especialista em planejamento e execução de excelência, Marcia
@@ -195,35 +191,47 @@ const Home = () => {
         <div className="section-title">
           <h2 style={{ color: "#d4af37" }}>Nosso Propósito</h2>
           <p style={{ color: "#aaa", marginTop: "10px" }}>
-            A excelência por trás de cada detalhe dos seus móveis planejados.
+            <strong>A excelência por trás de cada detalhe dos seus móveis planejados.</strong>
           </p>
         </div>
 
         <div className="mvv-grid">
           <div className="mvv-card">
-            <div className="icon">🎯</div>
+            <div className="icon">
+              <img src={iconMissao} alt="Ícone Missão" />
+            </div>
             <h3>Missão</h3>
-            <p>
-              Entregar ambientes planejados que unam estética refinada,
-              funcionalidade inteligente e o estilo único de cada cliente.
+            <p style={{ textAlign: "left" }}>
+              <strong>
+                Entregar ambientes planejados que unam estética refinada,
+                funcionalidade inteligente e o estilo único de cada cliente.
+              </strong>
             </p>
           </div>
 
           <div className="mvv-card">
-            <div className="icon">👁️</div>
+            <div className="icon">
+              <img src={iconVisao} alt="Ícone Visão" />
+            </div>
             <h3>Visão</h3>
-            <p>
-              Ser referência em arquitetura e design de interiores pela
-              excelência, transparência e inovação nos projetos.
+            <p style={{ textAlign: "left" }}>
+              <strong>
+                Ser referência em arquitetura e design de interiores pela
+                excelência, transparência e inovação nos projetos.
+              </strong>
             </p>
           </div>
 
           <div className="mvv-card">
-            <div className="icon">💎</div>
+            <div className="icon">
+              <img src={iconValores} alt="Ícone Valores" />
+            </div>
             <h3>Valores</h3>
-            <p>
-              Qualidade Absoluta, Respeito aos prazos combinados, Transparência
-              no atendimento e Foco no detalhe.
+            <p style={{ textAlign: "left" }}>
+              <strong>
+                Qualidade Absoluta, Respeito aos prazos combinados, Transparência
+                no atendimento e Foco no detalhe.
+              </strong>
             </p>
           </div>
         </div>
@@ -388,7 +396,9 @@ const Home = () => {
           }}
         >
           <p style={{ margin: 0 }}>
-            📍 <strong>Av. André Luiz, 296 - </strong> Picanço, Guarulhos - SP, 07082-050
+            <div className="alfinete-icon" style={{ display: 'inline-flex' }}>
+              <img src={iconLocalizacao} alt="Ícone Localização" />
+            </div> <strong>Av. André Luiz, 296 - </strong> Picanço, Guarulhos - SP, 07082-050
           </p>
         </div>
       </section>
@@ -566,126 +576,59 @@ const Home = () => {
             </p>
           </div>
 
-          {/* COLUNA 2: Fale Conosco (Telefones e E-mail) */}
+          {/* COLUNA 2: Fale Conosco */}
           <div>
-            <h3
-              style={{
-                color: "#fff",
-                fontSize: "1.1rem",
-                marginBottom: "20px",
-                fontWeight: "600",
-              }}
-            >
+            <h3 style={{ color: "#fff", fontSize: "1.1rem", marginBottom: "20px", fontWeight: "600" }}>
               Fale Conosco
             </h3>
-            <ul
-              style={{
-                listStyle: "none",
-                padding: 0,
-                margin: 0,
-                color: "#aaa",
-                fontSize: "0.95rem",
-                lineHeight: "1.8",
-              }}
-            >
+            <ul className="footer-links">
               <li>
-                <a
-                  href="https://api.whatsapp.com/message/2SSB4H5EDYLIO1?autoload=1&app_absent=0&utm_source=ig&text=Ol%C3%A1%2C%20gostaria%20de%20fazer%20um%20or%C3%A7amento%21"
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ color: "#aaa", textDecoration: "none" }}
-                  onMouseOver={(e) => (e.target.style.color = "#d4af37")}
-                  onMouseOut={(e) => (e.target.style.color = "#aaa")}
-                >
-                  📞 Edna: (11) 99955-8023
+                <a href="https://api.whatsapp.com/message/2SSB4H5EDYLIO1?autoload=1&app_absent=0&utm_source=ig&text=Ol%C3%A1%2C%20gostaria%20de%20fazer%20um%20or%C3%A7amento%21" target="_blank" rel="noreferrer">
+                  <img src={iconWhatsapp} alt="WhatsApp" className="footer-icon" />
+                  Edna: (11) 99955-8023
                 </a>
               </li>
               <li>
-                <a
-                  href="https://api.whatsapp.com/send/?phone=5511986460451&text&type=phone_number&app_absent=0&utm_source=ig"
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ color: "#aaa", textDecoration: "none" }}
-                  onMouseOver={(e) => (e.target.style.color = "#d4af37")}
-                  onMouseOut={(e) => (e.target.style.color = "#aaa")}
-                >
-                  📞 Marcia: (11) 98646-0451
+                <a href="https://api.whatsapp.com/send/?phone=5511986460451&text&type=phone_number&app_absent=0&utm_source=ig" target="_blank" rel="noreferrer">
+                  <img src={iconWhatsapp} alt="WhatsApp" className="footer-icon" />
+                  Marcia: (11) 98646-0451
                 </a>
               </li>
-              {/* 🚨 PREENCHA O E-MAIL AQUI */}
-              <li>✉️ E-mail: garboarqplan@gmail.com</li>
+              <li className="footer-text-item">
+                <img src={iconGmail} alt="E-mail" className="footer-icon" />
+                garboarqplan@gmail.com
+              </li>
             </ul>
           </div>
 
           {/* COLUNA 3: Redes Sociais e CNPJ */}
           <div style={{ flex: "1", minWidth: "250px" }}>
-            <h3
-              style={{
-                color: "#fff",
-                fontSize: "1.1rem",
-                marginBottom: "20px",
-                fontWeight: "600",
-              }}
-            >
+            <h3 style={{ color: "#fff", fontSize: "1.1rem", marginBottom: "20px", fontWeight: "600" }}>
               Siga a Garbo
             </h3>
-            <ul
-              style={{
-                listStyle: "none",
-                padding: 0,
-                margin: "0 0 20px 0",
-                fontSize: "0.95rem",
-                lineHeight: "1.8",
-              }}
-            >
+            <ul className="footer-links" style={{ marginBottom: "20px" }}>
               <li>
-                <a
-                  href="https://instagram.com/garboarqplan"
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ color: "#aaa", textDecoration: "none" }}
-                  onMouseOver={(e) => (e.target.style.color = "#d4af37")}
-                  onMouseOut={(e) => (e.target.style.color = "#aaa")}
-                >
-                  📸 @garboarqplan
+                <a href="https://instagram.com/garboarqplan" target="_blank" rel="noreferrer">
+                  <img src={iconInstagram} alt="Instagram" className="footer-icon" />
+                  @garboarqplan
                 </a>
               </li>
               <li>
-                <a
-                  href="https://instagram.com/ednaramosarquiteta"
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ color: "#aaa", textDecoration: "none" }}
-                  onMouseOver={(e) => (e.target.style.color = "#d4af37")}
-                  onMouseOut={(e) => (e.target.style.color = "#aaa")}
-                >
-                  📸 @ednaramosarquiteta
+                <a href="https://instagram.com/ednaramosarquiteta" target="_blank" rel="noreferrer">
+                  <img src={iconInstagram} alt="Instagram" className="footer-icon" />
+                  @ednaramosarquiteta
                 </a>
               </li>
               <li>
-                <a
-                  href="https://instagram.com/marciaarquiteta_"
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ color: "#aaa", textDecoration: "none" }}
-                  onMouseOver={(e) => (e.target.style.color = "#d4af37")}
-                  onMouseOut={(e) => (e.target.style.color = "#aaa")}
-                >
-                  📸 @marciaarquiteta_
+                <a href="https://instagram.com/marciaarquiteta_" target="_blank" rel="noreferrer">
+                  <img src={iconInstagram} alt="Instagram" className="footer-icon" />
+                  @marciaarquiteta_
                 </a>
               </li>
-
-              {/* 🚨 PREENCHA O TIKTOK AQUI */}
               <li>
-                <a
-                  href="https://tiktok.com/@garbo390"
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ color: "#aaa", textDecoration: "none" }}
-                  onMouseOver={(e) => (e.target.style.color = "#d4af37")}
-                  onMouseOut={(e) => (e.target.style.color = "#aaa")}
-                >
-                  🎵 @garbo390
+                <a href="https://tiktok.com/@garbo390" target="_blank" rel="noreferrer">
+                  <img src={iconTiktok} alt="TikTok" className="footer-icon" />
+                  @garbo390
                 </a>
               </li>
             </ul>
@@ -720,30 +663,11 @@ const Home = () => {
             © {new Date().getFullYear()} Garbo Arquitetura e Planejados. Todos os direitos reservados.
           </p>
 
-          {/* SUA ASSINATURA VIP 💻✨ */}
-          <div
-            className="developer-signature"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px"
-            }}
-          >
-            <span>Desenvolvido com 💻 por</span>
-            <a
-              href="https://www.linkedin.com/in/bruno-henrique-ramos-alves/"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                color: "#d4af37",
-                textDecoration: "none",
-                fontWeight: "600",
-                letterSpacing: "0.5px",
-                transition: "color 0.3s ease", /* Deixa a troca de cor do Hover mais suave */
-              }}
-              onMouseOver={(e) => (e.target.style.color = "#fff")}
-              onMouseOut={(e) => (e.target.style.color = "#d4af37")}
-            >
+          <div className="developer-signature" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              Desenvolvido com <img src={iconCode} alt="Code" className="signature-icon" /> por
+            </span>
+            <a href="https://www.linkedin.com/in/bruno-henrique-ramos-alves/" target="_blank" rel="noopener noreferrer" style={{ color: "#d4af37", textDecoration: "none", fontWeight: "600", letterSpacing: "0.5px", transition: "color 0.3s ease" }} onMouseOver={(e) => (e.target.style.color = "#fff")} onMouseOut={(e) => (e.target.style.color = "#d4af37")}>
               Bruno Henrique
             </a>
           </div>

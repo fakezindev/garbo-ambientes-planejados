@@ -297,10 +297,16 @@
 }
 
 .mvv-card .icon {
-    font-size: 3.5rem;
     margin-bottom: 20px;
     display: inline-block;
     transition: transform 0.3s ease;
+    height: 65px;
+}
+
+.mvv-card .icon img {
+    width: 65px;
+    height: 65px;
+    object-fit: contain; /* Garante que a imagem não distorça */
 }
 
 .mvv-card:hover .icon {
@@ -458,6 +464,14 @@
     /* Fica um pouquinho maior */
 }
 
+.alfinete-icon {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+    width: 30px;
+    height: 30px;
+}
+
 /* =========================================
    6. CONTATO E LEADS
    ========================================= */
@@ -516,6 +530,56 @@
     background-color: #111;
     color: #888;
     font-size: 0.9rem;
+}
+
+/* =========================================
+   ESTILOS DOS ÍCONES E LINKS DO FOOTER
+   ========================================= */
+
+/* Limpa o visual padrão da lista */
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Alinha o link e o ícone usando Flexbox */
+.footer-links a, 
+.footer-text-item {
+    display: flex;
+    align-items: center; /* Centraliza verticalmente texto e imagem */
+    gap: 12px; /* Espaço exato entre o ícone e o texto */
+    color: #aaa;
+    text-decoration: none;
+    font-size: 0.95rem;
+    line-height: 1.8;
+    margin-bottom: 8px; /* Espaço entre as linhas */
+    transition: color 0.3s ease;
+}
+
+/* Tamanho padrão para os ícones das redes sociais/contatos */
+.footer-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+/* Efeito Hover: O texto fica dourado e o ícone dá um leve pulinho */
+.footer-links a:hover {
+    color: var(--gold);
+}
+
+.footer-links a:hover .footer-icon {
+    transform: translateY(-2px);
+}
+
+/* Estilo específico para o seu ícone de assinatura */
+.signature-icon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    /* Se você quiser que o ícone da sua assinatura "pulse" devagarinho, pode adicionar uma animação aqui depois! */
 }
 
 /* =========================================
