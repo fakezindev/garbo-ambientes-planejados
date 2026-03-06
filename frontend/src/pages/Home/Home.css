@@ -104,19 +104,50 @@
 /* =========================================
    2. HERO SECTION (IMPACTO)
    ========================================= */
+/* =========================================
+   HERO SECTION (FUNDO COM VÍDEO)
+   ========================================= */
 .hero-section {
-    height: 80vh;
+    position: relative;
+    height: 100vh; /* Ocupa a tela inteira */
+    width: 100%;
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
+    overflow: hidden; /* Corta o que sobrar do vídeo */
+    /* Remova a linha do background-image ou background-color que estava aqui */
+}
+
+/* O VÍDEO */
+.hero-video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 🏆 A Mágica: Preenche tudo sem distorcer, não importa a tela */
+    transform: translate(-50%, -50%);
+    z-index: 1; /* Fica lá no fundo */
+}
+
+/* A PELÍCULA ESCURA */
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.65); /* Escurece o vídeo em 65% para o texto dourado bilhar */
+    z-index: 2; /* Fica acima do vídeo e abaixo do texto */
+}
+
+/* O CONTEÚDO (Logo, título, botão) */
+.hero-content {
+    position: relative;
+    z-index: 3; /* Fica no topo de tudo */
     text-align: center;
-    background-color: var(--dark);
-    /* Se quiser, depois pode trocar o fundo por uma foto de uma cozinha top */
-    background-image: linear-gradient(rgba(26, 26, 26, 0.8), rgba(26, 26, 26, 0.8)), url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
-    background-size: cover;
-    background-position: center;
-    color: white;
-    padding: 0 20px;
+    width: 100%;
+    /* Mantenha os outros estilos que você já tinha aqui para os textos */
 }
 
 .hero-content h1 {

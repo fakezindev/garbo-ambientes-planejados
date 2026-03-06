@@ -16,6 +16,7 @@ import iconInstagram from "../../assets/instagram.png";
 import iconTiktok from "../../assets/tik-tok.png";
 import iconGmail from "../../assets/enviar.png";
 import iconCode from "../../assets/codigo.png";
+import bgVideo from "../../assets/video.mp4";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
@@ -124,8 +125,26 @@ const Home = () => {
         </nav>
       </header>
 
-      {/* 2. HERO SECTION (A primeira impressão de impacto) */}
-      <section className="hero-section">
+      {/* =========================================
+          HERO SECTION COM VÍDEO
+          ========================================= */}
+      <section className="hero-section" id="inicio">
+        
+        {/* 1. O Vídeo de Fundo */}
+        <video 
+          autoPlay 
+          loop 
+          muted 
+          playsInline 
+          className="hero-video"
+        >
+          <source src={bgVideo} type="video/mp4" />
+        </video>
+
+        {/* 2. Película escura para dar contraste */}
+        <div className="hero-overlay"></div>
+
+        {/* 3. O Conteúdo (Textos e Botões que você já tem) */}
         <div className="hero-content">
           <h1>Transformando Espaços em Sonhos Planejados</h1>
           <p>
