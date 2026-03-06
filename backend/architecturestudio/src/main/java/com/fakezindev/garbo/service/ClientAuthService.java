@@ -27,7 +27,7 @@ public class ClientAuthService {
         newClient.setName(dto.name());
         newClient.setEmail(dto.email());
         newClient.setPhone(dto.phone());
-        newClient.setCpfCnpj(dto.cpfCnpj());
+        newClient.setCpf(dto.cpf());
 
         newClient.setPassword(passwordEncoder.encode(dto.password()));
 

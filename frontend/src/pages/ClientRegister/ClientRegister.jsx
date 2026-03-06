@@ -11,7 +11,7 @@ function ClientRegister() {
         email: '',
         password: '',
         phone: '',
-        cpfCnpj: '',
+        cpf: '',
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -103,7 +103,7 @@ function ClientRegister() {
                 <form onSubmit={handleRegister} className="auth-form">
                     <input type="text" name="name" placeholder="Seu nome completo" value={formData.name} onChange={handleChange} required className="auth-input" />
                     <input type="email" name="email" placeholder="Seu e-mail" value={formData.email} onChange={handleChange} required className="auth-input" />
-                    <input type="text" name="cpfCnpj" placeholder="CPF ou CNPJ" value={formData.cpfCnpj} onChange={handleChange} required className="auth-input" />
+                    <input type="text" name="cpf" placeholder="CPF ou CNPJ" value={formData.cpf} onChange={handleChange} required className="auth-input" />
                     <input type="text" name="phone" placeholder="Telefone para contato" value={formData.phone} onChange={handleChange} required className="auth-input" />
                     <input type="password" name="password" placeholder="Crie uma senha" value={formData.password} onChange={handleChange} required className="auth-input" />
 

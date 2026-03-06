@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import api from "../../services/api"; // Ajuste o caminho se necessário
 import "./Home.css";
 
-import imgEdna from "../../assets/edna_arquiteta.jpeg";
+import imgEdna from "../../assets/edna_arquiteta.png";
 import imgMarcia from "../../assets/marcia_arquiteta.png";
 import logoGarbo from "../../assets/logo_header.png";
 import iconMissao from "../../assets/alvo-de-dardos.png";
@@ -14,7 +14,7 @@ import iconLocalizacao from "../../assets/pino-de-localizacao.png";
 import iconWhatsapp from "../../assets/whatsapp.png";
 import iconInstagram from "../../assets/instagram.png";
 import iconTiktok from "../../assets/tik-tok.png";
-import iconGmail from "../../assets/gmail.png";
+import iconGmail from "../../assets/enviar.png";
 import iconCode from "../../assets/codigo.png";
 
 import { Swiper, SwiperSlide } from "swiper/react";

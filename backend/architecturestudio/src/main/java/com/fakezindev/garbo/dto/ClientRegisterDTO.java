@@ -5,5 +5,5 @@ public record ClientRegisterDTO(
         String email,
         String password,
         String phone,
-        String cpfCnpj
+        String cpf
 ) {}

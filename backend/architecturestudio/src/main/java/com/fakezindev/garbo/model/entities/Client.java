@@ -29,7 +29,7 @@ public class Client implements UserDetails {
     private String phone;
 
     private String address;
-    private String cpfCnpj;
+    private String cpf;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

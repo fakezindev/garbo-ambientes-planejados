@@ -28,7 +28,7 @@ public class ClientService {
         client.setPassword(passwordEncoder.encode(dto.password()));
         client.setPhone(dto.phone());
         client.setAddress(dto.address());
-        client.setCpfCnpj(dto.cpfCnpj());
+        client.setCpf(dto.cpf());
 
         return clientRepository.save(client);
     }
