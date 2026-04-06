@@ -1,8 +1,14 @@
 package com.fakezindev.garbo.model.enums;
 
 public enum ProjectCategory {
-    INTERIORES,
-    COMERCIAL,
-    PLANEJADOS,
-    PROJETO;
+    MOVEIS_PLANEJADOS,
+    SERVICO_EM_GESSO,
+    DESIGNER_DE_INTERIOR,
+    REFORMA_EM_GERAL,
+    PROJETOS_ARQUITETONICOS,
+    PISO_VINILICO_E_LAMINADO,
+    RRT,
+    LAUDO_TECNICO,
+    PERSIANAS_E_CORTINAS,
+    PEDRAS_DE_GRANITOS
 }

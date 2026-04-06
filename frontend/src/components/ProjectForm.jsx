@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import api from "../services/api";
 
 function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("Móveis planejados");
+  const [category, setCategory] = useState("MOVEIS_PLANEJADOS");
   const [status, setStatus] = useState("PROJETO");
   const [completionDate, setCompletionDate] = useState("");
 
@@ -100,7 +100,7 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
   const clearForm = () => {
     setTitle("");
     setDescription("");
-    setCategory("Móveis planejados");
+    setCategory("MOVEIS_PLANEJADOS");
     setStatus("PROJETO");
     setCompletionDate("");
     setClientId("");
@@ -200,22 +200,22 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
             onChange={(e) => setCategory(e.target.value)}
             className="input-field"
           >
-            <option value="Móveis planejados">Móveis planejados</option>
-            <option value="Serviço em gesso">Serviço em gesso</option>
-            <option value="Designer de interior">Designer de interior</option>
-            <option value="Reforma em geral">Reforma em geral</option>
-            <option value="Projetos Arquitetônicos">
-              Projetos Arquitetônicos
-            </option>
-            <option value="Piso vinílico e Laminado">
-              Piso vinílico e Laminado
-            </option>
+            {/* Dica de UX: É sempre bom ter uma opção neutra no início para forçar o usuário a escolher */}
+            <option value="" disabled>Selecione uma categoria</option>
+            
+            {/* Valores ajustados para o Enum do Java */}
+            <option value="MOVEIS_PLANEJADOS">Móveis planejados</option>
+            <option value="SERVICO_EM_GESSO">Serviço em gesso</option>
+            <option value="DESIGNER_DE_INTERIOR">Designer de interior</option>
+            <option value="REFORMA_EM_GERAL">Reforma em geral</option>
+            <option value="PROJETOS_ARQUITETONICOS">Projetos Arquitetônicos</option>
+            <option value="PISO_VINILICO_E_LAMINADO">Piso vinílico e Laminado</option>
             <option value="RRT">RRT</option>
-            <option value="Laudo técnico">Laudo técnico</option>
-            <option value="Persianas e cortinas">Persianas e cortinas</option>
-            <option value="Pedras de granitos">Pedras de granitos</option>
-          </select>
-        </div>
+            <option value="LAUDO_TECNICO">Laudo técnico</option>
+            <option value="PERSIANAS_E_CORTINAS">Persianas e cortinas</option>
+            <option value="PEDRAS_DE_GRANITOS">Pedras de granitos</option>
+            </select>
+          </div>
 
         {/* LINHA 2: CLIENTE E STATUS (Corrigido o espaço gigante) */}
         <div

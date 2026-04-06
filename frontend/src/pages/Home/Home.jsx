@@ -413,12 +413,10 @@ const Home = () => {
             fontSize: "1.2rem",
             fontWeight: "500",
           }}
-        >
-          <p style={{ margin: 0 }}>
+        >          
             <div className="alfinete-icon" style={{ display: 'inline-flex' }}>
               <img src={iconLocalizacao} alt="Ícone Localização" />
             </div> <strong>Av. André Luiz, 296 - </strong> Picanço, Guarulhos - SP, 07082-050
-          </p>
         </div>
       </section>
 
@@ -509,16 +507,16 @@ const Home = () => {
               onChange={(e) => setLeadService(e.target.value)}
             >
               <option value="" disabled> Qual serviço deseja solicitar?</option>
-              <option value="Móveis planejados">Móveis planejados</option>
-              <option value="Serviço em gesso">Serviço em gesso</option>
-              <option value="Designer de interior">Designer de interior</option>
-              <option value="Reforma em geral">Reforma em geral</option>
-              <option value="Projetos Arquitetônicos"> Projetos Arquitetônicos</option>
-              <option value="Piso vinílico e Laminado">Piso vinílico e Laminado</option>
+              <option value="MOVEIS_PLANEJADOS">Móveis planejados</option>
+              <option value="SERVICO_EM_GESSO">Serviço em gesso</option>
+              <option value="DESIGNER_DE_INTERIOR">Designer de interior</option>
+              <option value="REFORMA_EM_GERAL">Reforma em geral</option>
+              <option value="PROJETOS_ARQUITETONICOS"> Projetos Arquitetônicos</option>
+              <option value="PISO_VINILICO_E_LAMINADO">Piso vinílico e Laminado</option>
               <option value="RRT">RRT</option>
-              <option value="Laudo técnico">Laudo técnico</option>
-              <option value="Persianas e cortinas">Persianas e cortinas</option>
-              <option value="Pedras de granitos">Pedras de granitos</option>
+              <option value="LAUDO_TECNICO">Laudo técnico</option>
+              <option value="PERSIANAS_E_CORTINAS">Persianas e cortinas</option>
+              <option value="PEDRAS_DE_GRANITOS">Pedras de granitos</option>
             </select>
 
             <textarea
