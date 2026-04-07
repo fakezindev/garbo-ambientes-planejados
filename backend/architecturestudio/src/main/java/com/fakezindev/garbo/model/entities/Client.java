@@ -28,7 +28,6 @@ public class Client implements UserDetails {
 
     private String phone;
 
-    private String address;
     private String cpf;
 
     @Override

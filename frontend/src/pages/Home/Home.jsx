@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import api from "../../services/api"; // Ajuste o caminho se necessário
+import api from "../../services/api"; 
 import "./Home.css";
 
 import imgEdna from "../../assets/edna_arquiteta.png";
@@ -68,6 +68,15 @@ const Home = () => {
 
   const handleSubmitLead = async (e) => {
     e.preventDefault();
+    // 🛑 TRAVA DO FRONTEND: Exige o DDD e os 9 dígitos antes de chamar a API
+    if (leadPhone.length < 15) {
+      toast.warning("Por favor, digite o WhatsApp completo com DDD.", {
+        position: "bottom-right",
+        theme: "dark"
+      });
+      return; // Interrompe a função aqui
+    }
+
     setIsSubmittingLead(true);
 
     try {
@@ -100,6 +109,16 @@ const Home = () => {
     } finally {
       setIsSubmittingLead(false);
     }
+  };
+
+  // 🎭 Máscara para formatar o Telefone automaticamente
+  const formatPhone = (value) => {
+    if (!value) return "";
+    return String(value)
+      .replace(/\D/g, '')
+      .replace(/(\d{2})(\d)/, '($1) $2')
+      .replace(/(\d{4,5})(\d{4})/, '$1-$2')
+      .replace(/(-\d{4})\d+?$/, '$1');
   };
 
   return (
@@ -478,13 +497,14 @@ const Home = () => {
                 onChange={(e) => setLeadName(e.target.value)}
               />
               <input
-                type="tel"
-                placeholder="Seu WhatsApp"
+                type="text"
+                name="phone"
+                placeholder="Seu WhatsApp (11) 99999-9999"
                 required
                 className="input-field"
                 style={{ width: "100%", boxSizing: "border-box" }}
-                value={leadPhone}
-                onChange={(e) => setLeadPhone(e.target.value)}
+                value={leadPhone} /* 👈 Alterado para o estado correto */
+                onChange={(e) => setLeadPhone(formatPhone(e.target.value))} /* 👈 Alterado para o setLeadPhone */
               />
             </div>
 

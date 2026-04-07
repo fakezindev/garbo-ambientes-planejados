@@ -274,7 +274,7 @@ const AdminDashboard = () => {
     localStorage.removeItem("garbo_token");
 
     // Manda o Admin de volta pra tela de login
-    navigate("/login");
+    navigate("/");
   };
 
   // Executa a busca assim que o Admin entra no painel

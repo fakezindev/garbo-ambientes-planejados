@@ -63,37 +63,52 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     if (files.length > 0) {
-      // ✅ Mantém as fotos antigas e adiciona as novas ao array de arquivos
-      setImages((prevImages) => [...prevImages, ...files]);
+      // ✅ Atualiza os arquivos reais (Para enviar ao Java)
+      setImages((prevImages) => {
+        // Garantindo que prevImages seja sempre um array, mesmo se estiver undefined
+        const currentImages = prevImages || [];
+        return [...currentImages, ...files];
+      });
 
-      // ✅ Gera previews sem apagar os que já estavam na tela
-      const newPreviewUrls = files.map((file) => URL.createObjectURL(file));
-      setPreviewUrls((prevUrls) => [...prevUrls, ...newPreviewUrls]);
+      // ✅ Atualiza a vitrine (Previews na tela)
+      setPreviewUrls((prevUrls) => {
+        const currentUrls = prevUrls || [];
+        const newPreviewUrls = files.map((file) => URL.createObjectURL(file));
+        return [...currentUrls, ...newPreviewUrls];
+      });
     }
-    // Limpa o valor do input para permitir selecionar o mesmo arquivo novamente se desejar
-    if (fileInputRef.current) fileInputRef.current.value = "";
+
+    // Limpa o input para permitir selecionar a MESMA foto de novo, se o usuário apagar e se arrepender
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const removeImage = (indexToRemove) => {
-    // ❌ Remove do array de arquivos reais (ajustando o índice caso existam fotos vindas do banco)
-    // Se a imagem for nova (existir no array images), removemos ela.
-    // Como o previewUrls junta fotos do banco + fotos novas, precisamos de cuidado aqui.
-
     setPreviewUrls((prevUrls) => {
       const urlToRemove = prevUrls[indexToRemove];
-      // Se for uma URL temporária do navegador, libera memória
-      if (urlToRemove.startsWith("blob:")) {
+      // Libera a memória do navegador se for uma foto nova
+      if (urlToRemove && urlToRemove.startsWith("blob:")) {
         URL.revokeObjectURL(urlToRemove);
       }
       return prevUrls.filter((_, index) => index !== indexToRemove);
     });
 
-    // Remove do array de arquivos (images) apenas se for uma foto recém adicionada
-    // (As fotos do banco não estão no array 'images')
+    // 🚨 A MÁGICA DA EXCLUSÃO CORRETA:
+    // Precisamos saber se a foto excluída era uma foto do BANCO (que não está no array images)
+    // ou se era uma foto NOVA (que está no array images).
+    // Para simplificar: se você removeu o preview X, nós re-filtramos o array de imagens reais
+    // baseados nas URLs temporárias (blob:) que sobraram.
     setImages((prevImages) => {
-      // O cálculo do índice aqui depende de como você organiza a ordem (banco primeiro ou novas primeiro)
-      // Por simplicidade, se você estiver apenas adicionando fotos novas:
-      return prevImages.filter((_, index) => index !== indexToRemove);
+      // Isso garante que se você apagar a 1ª foto (que era do banco),
+      // o array de novas fotos para enviar ao Java não seja corrompido!
+      return prevImages.filter((_, idx) => {
+          // Lógica simplificada: Assume-se que as fotos do banco vêm primeiro.
+          // Se o previewUrls tem 2 fotos do banco e 3 novas, e eu apago o index 3...
+          const offset = previewUrls.filter(url => !url.startsWith("blob:")).length;
+          const adjustedIndex = indexToRemove - offset;
+          return idx !== adjustedIndex;
+      });
     });
   };
 
@@ -290,89 +305,97 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
         />
 
         {/* UPLOAD DE IMAGENS COM BOTÃO DE REMOVER */}
-        <div
-          className={`file-upload ${previewUrls.length > 0 ? "has-image" : ""}`}
-          style={{ marginBottom: "1rem" }}
-        >
-          <label style={{ cursor: "pointer", display: "block" }}>
-            {previewUrls.length > 0 && (
-              <div
-                style={{
-                  display: "flex",
-                  gap: "15px",
-                  overflowX: "auto",
-                  padding: "10px 5px",
-                }}
-              >
-                {previewUrls.map((url, index) => (
-                  <div
-                    key={index}
-                    style={{ position: "relative", minWidth: "100px" }}
-                  >
-                    <img
-                      src={url}
-                      alt={`Preview ${index}`}
-                      style={{
-                        width: "100px",
-                        height: "100px",
-                        objectFit: "cover",
-                        borderRadius: "8px",
-                        border: "1px solid #333",
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        removeImage(index);
-                      }}
-                      style={{
-                        position: "absolute",
-                        top: "-8px",
-                        right: "-8px",
-                        background: "#e74c3c",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "50%",
-                        width: "22px",
-                        height: "22px",
-                        cursor: "pointer",
-                        fontSize: "12px",
-                        fontWeight: "bold",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                      }}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <span
+        <div className={`file-upload ${previewUrls.length > 0 ? "has-image" : ""}`} style={{ marginBottom: "1rem" }}>
+          
+          {/* 1. AS FOTOS JÁ CARREGADAS (Agora ficam fora do gatilho de clique) */}
+          {previewUrls.length > 0 && (
+            <div
               style={{
-                display: "block",
-                marginTop: previewUrls.length > 0 ? "15px" : "0",
-                color: "#f1c40f",
-                fontWeight: "500",
+                display: "flex",
+                gap: "15px",
+                overflowX: "auto",
+                padding: "10px 5px",
+                marginBottom: "15px"
               }}
             >
-              {previewUrls.length > 0
-                ? `Adicionar mais fotos (${previewUrls.length})`
-                : "📸 Clique para adicionar fotos do projeto"}
-            </span>
+              {previewUrls.map((url, index) => (
+                <div key={index} style={{ position: "relative", minWidth: "100px" }}>
+                  <img
+                    src={url}
+                    alt={`Preview ${index}`}
+                    style={{
+                      width: "100px",
+                      height: "100px",
+                      objectFit: "cover",
+                      borderRadius: "8px",
+                      border: "1px solid #333",
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation(); // 👈 Impede o clique de vazar pra baixo
+                      removeImage(index);
+                    }}
+                    style={{
+                      position: "absolute",
+                      top: "-8px",
+                      right: "-8px",
+                      background: "#e74c3c",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "50%",
+                      width: "22px",
+                      height: "22px",
+                      cursor: "pointer",
+                      fontSize: "12px",
+                      fontWeight: "bold",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
 
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              ref={fileInputRef}
-              onChange={handleImageChange}
-              style={{ display: "none" }}
-            />
-          </label>
+          {/* 2. O TEXTO CLICÁVEL (Único lugar que abre a janela de arquivos) */}
+          <div
+            onClick={() => {
+              if (fileInputRef.current) fileInputRef.current.click(); // 👈 Força o clique no input escondido
+            }}
+            style={{
+              display: "block",
+              color: "#f1c40f",
+              fontWeight: "500",
+              cursor: "pointer",
+              padding: "10px",
+              border: "1px dashed #555",
+              borderRadius: "8px",
+              textAlign: "center",
+              transition: "background 0.3s"
+            }}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(241, 196, 15, 0.1)'}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+          >
+            {previewUrls.length > 0
+              ? `Adicionar mais fotos (${previewUrls.length})`
+              : "📸 Clique para adicionar fotos do projeto"}
+          </div>
+
+          {/* 3. O INPUT REAL (Totalmente invisível, mas trabalhando por trás) */}
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            ref={fileInputRef}
+            onChange={handleImageChange}
+            style={{ display: "none" }}
+          />
         </div>
 
         <button

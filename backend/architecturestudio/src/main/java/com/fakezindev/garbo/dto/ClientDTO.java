@@ -5,6 +5,5 @@ public record ClientDTO (
     String email,
     String password,
     String phone,
-    String address,
     String cpf
     ) {}

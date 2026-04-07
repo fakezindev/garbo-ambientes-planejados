@@ -5,6 +5,7 @@ import com.fakezindev.garbo.dto.ClientLoginResponseDTO;
 import com.fakezindev.garbo.dto.ClientRegisterDTO;
 import com.fakezindev.garbo.repository.ClientRepository;
 import com.fakezindev.garbo.service.ClientAuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.ErrorResponse;
@@ -19,7 +20,7 @@ public class ClientAuthController {
     private final ClientRepository clientRepository;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody ClientRegisterDTO dto) {
+    public ResponseEntity<String> register(@RequestBody @Valid ClientRegisterDTO dto) {
 
         // 🚨 1. Verifica E-mail
         if (clientRepository.existsByEmail(dto.email())) {

@@ -5,6 +5,7 @@ import com.fakezindev.garbo.dto.LeadResponseDTO;
 import com.fakezindev.garbo.model.entities.Lead;
 import com.fakezindev.garbo.repository.LeadRepository;
 import com.fakezindev.garbo.service.LeadService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class LeadController {
     private LeadService leadService;
 
     @PostMapping
-    public ResponseEntity<LeadResponseDTO> create(@RequestBody LeadRequestDTO dto) {
+    public ResponseEntity<LeadResponseDTO> create(@RequestBody @Valid LeadRequestDTO dto) {
         LeadResponseDTO newLead = leadService.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(newLead);
     }
