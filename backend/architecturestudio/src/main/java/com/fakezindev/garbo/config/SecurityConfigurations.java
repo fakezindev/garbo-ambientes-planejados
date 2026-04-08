@@ -1,5 +1,6 @@
 package com.fakezindev.garbo.config;
 
+import lombok.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -16,6 +17,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -23,6 +25,9 @@ import java.util.List;
 public class SecurityConfigurations {
 
     private final SecurityFilter securityFilter;
+
+    @Value("${cors.allowed.origins}")
+    private String corsOrigins;
 
     public SecurityConfigurations(SecurityFilter securityFilter) {
         this.securityFilter = securityFilter;
@@ -81,7 +86,7 @@ public class SecurityConfigurations {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // 1. Quem pode acessar? O seu React!
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        configuration.setAllowedOrigins(Arrays.asList(corsOrigins.split(",")));
 
         // 2. Quais métodos são permitidos? Tudo!
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));

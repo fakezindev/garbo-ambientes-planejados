@@ -17,20 +17,22 @@ public class AdminSeeder implements CommandLineRunner {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Value("${api.admin.default.password:senha-segura-garbo-123}")
+    @Value("${admin.default.username}")
+    private String defaultAdminUsername;
+
+    @Value("${admin.default.password}")
     private String defaultAdminPassword;
 
     @Override
     public void run(String... args) throws Exception {
 
-        String adminUsername = "admin";
 
-        if (!userRepository.existsByUsername(adminUsername)) {
+        if (userRepository.findByUsername(defaultAdminUsername).isEmpty()) {
             User admin = new User();
-            admin.setUsername(adminUsername);
+            admin.setUsername(defaultAdminUsername);
 
             admin.setPassword(passwordEncoder.encode(defaultAdminPassword));
-            
+
             userRepository.save(admin);
             System.out.println("✅ [SEEDER] Usuário Administrador Master criado com sucesso! Username: " + adminUsername);
         } else {
