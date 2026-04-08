@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import api from "../../services/api"; 
 import "./Home.css";
 
-import imgEdna from "../../assets/edna_arquiteta.png";
+import imgEdna from "../../assets/edna_arquiteta1.jpeg";
 import imgMarcia from "../../assets/marcia_arquiteta.png";
 import logoGarbo from "../../assets/logo_header.png";
 import iconMissao from "../../assets/alvo-de-dardos.png";
@@ -37,6 +37,8 @@ const Home = () => {
   const [showHeader, setShowHeader] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
+  const [activeTab, setActiveTab] = useState("projetos"); // Controla a aba ativa para o efeito de scroll
+
   // 1️⃣ EFFECT DOS PROJETOS (Roda apenas uma vez ao abrir o site)
   useEffect(() => {
     api
@@ -65,6 +67,46 @@ const Home = () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, [lastScrollY]);
+
+  // MÁGICA DO MOBILE: Tocar vídeos ao rolar a tela
+  useEffect(() => {
+    // Só ativamos o observer se estivermos na aba de projetos
+    if (activeTab !== "projetos") return;
+
+    // Cria o "vigia" da tela
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const video = entry.target;
+          
+          // Verifica se é uma tela de celular (menor que 768px)
+          const isMobile = window.innerWidth <= 768;
+
+          if (isMobile) {
+            if (entry.isIntersecting) {
+              // Se 50% do vídeo apareceu na tela, dá play
+              video.play().catch((err) => console.log("Autoplay bloqueado pelo navegador:", err));
+            } else {
+              // Se o vídeo saiu da tela, pausa para economizar bateria/dados
+              video.pause();
+            }
+          }
+        });
+      },
+      {
+        threshold: 0.5, // 0.5 significa que dispara quando 50% do vídeo está visível
+      }
+    );
+
+    // Manda o vigia olhar para todos os vídeos dentro dos cards de portfólio
+    const videos = document.querySelectorAll(".portfolio-card video");
+    videos.forEach((video) => observer.observe(video));
+
+    // Limpeza: quando sair da tela, desliga o vigia
+    return () => {
+      videos.forEach((video) => observer.unobserve(video));
+    };
+  }, [projects, activeTab]); // Re-executa se a lista de projetos ou a aba mudar
 
   const handleSubmitLead = async (e) => {
     e.preventDefault();
@@ -177,8 +219,8 @@ const Home = () => {
       </section>
 
       {/* =========================================
-    SESSÃO: QUEM SOMOS (AS SÓCIAS)
-    ========================================= */}
+          SESSÃO: QUEM SOMOS (AS SÓCIAS)
+          ========================================= */}
       <section className="about-section" id="sobre">
         <div className="section-title">
           <h2 style={{ color: "#d4af37" }}>Quem Somos</h2>
@@ -223,8 +265,8 @@ const Home = () => {
       </section>
 
       {/* =========================================
-    SESSÃO: NOSSO PROPÓSITO (MVV)
-    ========================================= */}
+          SESSÃO: NOSSO PROPÓSITO (MVV)
+          ========================================= */}
       <section className="mvv-section" id="proposito">
         <div className="section-title">
           <h2 style={{ color: "#d4af37" }}>Nosso Propósito</h2>
@@ -286,77 +328,122 @@ const Home = () => {
 
         <div className="projects-grid public-grid">
           {projects && projects.length > 0 ? (
-            projects.map((project) => (
-              <div key={project.id} className="portfolio-card">
-                {/* O container que trava a altura em 280px para TODAS as fotos */}
-                <div className="portfolio-image-wrapper">
-                  {project.imageUrls && project.imageUrls.length > 0 ? (
-                    <Swiper
-                      modules={[Navigation, Pagination]}
-                      spaceBetween={0}
-                      slidesPerView={1}
-                      navigation
-                      pagination={{ clickable: true }}
-                      style={{ width: "100%", height: "100%" }}
-                    >
-                      {project.imageUrls.map((url, imgIndex) => (
-                        <SwiperSlide key={imgIndex}>
-                          <img
-                            src={url}
-                            alt={`${project.title} - ${imgIndex + 1}`}
-                            className="portfolio-image"
-                          />
-                        </SwiperSlide>
-                      ))}
-                    </Swiper>
-                  ) : project.coverImageUrl ? (
-                    <img
-                      src={project.coverImageUrl}
-                      alt={project.title}
-                      className="portfolio-image"
-                    />
-                  ) : (
-                    /* Fundo elegante caso o projeto não tenha foto */
-                    <div
+            projects.map((project) => {
+              
+              // 1. MÁGICA: Juntamos fotos e vídeos em uma lista só, etiquetando os tipos!
+              const todasAsMidias = [
+                ...(project.imageUrls || []).map((url) => ({ type: "image", url })),
+                ...(project.videoUrls || []).map((url) => ({ type: "video", url })),
+              ];
+
+              return (
+                <div 
+                  key={project.id} 
+                  className="portfolio-card"
+                  // 👇 MÁGICA 1: Mouse entrou -> Dá Play no vídeo (se houver)
+                  onMouseEnter={(e) => {
+                    const video = e.currentTarget.querySelector("video");
+                    if (video) video.play();
+                  }}
+                  // 👇 MÁGICA 2: Mouse saiu -> Pausa o vídeo
+                  onMouseLeave={(e) => {
+                    const video = e.currentTarget.querySelector("video");
+                    if (video) {
+                      video.pause();
+                      // Opcional: Descomente a linha abaixo se quiser que o vídeo volte pro começo ao tirar o mouse
+                      // video.currentTime = 0; 
+                    }
+                  }}
+                >
+                  <div className="portfolio-image-wrapper">
+                    
+                    {/* 2. Verificamos se existe QUALQUER mídia na lista combinada */}
+                    {todasAsMidias.length > 0 ? (
+                      <Swiper
+                        modules={[Navigation, Pagination]}
+                        spaceBetween={0}
+                        slidesPerView={1}
+                        navigation
+                        pagination={{ clickable: true }}
+                        style={{ width: "100%", height: "100%" }}
+                        // Pausa os vídeos quando o usuário arrasta o carrossel
+                        onSlideChange={() => {
+                          const videos = document.querySelectorAll("video");
+                          videos.forEach((vid) => vid.pause());
+                        }}
+                      >
+                        {todasAsMidias.map((midia, index) => (
+                          <SwiperSlide key={index}>
+                            
+                            {/* 3. Renderiza IMG ou VIDEO dependendo da etiqueta */}
+                            {midia.type === "image" ? (
+                              <img
+                                src={midia.url}
+                                alt={`${project.title} - ${index + 1}`}
+                                className="portfolio-image"
+                              />
+                            ) : (
+                              <video
+                                src={midia.url}
+                                controls
+                                muted // Essencial para portfólios públicos
+                                className="portfolio-image" // Mantém a classe para bordas e tamanho
+                                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                              />
+                            )}
+
+                          </SwiperSlide>
+                        ))}
+                      </Swiper>
+                    ) : project.coverImageUrl ? (
+                      <img
+                        src={project.coverImageUrl}
+                        alt={project.title}
+                        className="portfolio-image"
+                      />
+                    ) : (
+                      /* Fundo elegante caso o projeto não tenha foto */
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: "#111",
+                          color: "#555",
+                        }}
+                      >
+                        Sem Imagem
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Textos alinhados e estilizados */}
+                  <div className="portfolio-content">
+                    <span className="portfolio-category">
+                      {project.category || "PLANEJADOS"}
+                    </span>
+                    <h3 className="portfolio-title">{project.title}</h3>
+
+                    {/* Estilo adicionado para a descrição não quebrar o layout escuro */}
+                    <p
                       style={{
-                        width: "100%",
-                        height: "100%",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        backgroundColor: "#111",
-                        color: "#555",
+                        color: "#aaa",
+                        fontSize: "0.9rem",
+                        marginTop: "10px",
+                        lineHeight: "1.5",
+                        margin: "10px 0 0 0",
                       }}
                     >
-                      Sem Imagem
-                    </div>
-                  )}
+                      {project.description}
+                    </p>
+                  </div>
                 </div>
-
-                {/* Textos alinhados e estilizados */}
-                <div className="portfolio-content">
-                  <span className="portfolio-category">
-                    {project.category || "PLANEJADOS"}
-                  </span>
-                  <h3 className="portfolio-title">{project.title}</h3>
-
-                  {/* Estilo adicionado para a descrição não quebrar o layout escuro */}
-                  <p
-                    style={{
-                      color: "#aaa",
-                      fontSize: "0.9rem",
-                      marginTop: "10px",
-                      lineHeight: "1.5",
-                      margin: "10px 0 0 0",
-                    }}
-                  >
-                    {project.description}
-                  </p>
-                </div>
-              </div>
-            ))
+              );
+            })
           ) : (
-            /* Mensagem de vazio ajustada para o tema (gridColumn faz o texto centralizar na tela toda) */
+            /* Mensagem de vazio ajustada para o tema */
             <p
               style={{
                 textAlign: "center",
@@ -372,8 +459,8 @@ const Home = () => {
       </section>
 
       {/* =========================================
-        SESSÃO: LOCALIZAÇÃO
-    ========================================= */}
+              SESSÃO: LOCALIZAÇÃO
+          ========================================= */}
       <section
         className="location-section"
         id="localizacao"

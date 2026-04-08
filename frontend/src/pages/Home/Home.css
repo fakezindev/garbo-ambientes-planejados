@@ -377,8 +377,9 @@
 .portfolio-card {
     background-color: #1a1a1a;
     border: 1px solid #333;
-    border-radius: 12px;
-    overflow: hidden;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    border-radius: 8px; /* Garante que os cantos fiquem arredondados */
+    overflow: hidden; /* Impede que a imagem vaze ao dar zoom */
     transition: transform 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
     cursor: pointer; /* Indica que é clicável */
     display: flex;
@@ -388,7 +389,7 @@
 .portfolio-card:hover {
     transform: translateY(-8px);
     border-color: var(--gold);
-    box-shadow: 0 15px 35px rgba(212, 175, 55, 0.15);
+    box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.6);
 }
 
 .portfolio-image-wrapper {
@@ -404,11 +405,11 @@
     /* O object-fit: cover faz a foto preencher a caixa inteira sem amassar, 
        cortando o excesso automaticamente como no Instagram! */
     object-fit: cover; 
-    transition: transform 0.6s ease;
+    transition: transform 0.5s ease-in-out;
 }
 
 .portfolio-card:hover .portfolio-image {
-    transform: scale(1.08);
+    transform: scale(1.05);
 }
 
 .portfolio-content {

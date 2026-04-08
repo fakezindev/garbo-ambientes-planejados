@@ -39,6 +39,11 @@ public class Project {
     @Column(name = "image_url")
     private List<String> imageUrls = new java.util.ArrayList<>();
 
+    @ElementCollection
+    @CollectionTable(name = "tb_project_videos", joinColumns = @JoinColumn(name = "project_id"))
+    @Column(name = "video_url")
+    private List<String> videoUrls = new java.util.ArrayList<>();
+
     @ManyToOne
     @JoinColumn(name = "client_id")
     private Client client;

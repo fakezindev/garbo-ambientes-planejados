@@ -77,7 +77,7 @@ public class ProjectService {
 
 
     @Transactional
-    public ProjectResponseDTO create(ProjectRequestDTO dto, List<MultipartFile> images) {
+    public ProjectResponseDTO create(ProjectRequestDTO dto, List<MultipartFile> images, List<MultipartFile> videos) {
         Project project = new Project();
 
         // 1. Converte os dados textuais
@@ -100,158 +100,123 @@ public class ProjectService {
             }
         }
 
+        // 2. Faz o upload das imagens ANTES de salvar no banco
+        if (videos != null && !videos.isEmpty()) {
+            List<String> uploadedVideoUrls = new ArrayList<>();
+            for (MultipartFile file : videos) {
+                try {
+                    uploadedVideoUrls.add(fileStorageService.upload(file));
+                } catch (Exception e) {
+                    log.error("Erro ao salvar vídeo no MinIO: {}", e.getMessage(), e);
+                }
+            }
+
+            if (!uploadedVideoUrls.isEmpty()) {
+                project.setVideoUrls(uploadedVideoUrls); // Salva na lista de vídeos recém-criada
+            }
+        }
+
         // 3. Salva no banco APENAS UMA VEZ, já com as URLs preenchidas!
         project = projectRepository.save(project);
 
         return new ProjectResponseDTO(project);
     }
 
-
-
     @Transactional
-
-    public ProjectResponseDTO update(Long id, ProjectRequestDTO dto, List<MultipartFile> images) {
-
+    public ProjectResponseDTO update(Long id, ProjectRequestDTO dto, List<MultipartFile> images, List<MultipartFile> videos) {
         Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Projeto não encontrado com ID: " + id));
 
-                .orElseThrow(() -> new RuntimeException("Projeto não encontrado"));
+        // ==========================================
+        // 1. GESTÃO DE IMAGENS
+        // ==========================================
+        List<String> imagensNoBanco = project.getImageUrls() != null ? new ArrayList<>(project.getImageUrls()) : new ArrayList<>();
+        List<String> imagensParaManter = dto.existingImageUrls() != null ? dto.existingImageUrls() : new ArrayList<>();
 
-
-
-// 1. GESTÃO DE IMAGENS QUE JÁ EXISTIAM (O que o usuário manteve vs o que excluiu no "x")
-
-        List<String> urlsNoBanco = project.getImageUrls() != null ? new ArrayList<>(project.getImageUrls()) : new ArrayList<>();
-
-        List<String> urlsParaManter = dto.existingImageUrls() != null ? dto.existingImageUrls() : new ArrayList<>();
-
-
-
-// Identifica o que sumiu da lista (o que deve ser apagado fisicamente do MinIO)
-
-        List<String> urlsParaDeletar = urlsNoBanco.stream()
-
-                .filter(url -> !urlsParaManter.contains(url))
-
-                .toList();
-
-
-
-// 🚨 A CORREÇÃO: Deletar apenas as fotos que foram removidas pelo "x"
-
-        for (String urlToRemove : urlsParaDeletar) {
-
-            try {
-
-                String filename = URLDecoder.decode(urlToRemove.substring(urlToRemove.lastIndexOf("/") + 1), StandardCharsets.UTF_8);
-
-                fileStorageService.delete(filename);
-
-                System.out.println(">>> Imagem removida do MinIO: " + filename);
-
-            } catch (Exception e) {
-
-                System.err.println("Erro ao deletar imagem excluída: " + e.getMessage());
-
-            }
-
-        }
-
-
-
-// Atualiza a lista do banco apenas com as fotos que o usuário decidiu manter
+        // Deleta do MinIO as fotos que o usuário excluiu
+        imagensNoBanco.stream()
+                .filter(url -> !imagensParaManter.contains(url))
+                .forEach(this::deleteMediaFromStorage);
 
         project.getImageUrls().clear();
+        project.getImageUrls().addAll(imagensParaManter);
 
-        project.getImageUrls().addAll(urlsParaManter);
-
-
-
-// 2. GESTÃO DE NOVAS IMAGENS (Upload de novos arquivos selecionados no input)
-
+        // Upload das novas imagens
         if (images != null && !images.isEmpty()) {
-
             for (MultipartFile file : images) {
-
                 try {
-
-                    String newImageUrl = fileStorageService.upload(file);
-
-                    project.getImageUrls().add(newImageUrl); // Adiciona no final da lista atual
-
+                    project.getImageUrls().add(fileStorageService.upload(file));
                 } catch (Exception e) {
-
-                    System.err.println("Erro ao salvar nova imagem: " + e.getMessage());
-
+                    log.error("Erro ao salvar nova imagem no MinIO: {}", e.getMessage(), e);
                 }
-
             }
-
         }
 
+        // ==========================================
+        // 2. GESTÃO DE VÍDEOS (Lógica Nova!)
+        // ==========================================
+        List<String> videosNoBanco = project.getVideoUrls() != null ? new ArrayList<>(project.getVideoUrls()) : new ArrayList<>();
+        // Presume que você adicionou List<String> existingVideoUrls no seu DTO
+        List<String> videosParaManter = dto.existingVideoUrls() != null ? dto.existingVideoUrls() : new ArrayList<>();
 
+        // Deleta do MinIO os vídeos que o usuário excluiu
+        videosNoBanco.stream()
+                .filter(url -> !videosParaManter.contains(url))
+                .forEach(this::deleteMediaFromStorage);
 
-// 3. ATUALIZAÇÃO DA CAPA (Garante que a capa seja sempre a primeira foto da lista final)
+        project.getVideoUrls().clear();
+        project.getVideoUrls().addAll(videosParaManter);
 
-        if (!project.getImageUrls().isEmpty()) {
-
-            project.setCoverImageUrl(project.getImageUrls().get(0));
-
-        } else {
-
-            project.setCoverImageUrl(null);
-
+        // Upload dos novos vídeos
+        if (videos != null && !videos.isEmpty()) {
+            for (MultipartFile file : videos) {
+                try {
+                    project.getVideoUrls().add(fileStorageService.upload(file));
+                } catch (Exception e) {
+                    log.error("Erro ao salvar novo vídeo no MinIO: {}", e.getMessage(), e);
+                }
+            }
         }
 
-
-
-// 4. ATUALIZAÇÃO DOS DADOS TEXTUAIS (Título, Status, etc)
+        // ==========================================
+        // 3. ATUALIZAÇÃO DA CAPA E DADOS TEXTUAIS
+        // ==========================================
+        // A capa continua olhando APENAS para a lista de imagens
+        project.setCoverImageUrl(project.getImageUrls().isEmpty() ? null : project.getImageUrls().get(0));
 
         convertDtoToEntity(dto, project);
 
-
-
         project = projectRepository.save(project);
-
         return new ProjectResponseDTO(project);
-
     }
 
-
-
     @Transactional
-
     public void delete(Long id) {
-
         Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Projeto não encontrado com ID: " + id));
 
-                .orElseThrow(() -> new RuntimeException("Projeto não encontrado"));
-
-
-
-        if (project.getImageUrls() != null && !project.getImageUrls().isEmpty()) {
-
-            for (String url : project.getImageUrls()) {
-
-                try {
-
-                    String filename = URLDecoder.decode(url.substring(url.lastIndexOf("/") + 1), StandardCharsets.UTF_8);
-
-                    fileStorageService.delete(filename);
-
-                } catch (Exception e) {
-
-                    System.err.println("Erro ao deletar do MinIO: " + e.getMessage());
-
-                }
-
-            }
-
+        // Deleta todas as imagens do MinIO
+        if (project.getImageUrls() != null) {
+            project.getImageUrls().forEach(this::deleteMediaFromStorage);
         }
 
-
+        // Deleta todos os vídeos do MinIO
+        if (project.getVideoUrls() != null) {
+            project.getVideoUrls().forEach(this::deleteMediaFromStorage);
+        }
 
         projectRepository.delete(project);
+    }
 
+    // Metodo auxiliar (renomeado para ficar genérico para imagens e vídeos)
+    private void deleteMediaFromStorage(String urlToRemove) {
+        try {
+            String filename = URLDecoder.decode(urlToRemove.substring(urlToRemove.lastIndexOf("/") + 1), StandardCharsets.UTF_8);
+            fileStorageService.delete(filename);
+            log.info(">>> Mídia removida do MinIO: {}", filename);
+        } catch (Exception e) {
+            log.error("Erro ao deletar mídia excluída do MinIO: {}", e.getMessage(), e);
+        }
     }
 
 

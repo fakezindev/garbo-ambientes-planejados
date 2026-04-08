@@ -48,7 +48,8 @@ class ProjectServiceTest {
     private Project project;
     private Client client;
     private ProjectRequestDTO requestDTO;
-    private MockMultipartFile mockFile;
+    private MockMultipartFile mockImageFile;
+    private MockMultipartFile mockVideoFile;
 
     @BeforeEach
     void setUp() {
@@ -60,20 +61,23 @@ class ProjectServiceTest {
         project.setId(10L);
         project.setTitle("Projeto Teste");
         project.setClient(client);
-        // Inicializando como ArrayList mutável para evitar UnsupportedOperationException
+        // Inicializando as listas de imagens e vídeos simulando o que vem do banco
         project.setImageUrls(new ArrayList<>(List.of("http://minio/bucket/img1.jpg", "http://minio/bucket/img2.jpg")));
+        project.setVideoUrls(new ArrayList<>(List.of("http://minio/bucket/vid1.mp4", "http://minio/bucket/vid2.mp4")));
 
         requestDTO = new ProjectRequestDTO(
                 "Novo Título",                             // 1. title
                 "Descrição",                               // 2. description
                 ProjectCategory.MOVEIS_PLANEJADOS,        // 3. category
-                1L,                                        // 4. clientId (Mudou para a 4ª posição)
-                LocalDate.now(),                           // 5. completionDate (Mudou para a 5ª posição)
-                "EM PROJETO",                              // 6. status (Mudou para a 6ª posição)
-                List.of("http://minio/bucket/img1.jpg")    // 7. existingImageUrls
+                1L,                                        // 4. clientId
+                LocalDate.now(),                           // 5. completionDate
+                "EM PROJETO",                              // 6. status
+                List.of("http://minio/bucket/img1.jpg"),   // 7. existingImageUrls (A img2 foi removida pelo usuário)
+                List.of("http://minio/bucket/vid1.mp4")    // 8. existingVideoUrls (O vid2 foi removido pelo usuário)
         );
 
-        mockFile = new MockMultipartFile("file", "nova_img.jpg", "image/jpeg", "imagem".getBytes());
+        mockImageFile = new MockMultipartFile("images", "nova_img.jpg", "image/jpeg", "imagem".getBytes());
+        mockVideoFile = new MockMultipartFile("videos", "novo_vid.mp4", "video/mp4", "video_bytes".getBytes());
     }
 
     @Test
@@ -107,63 +111,76 @@ class ProjectServiceTest {
     }
 
     @Test
-    @DisplayName("Deve criar projeto, fazer upload de imagens e salvar apenas uma vez")
-    void create_ShouldCreateProjectAndUploadImages() throws Exception {
+    @DisplayName("Deve criar projeto, fazer upload de imagens e vídeos e salvar apenas uma vez")
+    void create_ShouldCreateProjectAndUploadMedia() throws Exception {
         when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
-        when(fileStorageService.upload(any(MultipartFile.class))).thenReturn("http://minio/bucket/nova_img.jpg");
+
+        // Mockando os retornos do upload baseados no arquivo para não dar conflito
+        when(fileStorageService.upload(mockImageFile)).thenReturn("http://minio/bucket/nova_img.jpg");
+        when(fileStorageService.upload(mockVideoFile)).thenReturn("http://minio/bucket/novo_vid.mp4");
+
         when(projectRepository.save(any(Project.class))).thenReturn(project);
 
-        List<MultipartFile> files = List.of(mockFile);
+        List<MultipartFile> images = List.of(mockImageFile);
+        List<MultipartFile> videos = List.of(mockVideoFile);
 
-        projectService.create(requestDTO, files);
+        projectService.create(requestDTO, images, videos);
 
-        verify(fileStorageService, times(1)).upload(any(MultipartFile.class));
+        // Verifica se o upload foi chamado 2 vezes (1 imagem e 1 vídeo)
+        verify(fileStorageService, times(2)).upload(any(MultipartFile.class));
 
-        // Verifica se o repository.save foi chamado exatamente UMA vez
         ArgumentCaptor<Project> projectCaptor = ArgumentCaptor.forClass(Project.class);
         verify(projectRepository, times(1)).save(projectCaptor.capture());
 
         Project savedProject = projectCaptor.getValue();
         assertThat(savedProject.getCoverImageUrl()).isEqualTo("http://minio/bucket/nova_img.jpg");
+        assertThat(savedProject.getVideoUrls()).contains("http://minio/bucket/novo_vid.mp4");
     }
 
     @Test
-    @DisplayName("Deve atualizar projeto, deletar imagens órfãs e adicionar novas")
-    void update_ShouldUpdateProjectAndManageImages() throws Exception {
+    @DisplayName("Deve atualizar projeto, deletar mídias órfãs e adicionar novas")
+    void update_ShouldUpdateProjectAndManageMedia() throws Exception {
         when(projectRepository.findById(10L)).thenReturn(Optional.of(project));
         when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
-        when(fileStorageService.upload(any(MultipartFile.class))).thenReturn("http://minio/bucket/nova_img.jpg");
+
+        when(fileStorageService.upload(mockImageFile)).thenReturn("http://minio/bucket/nova_img.jpg");
+        when(fileStorageService.upload(mockVideoFile)).thenReturn("http://minio/bucket/novo_vid.mp4");
+
         when(projectRepository.save(any(Project.class))).thenReturn(project);
 
-        List<MultipartFile> newFiles = List.of(mockFile);
+        List<MultipartFile> newImages = List.of(mockImageFile);
+        List<MultipartFile> newVideos = List.of(mockVideoFile);
 
-        projectService.update(10L, requestDTO, newFiles);
+        projectService.update(10L, requestDTO, newImages, newVideos);
 
-        // A img2.jpg não estava no existingImageUrls do DTO, então deve ser deletada
+        // Verifica se as mídias antigas ausentes no DTO foram apagadas fisicamente
         verify(fileStorageService, times(1)).delete("img2.jpg");
+        verify(fileStorageService, times(1)).delete("vid2.mp4");
 
-        // A nova imagem deve sofrer upload
-        verify(fileStorageService, times(1)).upload(any(MultipartFile.class));
+        // Verifica o upload das mídias novas
+        verify(fileStorageService, times(2)).upload(any(MultipartFile.class));
 
-        // Verifica se os dados foram salvos corretamente
         ArgumentCaptor<Project> projectCaptor = ArgumentCaptor.forClass(Project.class);
         verify(projectRepository, times(1)).save(projectCaptor.capture());
 
         Project savedProject = projectCaptor.getValue();
         assertThat(savedProject.getTitle()).isEqualTo("Novo Título");
         assertThat(savedProject.getImageUrls()).contains("http://minio/bucket/img1.jpg", "http://minio/bucket/nova_img.jpg");
+        assertThat(savedProject.getVideoUrls()).contains("http://minio/bucket/vid1.mp4", "http://minio/bucket/novo_vid.mp4");
     }
 
     @Test
-    @DisplayName("Deve deletar projeto e remover todas as suas imagens do storage")
-    void delete_ShouldDeleteProjectAndRemoveImagesFromStorage() throws Exception {
+    @DisplayName("Deve deletar projeto e remover todas as suas imagens e vídeos do storage")
+    void delete_ShouldDeleteProjectAndRemoveMediaFromStorage() throws Exception {
         when(projectRepository.findById(10L)).thenReturn(Optional.of(project));
 
         projectService.delete(10L);
 
-        // O projeto tinha 2 imagens no setup, ambas devem ser deletadas do MinIO
+        // O projeto tinha 2 imagens e 2 vídeos no setup, TODOS devem ser deletados do MinIO
         verify(fileStorageService, times(1)).delete("img1.jpg");
         verify(fileStorageService, times(1)).delete("img2.jpg");
+        verify(fileStorageService, times(1)).delete("vid1.mp4");
+        verify(fileStorageService, times(1)).delete("vid2.mp4");
 
         verify(projectRepository, times(1)).delete(project);
     }

@@ -422,120 +422,150 @@ const AdminDashboard = () => {
             {error && <p style={{ color: "var(--danger)" }}>{error}</p>}
 
             <div className="projects-grid">
-              {/* 👇 Aqui está o map que tinha sumido! */}
-              {projects.map((project) => (
-                <div key={project.id} className="project-card">
-                  <div className="portfolio-image-wrapper">
-                    {project.imageUrls && project.imageUrls.length > 0 ? (
-                      <Swiper
-                        modules={[Navigation, Pagination]}
-                        spaceBetween={0}
-                        slidesPerView={1}
-                        navigation
-                        pagination={{ clickable: true }}
-                        style={{ width: "100%", height: "100%" }}
-                      >
-                        {project.imageUrls.map((url, imgIndex) => (
-                          <SwiperSlide key={imgIndex}>
-                            <img
-                              src={url}
-                              alt={`${project.title} - ${imgIndex + 1}`}
-                              className="portfolio-image"
-                            />
-                          </SwiperSlide>
-                        ))}
-                      </Swiper>
-                    ) : project.coverImageUrl ? (
-                      <img
-                        src={project.coverImageUrl}
-                        alt={project.title}
-                        className="portfolio-image"
-                      />
-                    ) : (
-                      /* Fundo elegante caso o projeto não tenha foto */
-                      <div
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          backgroundColor: "#111",
-                          color: "#555",
-                        }}
-                      >
-                        Sem Imagem
-                      </div>
-                    )}
-                  </div>
+              {/* 👇 AQUI: Abrimos chaves { } para criar lógica antes do return */}
+              {projects.map((project) => {
+                
+                // 1. MÁGICA: Juntamos fotos e vídeos em uma lista só, etiquetando os tipos!
+                const todasAsMidias = [
+                  ...(project.imageUrls || []).map((url) => ({ type: "image", url })),
+                  ...(project.videoUrls || []).map((url) => ({ type: "video", url })),
+                ];
 
-                  <div className="card-content">
-                    <div className="card-header">
-                      <span className="badge">{project.category}</span>
-                      <div>
-                        <button
-                          onClick={() => handleEdit(project)}
-                          className="btn btn-icon btn-edit"
-                          title="Editar"
+                return (
+                  <div key={project.id} className="project-card">
+                    <div className="portfolio-image-wrapper">
+                      
+                      {/* 2. Verificamos se existe QUALQUER mídia (foto ou vídeo) */}
+                      {todasAsMidias.length > 0 ? (
+                        <Swiper
+                          modules={[Navigation, Pagination]}
+                          spaceBetween={0}
+                          slidesPerView={1}
+                          navigation
+                          pagination={{ clickable: true }}
+                          style={{ width: "100%", height: "100%" }}
+                          // 👇 Pausa os vídeos quando o usuário arrasta para o lado
+                          onSlideChange={() => {
+                            const videos = document.querySelectorAll("video");
+                            videos.forEach((vid) => vid.pause());
+                          }}
                         >
-                          ✏️
-                        </button>
-                        <button
-                          onClick={() => handleDelete(project.id)}
-                          className="btn btn-icon btn-delete"
-                          title="Excluir"
+                          {todasAsMidias.map((midia, index) => (
+                            <SwiperSlide key={index}>
+                              
+                              {/* 3. Renderiza IMG ou VIDEO dependendo da etiqueta */}
+                              {midia.type === "image" ? (
+                                <img
+                                  src={midia.url}
+                                  alt={`${project.title} - mídia ${index + 1}`}
+                                  className="portfolio-image"
+                                />
+                              ) : (
+                                <video
+                                  src={midia.url}
+                                  controls
+                                  muted // Recomendado vir mudo por padrão!
+                                  className="portfolio-image" // Usa a mesma classe pra manter bordas e tamanho
+                                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                />
+                              )}
+                              
+                            </SwiperSlide>
+                          ))}
+                        </Swiper>
+                      ) : project.coverImageUrl ? (
+                        <img
+                          src={project.coverImageUrl}
+                          alt={project.title}
+                          className="portfolio-image"
+                        />
+                      ) : (
+                        /* Fundo elegante caso o projeto não tenha foto */
+                        <div
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            backgroundColor: "#111",
+                            color: "#555",
+                          }}
                         >
-                          🗑️
-                        </button>
-                      </div>
+                          Sem Imagem
+                        </div>
+                      )}
                     </div>
 
-                    {/* 👇 AQUI ESTÁ A MÁGICA DO STATUS JUNTO AO TÍTULO 👇 */}
-                    <h3
-                      className="card-title"
-                      style={{ display: "flex", alignItems: "center" }}
-                    >
-                      {project.title}
-                      <span
-                        style={{
-                          background:
-                            project.status === "CONCLUÍDO"
-                              ? "#27ae60"
-                              : "#f39c12",
-                          color: "#fff",
-                          padding: "3px 8px",
-                          borderRadius: "12px",
-                          fontSize: "0.75rem",
-                          fontWeight: "bold",
-                          marginLeft: "10px",
-                        }}
-                      >
-                        {statusFormatado[project.status] || "EM PROJETO"}
-                      </span>
-                    </h3>
-
-                    {(project.clientName || project.completionDate) && (
-                      <div className="card-meta">
-                        {project.clientName && (
-                          <span>Cliente: {project.clientName}</span>
-                        )}
-                        {project.clientName && project.completionDate && (
-                          <span> • </span>
-                        )}
-                        {project.completionDate && (
-                          <span>
-                            {new Date(
-                              project.completionDate,
-                            ).toLocaleDateString("pt-BR")}
-                          </span>
-                        )}
+                    <div className="card-content">
+                      <div className="card-header">
+                        <span className="badge">{project.category}</span>
+                        <div>
+                          <button
+                            onClick={() => handleEdit(project)}
+                            className="btn btn-icon btn-edit"
+                            title="Editar"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            onClick={() => handleDelete(project.id)}
+                            className="btn btn-icon btn-delete"
+                            title="Excluir"
+                          >
+                            🗑️
+                          </button>
+                        </div>
                       </div>
-                    )}
 
-                    <p className="card-desc">{project.description}</p>
+                      {/* 👇 AQUI ESTÁ A MÁGICA DO STATUS JUNTO AO TÍTULO 👇 */}
+                      <h3
+                        className="card-title"
+                        style={{ display: "flex", alignItems: "center" }}
+                      >
+                        {project.title}
+                        <span
+                          style={{
+                            background:
+                              project.status === "CONCLUÍDO"
+                                ? "#27ae60"
+                                : "#f39c12",
+                            color: "#fff",
+                            padding: "3px 8px",
+                            borderRadius: "12px",
+                            fontSize: "0.75rem",
+                            fontWeight: "bold",
+                            marginLeft: "10px",
+                          }}
+                        >
+                          {/* Substitua statusFormatado pelo que vc já usava! */}
+                          {project.status || "EM PROJETO"} 
+                        </span>
+                      </h3>
+
+                      {(project.clientName || project.completionDate) && (
+                        <div className="card-meta">
+                          {project.clientName && (
+                            <span>Cliente: {project.clientName}</span>
+                          )}
+                          {project.clientName && project.completionDate && (
+                            <span> • </span>
+                          )}
+                          {project.completionDate && (
+                            <span>
+                              {new Date(
+                                project.completionDate
+                              ).toLocaleDateString("pt-BR")}
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      <p className="card-desc">{project.description}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
         </>

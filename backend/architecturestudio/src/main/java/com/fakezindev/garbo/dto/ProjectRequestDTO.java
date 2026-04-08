@@ -12,5 +12,6 @@ public record ProjectRequestDTO(
         Long clientId,
         LocalDate completionDate,
         String status,
-        List<String> existingImageUrls
+        List<String> existingImageUrls,
+        List<String> existingVideoUrls
 ) {}

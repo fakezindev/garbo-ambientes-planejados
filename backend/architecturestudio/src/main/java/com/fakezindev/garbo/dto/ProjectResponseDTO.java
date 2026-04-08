@@ -16,6 +16,7 @@ public record ProjectResponseDTO(
         LocalDate completionDate,
         String coverImageUrl,
         List<String> imageUrls,
+        List<String> videoUrls,
         String status
 ) {
     public ProjectResponseDTO(Project project) {
@@ -29,6 +30,7 @@ public record ProjectResponseDTO(
                 project.getCompletionDate(),
                 project.getCoverImageUrl(),
                 project.getImageUrls(),
+                project.getVideoUrls(),
                 project.getStatus()
         );
     }

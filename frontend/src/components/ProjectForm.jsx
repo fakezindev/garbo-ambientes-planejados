@@ -11,12 +11,18 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
 
   const [clients, setClients] = useState([]);
   const [clientId, setClientId] = useState("");
-
-  const [images, setImages] = useState([]);
-  const [previewUrls, setPreviewUrls] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const fileInputRef = useRef(null);
+  // 1. Referências para os inputs escondidos
+  const imageInputRef = useRef(null);
+  const videoInputRef = useRef(null);
+
+  // 2. Estados para guardar os arquivos selecionados (e/ou as URLs de preview)
+  const [imageFiles, setImageFiles] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
+
+  const [videoFiles, setVideoFiles] = useState([]);
+  const [videoPreviews, setVideoPreviews] = useState([]);
 
   // Carregar Clientes
   useEffect(() => {
@@ -42,10 +48,13 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
       setTitle(projectToEdit.title);
       setDescription(projectToEdit.description);
       setCategory(projectToEdit.category);
-      setStatus(projectToEdit.status || "PROJETO");
+      setStatus(projectToEdit.status || "EM PROJETO");
       setCompletionDate(projectToEdit.completionDate || "");
       setClientId(projectToEdit.clientId || "");
 
+      // ==========================================
+      // 1. CARREGANDO AS FOTOS DO BANCO
+      // ==========================================
       let fotosSalvas = [];
       if (projectToEdit.imageUrls && projectToEdit.imageUrls.length > 0) {
         fotosSalvas = projectToEdit.imageUrls;
@@ -53,62 +62,103 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
         fotosSalvas = [projectToEdit.coverImageUrl];
       }
 
-      setPreviewUrls(fotosSalvas);
-      setImages([]); // Resetamos o array de novos arquivos ao editar
+      setImagePreviews(fotosSalvas); // Exibe as fotos antigas na tela
+      setImageFiles([]);             // Garante que a lista de fotos a fazer upload comece vazia
+
+      // ==========================================
+      // 2. CARREGANDO OS VÍDEOS DO BANCO (NOVO)
+      // ==========================================
+      let videosSalvos = [];
+      if (projectToEdit.videoUrls && projectToEdit.videoUrls.length > 0) {
+        videosSalvos = projectToEdit.videoUrls;
+      }
+
+      setVideoPreviews(videosSalvos); // Exibe os vídeos antigos na tela
+      setVideoFiles([]);              // Garante que a lista de vídeos a fazer upload comece vazia
+
     } else {
-      clearForm();
+      clearForm(); // Se for criação (e não edição), limpa tudo
     }
   }, [projectToEdit]);
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     if (files.length > 0) {
-      // ✅ Atualiza os arquivos reais (Para enviar ao Java)
-      setImages((prevImages) => {
-        // Garantindo que prevImages seja sempre um array, mesmo se estiver undefined
+      // ✅ Atualiza os arquivos reais
+      setImageFiles((prevImages) => {
         const currentImages = prevImages || [];
         return [...currentImages, ...files];
       });
 
-      // ✅ Atualiza a vitrine (Previews na tela)
-      setPreviewUrls((prevUrls) => {
+      // ✅ Atualiza a vitrine (Previews)
+      setImagePreviews((prevUrls) => {
         const currentUrls = prevUrls || [];
         const newPreviewUrls = files.map((file) => URL.createObjectURL(file));
         return [...currentUrls, ...newPreviewUrls];
       });
     }
 
-    // Limpa o input para permitir selecionar a MESMA foto de novo, se o usuário apagar e se arrepender
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+    // Limpa o input escondido
+    if (imageInputRef.current) {
+      imageInputRef.current.value = "";
     }
   };
 
   const removeImage = (indexToRemove) => {
-    setPreviewUrls((prevUrls) => {
+    setImagePreviews((prevUrls) => {
       const urlToRemove = prevUrls[indexToRemove];
-      // Libera a memória do navegador se for uma foto nova
       if (urlToRemove && urlToRemove.startsWith("blob:")) {
         URL.revokeObjectURL(urlToRemove);
       }
       return prevUrls.filter((_, index) => index !== indexToRemove);
     });
 
-    // 🚨 A MÁGICA DA EXCLUSÃO CORRETA:
-    // Precisamos saber se a foto excluída era uma foto do BANCO (que não está no array images)
-    // ou se era uma foto NOVA (que está no array images).
-    // Para simplificar: se você removeu o preview X, nós re-filtramos o array de imagens reais
-    // baseados nas URLs temporárias (blob:) que sobraram.
-    setImages((prevImages) => {
-      // Isso garante que se você apagar a 1ª foto (que era do banco),
-      // o array de novas fotos para enviar ao Java não seja corrompido!
-      return prevImages.filter((_, idx) => {
-          // Lógica simplificada: Assume-se que as fotos do banco vêm primeiro.
-          // Se o previewUrls tem 2 fotos do banco e 3 novas, e eu apago o index 3...
-          const offset = previewUrls.filter(url => !url.startsWith("blob:")).length;
-          const adjustedIndex = indexToRemove - offset;
-          return idx !== adjustedIndex;
+    setImageFiles((prevImages) => {
+      // Calcula o offset usando os previews ATUAIS
+      const offset = imagePreviews.filter(url => !url.startsWith("blob:")).length;
+      const adjustedIndex = indexToRemove - offset;
+      return prevImages.filter((_, idx) => idx !== adjustedIndex);
+    });
+  };
+
+  const handleVideoChange = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+      // ✅ Atualiza os arquivos reais (Vídeos)
+      setVideoFiles((prevVideos) => {
+        const currentVideos = prevVideos || [];
+        return [...currentVideos, ...files];
       });
+
+      // ✅ Atualiza a vitrine (Previews)
+      setVideoPreviews((prevUrls) => {
+        const currentUrls = prevUrls || [];
+        // O createObjectURL também funciona para vídeos locais!
+        const newPreviewUrls = files.map((file) => URL.createObjectURL(file)); 
+        return [...currentUrls, ...newPreviewUrls];
+      });
+    }
+
+    // Limpa o input escondido
+    if (videoInputRef.current) {
+      videoInputRef.current.value = "";
+    }
+  };
+
+  const removeVideo = (indexToRemove) => {
+    setVideoPreviews((prevUrls) => {
+      const urlToRemove = prevUrls[indexToRemove];
+      if (urlToRemove && urlToRemove.startsWith("blob:")) {
+        URL.revokeObjectURL(urlToRemove);
+      }
+      return prevUrls.filter((_, index) => index !== indexToRemove);
+    });
+
+    setVideoFiles((prevVideos) => {
+      // Calcula o offset exatamente da mesma forma, mas olhando pros vídeos
+      const offset = videoPreviews.filter(url => !url.startsWith("blob:")).length;
+      const adjustedIndex = indexToRemove - offset;
+      return prevVideos.filter((_, idx) => idx !== adjustedIndex);
     });
   };
 
@@ -119,24 +169,34 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
     setStatus("PROJETO");
     setCompletionDate("");
     setClientId("");
-    setImages([]);
-    // Limpa previews e revoga URLs para evitar vazamento de memória
-    previewUrls.forEach((url) => {
+    
+    // Limpa FOTOS e revoga URLs da memória
+    imagePreviews.forEach((url) => {
       if (url.startsWith("blob:")) URL.revokeObjectURL(url);
     });
-    setPreviewUrls([]);
-    if (fileInputRef.current) fileInputRef.current.value = "";
+    setImagePreviews([]);
+    setImageFiles([]);
+    if (imageInputRef.current) imageInputRef.current.value = "";
+
+    // Limpa VÍDEOS e revoga URLs da memória
+    videoPreviews.forEach((url) => {
+      if (url.startsWith("blob:")) URL.revokeObjectURL(url);
+    });
+    setVideoPreviews([]);
+    setVideoFiles([]);
+    if (videoInputRef.current) videoInputRef.current.value = "";
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    const existingImageUrls = previewUrls.filter(
-      (url) => !url.startsWith("blob:"),
-    );
-
     const formData = new FormData();
+
+    // Calcula o que sobrou (tudo que NÃO é arquivo novo "blob:")
+    const imagensQueSobraram = imagePreviews.filter(url => !url.startsWith("blob:"));
+    const videosQueSobraram = videoPreviews.filter(url => !url.startsWith("blob:"));
+    
     const projectData = {
       title,
       status,
@@ -144,13 +204,20 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
       category,
       completionDate,
       clientId: clientId,
-      existingImageUrls: existingImageUrls,
+      existingImageUrls: imagensQueSobraram, // Passa direto a variável calculada
+      existingVideoUrls: videosQueSobraram,  // Passa direto a variável calculada
     };
 
     formData.append("data", JSON.stringify(projectData));
 
-    if (images && images.length > 0) {
-      images.forEach((img) => formData.append("images", img));
+    // 📸 Adiciona os ARQUIVOS das novas imagens
+    if (imageFiles && imageFiles.length > 0) {
+      imageFiles.forEach((img) => formData.append("images", img));
+    }
+
+    // 🎥 Adiciona os ARQUIVOS dos novos vídeos
+    if (videoFiles && videoFiles.length > 0) {
+      videoFiles.forEach((vid) => formData.append("videos", vid));
     }
 
     try {
@@ -304,56 +371,35 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
           }}
         />
 
-        {/* UPLOAD DE IMAGENS COM BOTÃO DE REMOVER */}
-        <div className={`file-upload ${previewUrls.length > 0 ? "has-image" : ""}`} style={{ marginBottom: "1rem" }}>
-          
-          {/* 1. AS FOTOS JÁ CARREGADAS (Agora ficam fora do gatilho de clique) */}
-          {previewUrls.length > 0 && (
-            <div
-              style={{
-                display: "flex",
-                gap: "15px",
-                overflowX: "auto",
-                padding: "10px 5px",
-                marginBottom: "15px"
-              }}
-            >
-              {previewUrls.map((url, index) => (
-                <div key={index} style={{ position: "relative", minWidth: "100px" }}>
+        {/* UPLOAD DE MÍDIAS */}
+        <div className="file-upload" style={{ marginBottom: "1rem" }}>
+                  
+          {/* =========================================
+              1. GALERIA DE PREVIEW DAS FOTOS
+              ========================================= */}
+          {imagePreviews.length > 0 && (
+            <div style={{ display: "flex", gap: "15px", overflowX: "auto", padding: "10px 5px", marginBottom: "15px" }}>
+              {imagePreviews.map((url, index) => (
+                <div key={`img-${index}`} style={{ position: "relative", minWidth: "100px" }}>
                   <img
                     src={url}
-                    alt={`Preview ${index}`}
+                    alt={`Preview Imagem ${index}`}
                     style={{
-                      width: "100px",
-                      height: "100px",
-                      objectFit: "cover",
-                      borderRadius: "8px",
-                      border: "1px solid #333",
+                      width: "100px", height: "100px", objectFit: "cover",
+                      borderRadius: "8px", border: "1px solid #333",
                     }}
                   />
                   <button
                     type="button"
                     onClick={(e) => {
                       e.preventDefault();
-                      e.stopPropagation(); // 👈 Impede o clique de vazar pra baixo
-                      removeImage(index);
+                      e.stopPropagation();
+                      removeImage(index); // Certifique-se de que essa função atualiza imageFiles e imagePreviews
                     }}
                     style={{
-                      position: "absolute",
-                      top: "-8px",
-                      right: "-8px",
-                      background: "#e74c3c",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "50%",
-                      width: "22px",
-                      height: "22px",
-                      cursor: "pointer",
-                      fontSize: "12px",
-                      fontWeight: "bold",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
+                      position: "absolute", top: "-8px", right: "-8px", background: "#e74c3c", color: "white",
+                      border: "none", borderRadius: "50%", width: "22px", height: "22px", cursor: "pointer",
+                      fontSize: "12px", fontWeight: "bold", display: "flex", justifyContent: "center", alignItems: "center",
                     }}
                   >
                     ✕
@@ -363,38 +409,102 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
             </div>
           )}
 
-          {/* 2. O TEXTO CLICÁVEL (Único lugar que abre a janela de arquivos) */}
-          <div
-            onClick={() => {
-              if (fileInputRef.current) fileInputRef.current.click(); // 👈 Força o clique no input escondido
-            }}
-            style={{
-              display: "block",
-              color: "#f1c40f",
-              fontWeight: "500",
-              cursor: "pointer",
-              padding: "10px",
-              border: "1px dashed #555",
-              borderRadius: "8px",
-              textAlign: "center",
-              transition: "background 0.3s"
-            }}
-            onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(241, 196, 15, 0.1)'}
-            onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-          >
-            {previewUrls.length > 0
-              ? `Adicionar mais fotos (${previewUrls.length})`
-              : "📸 Clique para adicionar fotos do projeto"}
+          {/* =========================================
+              2. GALERIA DE PREVIEW DOS VÍDEOS
+              ========================================= */}
+          {videoPreviews.length > 0 && (
+            <div style={{ display: "flex", gap: "15px", overflowX: "auto", padding: "10px 5px", marginBottom: "15px" }}>
+              {videoPreviews.map((url, index) => (
+                <div key={`vid-${index}`} style={{ position: "relative", minWidth: "150px" }}>
+                  {/* Para preview de vídeos locais, usamos a tag video. 'url' é o blob criado */}
+                  <video
+                    src={url}
+                    muted
+                    controls
+                    style={{
+                      width: "150px", height: "100px", objectFit: "cover",
+                      borderRadius: "8px", border: "1px solid #3498db", // Borda azul para diferenciar
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      removeVideo(index); // Você precisará criar essa função!
+                    }}
+                    style={{
+                      position: "absolute", top: "-8px", right: "-8px", background: "#e74c3c", color: "white",
+                      border: "none", borderRadius: "50%", width: "22px", height: "22px", cursor: "pointer",
+                      fontSize: "12px", fontWeight: "bold", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 10
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* =========================================
+              3. CONTAINER DOS BOTÕES DE UPLOAD
+              ========================================= */}
+          <div style={{ display: "flex", gap: "15px", marginBottom: "20px" }}>
+            
+            {/* BOTÃO 1: FOTOS */}
+            <div
+              onClick={() => {
+                if (imageInputRef.current) imageInputRef.current.click();
+              }}
+              style={{
+                flex: 1, color: "#f1c40f", fontWeight: "500", cursor: "pointer", padding: "15px 10px",
+                border: "1px dashed #555", borderRadius: "8px", textAlign: "center", transition: "background 0.3s"
+              }}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(241, 196, 15, 0.1)'}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            >
+              {imagePreviews.length > 0
+                ? `📸 Adicionar mais fotos (${imagePreviews.length})`
+                : "📸 Clique para adicionar FOTOS"}
+            </div>
+
+            {/* BOTÃO 2: VÍDEOS */}
+            <div
+              onClick={() => {
+                if (videoInputRef.current) videoInputRef.current.click();
+              }}
+              style={{
+                flex: 1, color: "#3498db", fontWeight: "500", cursor: "pointer", padding: "15px 10px",
+                border: "1px dashed #555", borderRadius: "8px", textAlign: "center", transition: "background 0.3s"
+              }}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(52, 152, 219, 0.1)'}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            >
+              {videoPreviews.length > 0
+                ? `🎥 Adicionar mais vídeos (${videoPreviews.length})`
+                : "🎥 Clique para adicionar VÍDEOS"}
+            </div>
           </div>
 
-          {/* 3. O INPUT REAL (Totalmente invisível, mas trabalhando por trás) */}
+          {/* =========================================
+              4. OS INPUTS INVISÍVEIS
+              ========================================= */}
           <input
             type="file"
-            accept="image/*"
             multiple
-            ref={fileInputRef}
-            onChange={handleImageChange}
+            accept="image/*"
+            ref={imageInputRef}
             style={{ display: "none" }}
+            onChange={handleImageChange} 
+          />
+
+          <input
+            type="file"
+            multiple
+            accept="video/*"
+            ref={videoInputRef}
+            style={{ display: "none" }}
+            onChange={handleVideoChange} 
           />
         </div>
 
