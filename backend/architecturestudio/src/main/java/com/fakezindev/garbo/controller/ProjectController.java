@@ -38,10 +38,14 @@ public class ProjectController {
     @GetMapping("/my-project")
     public ResponseEntity<ProjectResponseDTO> getMyProject(Authentication authentication) {
         String clientEmail = authentication.getName();
-        List<Project> myProjects = service.findByClientEmail(clientEmail);
 
-        if (myProjects != null && !myProjects.isEmpty()) {
-            return ResponseEntity.ok(new ProjectResponseDTO(myProjects.get(0)));
+        // 1. Recebendo diretamente a lista de DTOs do serviço
+        List<ProjectResponseDTO> myProjects = service.findByClientEmail(clientEmail);
+
+        // Dica: O .toList() do Java nunca retorna null, então podemos tirar a checagem 'myProjects != null'
+        if (!myProjects.isEmpty()) {
+            // 2. O item .get(0) já é um ProjectResponseDTO, então passamos ele direto!
+            return ResponseEntity.ok(myProjects.get(0));
         } else {
             return ResponseEntity.notFound().build();
         }
