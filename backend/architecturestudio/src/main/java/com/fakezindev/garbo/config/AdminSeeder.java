@@ -17,10 +17,12 @@ public class AdminSeeder implements CommandLineRunner {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Value("${admin.default.username}")
+    // Se ele não achar a variável no Render, vai usar "admin"
+    @Value("${admin.default.username:admin}")
     private String defaultAdminUsername;
 
-    @Value("${admin.default.password}")
+    // Se ele não achar a variável no Render, vai usar "senha123"
+    @Value("${admin.default.password:senha123}")
     private String defaultAdminPassword;
 
     @Override
