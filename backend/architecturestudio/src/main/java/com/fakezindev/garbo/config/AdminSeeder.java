@@ -34,7 +34,7 @@ public class AdminSeeder implements CommandLineRunner {
             admin.setPassword(passwordEncoder.encode(defaultAdminPassword));
 
             userRepository.save(admin);
-            System.out.println("✅ [SEEDER] Usuário Administrador Master criado com sucesso! Username: " + adminUsername);
+            System.out.println("✅ [SEEDER] Usuário Administrador Master criado com sucesso! Username: " + defaultAdminUsername);
         } else {
             System.out.println("👌 [SEEDER] Usuário Administrador Master já existe. Nenhuma ação necessária.");
         }
