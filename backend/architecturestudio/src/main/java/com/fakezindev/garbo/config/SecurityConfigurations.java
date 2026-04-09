@@ -85,17 +85,15 @@ public class SecurityConfigurations {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 1. Quem pode acessar? O seu React!
-        configuration.setAllowedOrigins(Arrays.asList(corsOrigins.split(",")));
+        // Usa patterns em vez de origins absolutos (evita conflitos no Spring 3+)
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
 
-        // 2. Quais métodos são permitidos? Tudo!
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        // O segredo está aqui: Liberar o OPTIONS para o navegador conseguir fazer o preflight!
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
 
-        // 3. Quais cabeçalhos? Todos (incluindo o nosso Authorization com o Token)
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
+        // Libera o envio de tokens JWT no cabeçalho
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
 
-        // 4. Aplica essa regra para TODAS as rotas (/**)
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
