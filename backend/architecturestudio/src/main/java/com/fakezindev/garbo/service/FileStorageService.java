@@ -16,18 +16,19 @@ public class FileStorageService {
 
     private final String bucketName;
     private final MinioClient minioClient;
+    private final String publicUrl; // 👇 CORREÇÃO 1: Criamos a variável da URL Pública
 
-    // 👇 CORREÇÃO 1: Adicionamos o MinioClient aqui nos parênteses e no this!
+    // 👇 CORREÇÃO 2: Injetamos a URL do application.properties aqui no construtor
     public FileStorageService(MinioClient minioClient,
-                              @Value("${application.bucket.name}")
-                              String bucketName) {
+                              @Value("${application.bucket.name}") String bucketName,
+                              @Value("${cloudflare.public.url}") String publicUrl) {
         this.minioClient = minioClient;
         this.bucketName = bucketName;
+        this.publicUrl = publicUrl;
     }
 
     public String upload(MultipartFile file) {
         try {
-            // 👇 CORREÇÃO 2: Trocamos o texto fixo pela variável 'bucketName'
             boolean bucketExiste = minioClient.bucketExists(
                     BucketExistsArgs.builder().bucket(bucketName).build()
             );
@@ -52,8 +53,10 @@ public class FileStorageService {
                             .build()
             );
 
-            // Retorna a URL (Usando a variável do bucket também!)
-            return "http://localhost:9000/" + bucketName + "/" + fileName;
+            // 👇 CORREÇÃO 3: A MÁGICA ACONTECE AQUI! Adeus localhost!
+            // Retorna a URL pública do Cloudflare + o nome do arquivo.
+            // (A URL pública do Cloudflare já aponta direto pro bucket, então não precisamos colocar o bucketName no caminho)
+            return publicUrl + "/" + fileName;
 
         } catch (Exception e) {
             System.err.println(">>> ERRO FATAL NO MINIO: " + e.getMessage());
