@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost:8080', // A porta do nosso Spring Boot
+    baseURL: 'https://garbo-api-9ydd.onrender.com', // A porta do nosso Spring Boot
     timeout: 30000, 
 });
 
