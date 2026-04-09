@@ -285,13 +285,6 @@ const AdminDashboard = () => {
     fetchTransactions();
   }, []);
 
-  const statusFormatado = {
-    PROJETO: "EM PROJETO",
-    FABRICAÇÃO: "EM FABRICAÇÃO",
-    MONTAGEM: "EM MONTAGEM",
-    CONCLUÍDO: "CONCLUÍDO",
-  };
-
   return (
     <div className="app-container">
       {/* 1. CABEÇALHO DO ADMIN */}

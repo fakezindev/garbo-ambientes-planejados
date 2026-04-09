@@ -140,9 +140,9 @@
     width: 100%;
     height: 500px; 
     background-color: #0a0a0a;
-    margin-top: 30px;
     border-radius: 12px;
     overflow: hidden;
+    position: relative;
 }
 
 /* 2. Forçamos o Swiper e a div de Imagem Única a terem o tamanho exato da janela */
@@ -156,8 +156,59 @@
     align-items: center;
 }
 
+/* Prepara o Slide para receber as camadas */
+.premium-slide {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* ✨ A Mágica do Fundo Desfocado (Adeus borda preta!) */
+.media-blur-bg {
+    position: absolute;
+    top: -10%;
+    left: -10%;
+    width: 120%;
+    height: 120%;
+    background-size: cover;
+    background-position: center;
+    /* Borra e escurece a imagem de fundo para dar destaque à principal */
+    filter: blur(25px) brightness(0.35); 
+    z-index: 0;
+    pointer-events: none; /* Impede que o fundo roube o clique do vídeo */
+}
+
+/* A Mídia Real e Nítida que fica por cima */
+.media-content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: contain !important; /* Exibe a foto inteira sem cortar */
+    display: block;
+}
+
+/* Ajuste específico para vídeos nativos */
+.video-content {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto; /* Permite que o vídeo vertical respire no centro */
+    height: auto; 
+    object-fit: contain !important;
+}
+
+
+.swiper-pagination-bullet-active {
+    background-color: #f1c40f !important;
+}
+
 /* 3. A regra de chumbo para a imagem (!important vence qualquer App.css) */
-.card-image-container img {
+.card-image-container img,
+.card-image-container video {
     width: 100% !important;
     height: 100% !important;
     object-fit: contain !important; /* Exibe 100% da foto, doa a quem doer */
@@ -165,10 +216,95 @@
 }
 
 /* =========================================
+   🔍 BOTÃO DE EXPANDIR E LIGHTBOX
+   ========================================= */
+
+/* O Botãozinho que flutua no canto da foto */
+.expand-btn {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.6); /* Fundo preto transparente */
+    backdrop-filter: blur(4px); /* Efeito vidro fosco */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+}
+
+.expand-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.expand-btn:hover {
+    background: rgba(241, 196, 15, 0.9); /* Fica dourado no hover */
+    transform: scale(1.1);
+}
+
+/* A Tela Escura (Fundo) */
+.lightbox-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 9999;
+    /* Removemos o cursor: zoom-out daqui, a biblioteca cuida disso agora */
+}
+
+/* A Imagem Gigante no Centro */
+.lightbox-image {
+    max-width: 90vw; /* Dá um respiro nas laterais */
+    max-height: 90vh; /* Dá um respiro em cima e embaixo */
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.8);
+    animation: fadeInZoom 0.3s ease;
+    cursor: grab; /* Indica pro usuário que ele pode arrastar a foto! */
+}
+
+.lightbox-image:active {
+    cursor: grabbing; /* Muda a "mãozinha" quando ele clica e arrasta */
+}
+
+/* O Botão de Fechar (X) */
+.lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 40px;
+    cursor: pointer;
+    z-index: 10000;
+    transition: color 0.3s ease;
+}
+
+.lightbox-close:hover {
+    color: #f1c40f;
+}
+
+/* Animação suave para abrir */
+@keyframes fadeInZoom {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* =========================================
    🚀 RESPONSIVIDADE (MOBILE) - ÁREA DO CLIENTE
    ========================================= */
 
-@media (max-width: 768px) {
+@media (max-width: 600px) {
     
     /* 1. Ajustes Gerais */
     header {
@@ -228,8 +364,23 @@
         font-size: 1rem !important; /* Fonte num tamanho agradável de ler */
     }
 
-    /* Ajuste para não bugar a tela com a foto grande no celular */
+    /* 1. Aumenta a altura para a foto vertical não ficar esmagada */
     .card-image-container {
-        height: 300px !important;
+        height: 500px !important; /* Pode ajustar entre 450px e 550px como preferir */
+    }
+
+    /* 2. Faz a foto/vídeo preencher todo o espaço, cortando apenas as sobras */
+    .card-image-container img,
+    .card-image-container video,
+    .media-content,
+    .video-content {
+        object-fit: cover !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    /* 3. Desliga o efeito de Blur (já que a foto vai cobrir tudo) */
+    .media-blur-bg {
+        display: none !important;
     }
 }
