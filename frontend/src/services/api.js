@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const api = axios.create({
     baseURL: 'https://garbo-api-9ydd.onrender.com', // A porta do nosso Spring Boot
-    timeout: 30000, 
+    timeout: 60000, 
 });
 
 // --- O INTERCEPTOR (O Entregador) ---
