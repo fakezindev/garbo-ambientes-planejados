@@ -127,7 +127,8 @@
     height: 100%;
     object-fit: cover; /* 🏆 A Mágica: Preenche tudo sem distorcer, não importa a tela */
     transform: translate(-50%, -50%);
-    z-index: 1; /* Fica lá no fundo */
+    z-index: 0; /* Fica lá no fundo */
+    
 }
 
 /* A PELÍCULA ESCURA */
@@ -394,17 +395,22 @@
 
 .portfolio-image-wrapper {
     width: 100%;
-    height: 280px; /* Altura fixa para TODOS os cards */
-    overflow: hidden; /* Tudo que vazar dessa altura é cortado */
+    /* No PC, usamos um formato um pouco mais alto (proporção 4:5 estilo Instagram) */
+    height: 600px; 
+    overflow: hidden; 
     background-color: #0a0a0a;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .portfolio-image {
     width: 100%;
     height: 100%;
-    /* O object-fit: cover faz a foto preencher a caixa inteira sem amassar, 
-       cortando o excesso automaticamente como no Instagram! */
+    /* 'cover' preenche sem distorcer, mas agora tem mais espaço vertical para respirar */
     object-fit: cover; 
+    object-position: center; /* Garante que o foco seja sempre o meio da imagem */
     transition: transform 0.5s ease-in-out;
 }
 
@@ -671,6 +677,20 @@
     margin: 0 auto;
   }
 
+  /* =========================================
+     🔥 MODO VERTICAL IMERSIVO (CARDS NO MOBILE)
+     ========================================= */
+  .portfolio-image-wrapper {
+      /* Estica o card para o formato TikTok/Reels no celular! */
+      height: 480px !important; 
+  }
+
+  .portfolio-image {
+      /* Se a foto for MUITO horizontal, ela não vai ser esmagada nem perder as laterais importantes, 
+         pois o object-fit: cover junto com object-position center equilibra isso. */
+      object-fit: cover !important;
+  }
+
   /* 🚨 6. AJUSTES DO CABEÇALHO E MENU (NAVBAR) */
     header {
         flex-direction: column !important; /* Empilha a logo e os links */
@@ -710,6 +730,20 @@
     margin-top: 15px;
   }
 }
+
+/* 📱 AJUSTE CIRÚRGICO PARA TELAS MICRO (425px, 375px e 320px) */
+@media (max-width: 425px) {
+    header nav {
+        column-gap: 12px !important; /* Reduz o espaço no meio para caber nas telas finas */
+    }
+    header nav a {
+        font-size: 0.85rem !important; /* Reduz um fio de cabelo da fonte */
+    }
+    .btn-area-cliente {
+        padding: 6px 10px !important; /* Deixa o botão mais compacto sem perder a elegância */
+        font-size: 0.8rem !important;
+    }
+  }
 
 /* Regra padrão (Desktop) para a linha do Nome e Telefone no formulário */
 .form-row-mobile {

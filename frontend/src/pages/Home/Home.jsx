@@ -16,7 +16,6 @@ import iconInstagram from "../../assets/instagram.png";
 import iconTiktok from "../../assets/tik-tok.png";
 import iconGmail from "../../assets/enviar.png";
 import iconCode from "../../assets/codigo.png";
-import bgVideo from "../../assets/video.mp4";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
@@ -38,6 +37,15 @@ const Home = () => {
   const [lastScrollY, setLastScrollY] = useState(0);
 
   const [activeTab, setActiveTab] = useState("projetos"); // Controla a aba ativa para o efeito de scroll
+
+  // Radar para descobrir se o cliente está no celular (tela menor que 768px)
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // 1️⃣ EFFECT DOS PROJETOS (Roda apenas uma vez ao abrir o site)
   useEffect(() => {
@@ -191,16 +199,24 @@ const Home = () => {
           ========================================= */}
       <section className="hero-section" id="inicio">
         
-        {/* 1. O Vídeo de Fundo */}
-        <video 
-          autoPlay 
-          loop 
-          muted 
-          playsInline 
-          className="hero-video"
-        >
-          <source src={bgVideo} type="video/mp4" />
-        </video>
+        {/* 1. O Vídeo Inteligente: Muda a fonte dependendo do tamanho da tela */}
+      <video 
+        autoPlay 
+        loop 
+        muted 
+        playsInline 
+        className="hero-video"
+        preload="auto"
+        // A propriedade key força o React a recarregar o player quando a tela muda
+        key={isMobile ? "video-mobile" : "video-desktop"} 
+      >
+        <source 
+          src={isMobile 
+            ? "https://pub-7a2f5cd0bcb44e32bc85b66200776d9f.r2.dev/Video2.mp4" 
+            : "https://pub-7a2f5cd0bcb44e32bc85b66200776d9f.r2.dev/Video1.mp4"} 
+          type="video/mp4" 
+        />
+      </video>
 
         {/* 2. Película escura para dar contraste */}
         <div className="hero-overlay"></div>
