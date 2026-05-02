@@ -7,7 +7,7 @@ import "./AdminDashboard.css"; // Vamos criar um CSS específico para o dashboar
 import logoGarbo from "../../assets/logo_header.png";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper/modules";
+import { Navigation, Pagination, Zoom } from "swiper/modules"; // 👈 Adicione o Zoom aqui!
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -17,6 +17,7 @@ const AdminDashboard = () => {
   const [leads, setLeads] = useState([]);
   const [clients, setClients] = useState([]);
   const [activeTab, setActiveTab] = useState("projetos");
+  const [activeProjectGallery, setActiveProjectGallery] = useState(null);
   const [showClientModal, setShowClientModal] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
   const [clientForm, setClientForm] = useState({
@@ -426,9 +427,8 @@ const AdminDashboard = () => {
 
                 return (
                   <div key={project.id} className="project-card">
+                    {/* A CAIXA DA IMAGEM */}
                     <div className="portfolio-image-wrapper">
-                      
-                      {/* 2. Verificamos se existe QUALQUER mídia (foto ou vídeo) */}
                       {todasAsMidias.length > 0 ? (
                         <Swiper
                           modules={[Navigation, Pagination]}
@@ -437,7 +437,6 @@ const AdminDashboard = () => {
                           navigation
                           pagination={{ clickable: true }}
                           style={{ width: "100%", height: "100%" }}
-                          // 👇 Pausa os vídeos quando o usuário arrasta para o lado
                           onSlideChange={() => {
                             const videos = document.querySelectorAll("video");
                             videos.forEach((vid) => vid.pause());
@@ -445,112 +444,58 @@ const AdminDashboard = () => {
                         >
                           {todasAsMidias.map((midia, index) => (
                             <SwiperSlide key={index}>
-                              
-                              {/* 3. Renderiza IMG ou VIDEO dependendo da etiqueta */}
                               {midia.type === "image" ? (
-                                <img
-                                  src={midia.url}
-                                  alt={`${project.title} - mídia ${index + 1}`}
-                                  className="portfolio-image"
-                                />
+                                <img src={midia.url} alt={`${project.title} - mídia ${index + 1}`} className="portfolio-image" />
                               ) : (
-                                <video
-                                  src={midia.url}
-                                  controls
-                                  muted // Recomendado vir mudo por padrão!
-                                  className="portfolio-image" // Usa a mesma classe pra manter bordas e tamanho
-                                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                                />
+                                <video src={midia.url} controls muted className="portfolio-image" />
                               )}
-                              
                             </SwiperSlide>
                           ))}
                         </Swiper>
                       ) : project.coverImageUrl ? (
-                        <img
-                          src={project.coverImageUrl}
-                          alt={project.title}
-                          className="portfolio-image"
-                        />
+                        <img src={project.coverImageUrl} alt={project.title} className="portfolio-image" />
                       ) : (
-                        /* Fundo elegante caso o projeto não tenha foto */
-                        <div
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            backgroundColor: "#111",
-                            color: "#555",
-                          }}
-                        >
+                        <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#111", color: "#555" }}>
                           Sem Imagem
                         </div>
                       )}
                     </div>
 
+                    {/* O CONTEÚDO E TEXTOS */}
                     <div className="card-content">
                       <div className="card-header">
                         <span className="badge">{project.category}</span>
-                        <div>
-                          <button
-                            onClick={() => handleEdit(project)}
-                            className="btn btn-icon btn-edit"
-                            title="Editar"
+                        <div className="card-actions">
+                          <button 
+                            onClick={() => setActiveProjectGallery(project)} 
+                            className="btn-icon" 
+                            title="Ver em Tela Cheia"
+                            style={{ color: '#e0e0e0' }} /* 👈 Deixa o ícone clarinho para dar contraste */
                           >
-                            ✏️
+                            {/* 👇 Aumentamos de 16px para 22px para empatar com o tamanho dos emojis */}
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '22px', height: '22px' }}>
+                              <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+                            </svg>
                           </button>
-                          <button
-                            onClick={() => handleDelete(project.id)}
-                            className="btn btn-icon btn-delete"
-                            title="Excluir"
-                          >
-                            🗑️
-                          </button>
+                          <button onClick={() => handleEdit(project)} className="btn-icon" title="Editar Projeto">✏️</button>
+                          <button onClick={() => handleDelete(project.id)} className="btn-icon" title="Excluir Projeto">🗑️</button>
                         </div>
                       </div>
 
-                      {/* 👇 AQUI ESTÁ A MÁGICA DO STATUS JUNTO AO TÍTULO 👇 */}
-                      <h3
-                        className="card-title"
-                        style={{ display: "flex", alignItems: "center" }}
-                      >
+                      <h3 className="card-title">
                         {project.title}
-                        <span
-                          style={{
-                            background:
-                              project.status === "CONCLUÍDO"
-                                ? "#27ae60"
-                                : "#f39c12",
-                            color: "#fff",
-                            padding: "3px 8px",
-                            borderRadius: "12px",
-                            fontSize: "0.75rem",
-                            fontWeight: "bold",
-                            marginLeft: "10px",
-                          }}
+                        <span 
+                          className="status-badge"
+                          style={{ background: project.status === "CONCLUÍDO" ? "#27ae60" : "#f39c12" }}
                         >
-                          {/* Substitua statusFormatado pelo que vc já usava! */}
                           {project.status || "EM PROJETO"} 
                         </span>
                       </h3>
 
                       {(project.clientName || project.completionDate) && (
                         <div className="card-meta">
-                          {project.clientName && (
-                            <span>Cliente: {project.clientName}</span>
-                          )}
-                          {project.clientName && project.completionDate && (
-                            <span> • </span>
-                          )}
-                          {project.completionDate && (
-                            <span>
-                              {new Date(
-                                project.completionDate
-                              ).toLocaleDateString("pt-BR")}
-                            </span>
-                          )}
+                          {project.clientName && <span>👤 Cliente: {project.clientName}</span>}
+                          {project.completionDate && <span><br />📅 {new Date(project.completionDate).toLocaleDateString("pt-BR", { timeZone: "UTC" })}</span>}
                         </div>
                       )}
 
@@ -559,6 +504,57 @@ const AdminDashboard = () => {
                   </div>
                 );
               })}
+              {/* =========================================
+              ✨ A GALERIA FULLSCREEN (MODAL) ✨
+              ========================================= */}
+              {activeProjectGallery && (
+                <div className="fullscreen-gallery-overlay">
+                  <button className="gallery-close-btn" onClick={() => setActiveProjectGallery(null)}>&times;</button>
+                  
+                  <div className="gallery-header">
+                    <h3>{activeProjectGallery.title}</h3>
+                    <p>{activeProjectGallery.description}</p>
+                  </div>
+
+                  <Swiper
+                    modules={[Navigation, Pagination, Zoom]}
+                    zoom={{ maxRatio: 4, minRatio: 1 }}
+                    navigation={true}
+                    pagination={{ type: "fraction" }} 
+                    className="fullscreen-swiper"
+                    onSlideChange={() => {
+                      const videos = document.querySelectorAll(".fullscreen-swiper video");
+                      videos.forEach(vid => vid.pause());
+                    }}
+                  >
+                    {[
+                      ...(activeProjectGallery.imageUrls || []).map(url => ({ type: "image", url })),
+                      ...(activeProjectGallery.videoUrls || []).map(url => ({ type: "video", url }))
+                    ].map((midia, index) => (
+                      <SwiperSlide key={index}>
+                          {midia.type === "image" ? (
+                            <>
+                              <div className="swiper-zoom-container">
+                                <img src={midia.url} alt={`Mídia ${index + 1}`} className="lightbox-image" />
+                              </div>
+                              <div className="zoom-indicator">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <circle cx="11" cy="11" r="8"></circle>
+                                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                  <line x1="11" y1="8" x2="11" y2="14"></line>
+                                  <line x1="8" y1="11" x2="14" y2="11"></line>
+                                </svg>
+                                <span>Toque duas vezes para zoom</span>
+                              </div>
+                            </>
+                          ) : (
+                            <video src={midia.url} controls muted autoPlay playsInline className="lightbox-image" />
+                          )}
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+                </div>
+              )}
             </div>
           </section>
         </>

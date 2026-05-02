@@ -1,52 +1,138 @@
 /* =========================================
+   ESTRUTURA GERAL DO DASHBOARD
+   ========================================= */
+.dashboard-container {
+    background-color: #121212;
+    min-height: 100vh;
+    padding: 20px 5%;
+    color: #fff;
+    font-family: 'Inter', system-ui, sans-serif;
+}
+
+.dashboard-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.dashboard-loading, .dashboard-empty {
+    background-color: #121212;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    text-align: center;
+    padding: 2rem;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    width: 100%;
+}
+
+.logo-garbo img {
+    height: 80px;
+    width: auto;
+}
+
+.btn-logout {
+    padding: 10px 20px;
+    cursor: pointer;
+    background: transparent;
+    color: #d4af37;
+    border: 1px solid #d4af37;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+    background: #d4af37;
+    color: #121212;
+}
+
+/* =========================================
    CABEÇALHO DO PROJETO VIP
    ========================================= */
 .vip-project-card {
     background-color: #1a1a1a;
     border: 1px solid #333;
     border-radius: 12px;
-    padding: 24px;
+    padding: 40px;
     margin-bottom: 30px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
 }
 
 .vip-project-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    display: flex; /* 🏆 A mágica que coloca lado a lado */
+    justify-content: space-between; /* Joga o texto pra esquerda e o botão pra direita */
+    align-items: center; /* Alinha o botão no meio da altura do texto */
     border-bottom: 1px solid #333;
     padding-bottom: 20px;
-    margin-bottom: 25px;
+    margin-bottom: 40px;
 }
 
 .vip-project-title h2 {
     color: #fff;
     margin: 0 0 10px 0;
-    font-size: 2rem;
+    font-size: 2.2rem;
     display: flex;
     align-items: center;
     gap: 15px;
+}
+
+.vip-project-title p {
+    color: #aaa;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin: 0;
 }
 
 .vip-tag {
     background-color: #333;
     color: #ccc;
     font-size: 0.8rem;
-    padding: 4px 12px;
+    padding: 6px 14px;
     border-radius: 20px;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
+    font-weight: 600;
 }
 
-.vip-project-info {
-    text-align: right;
+/* =========================================
+   BOTÃO DE DOWNLOAD (CLIENTE)
+   ========================================= */
+.btn-download-project {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: transparent;
+    color: #d4af37;
+    border: 1px solid #d4af37;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.vip-price {
-    color: #f1c40f; /* Dourado/Amarelo combinando com a Logo */
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin: 0;
+.btn-download-project svg {
+    width: 18px;
+    height: 18px;
+}
+
+.btn-download-project:hover {
+    background-color: #d4af37;
+    color: #121212;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
 }
 
 /* =========================================
@@ -56,31 +142,31 @@
     display: flex;
     justify-content: space-between;
     position: relative;
-    margin: 30px 0 40px 0;
+    margin: 20px 0 60px 0;
 }
 
-/* A linha cinza de fundo */
 .status-timeline::before {
     content: '';
     position: absolute;
-    top: 15px; /* Alinhado com o centro das bolinhas */
+    top: 15px;
     left: 0;
     right: 0;
-    height: 3px;
-    background-color: #333;
+    height: 4px;
+    background-color: #2a2a2a;
     z-index: 1;
+    border-radius: 2px;
 }
 
-/* A linha de progresso dourada */
 .status-progress-line {
     position: absolute;
     top: 15px;
     left: 0;
-    height: 3px;
+    height: 4px;
     width: var(--progress);
-    background-color: #f1c40f;
+    background-color: #d4af37;
     z-index: 2;
-    transition: width 0.5s ease;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 2px;
 }
 
 .status-step {
@@ -89,43 +175,49 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     width: 25%;
 }
 
 .step-circle {
-    width: 30px;
-    height: 30px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     background-color: #1a1a1a;
     border: 3px solid #333;
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: all 0.3s ease;
+    transition: all 0.4s ease;
 }
 
 .step-text {
-    color: #888;
-    font-size: 0.85rem;
+    color: #666;
+    font-size: 0.9rem;
     font-weight: bold;
     text-transform: uppercase;
     text-align: center;
+    letter-spacing: 1px;
 }
 
-/* Estilos para quando o passo está ATIVO ou CONCLUÍDO */
+.check-icon {
+    color: #d4af37;
+    font-size: 16px;
+    font-weight: bold;
+}
+
 .status-step.active .step-circle {
-    border-color: #f1c40f;
-    background-color: #f1c40f;
-    box-shadow: 0 0 15px rgba(241, 196, 15, 0.4);
+    border-color: #d4af37;
+    background-color: #d4af37;
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
 }
 
 .status-step.active .step-text {
-    color: #f1c40f;
+    color: #d4af37;
 }
 
 .status-step.completed .step-circle {
-    border-color: #f1c40f;
+    border-color: #d4af37;
     background-color: #1a1a1a;
 }
 
@@ -134,101 +226,79 @@
 }
 
 /* =========================================
-   SWIPER: IMAGENS COMPLETAS E NATURAIS
+   CARROSSEL BLINDADO (SEM VAZAMENTOS)
    ========================================= */
 .card-image-container {
     width: 100%;
-    height: 500px; 
-    background-color: #0a0a0a;
+    height: 600px; /* 🏆 A Tela de Cinema: Trava a altura para nada vazar! */
+    background-color: #080808; /* Fundozinho sutil para emoldurar vídeos em pé */
     border-radius: 12px;
-    overflow: hidden;
     position: relative;
+    overflow: hidden; /* A tesoura mágica: nada sai dessa caixa */
 }
 
-/* 2. Forçamos o Swiper e a div de Imagem Única a terem o tamanho exato da janela */
-.card-image-container .swiper,
-.card-image-container .swiper-slide,
-.card-image-container .single-image-container {
-    width: 100%;
-    height: 100%; 
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* Garante que o Swiper respeite a altura da caixa preta */
+.vip-swiper, .vip-swiper .swiper-wrapper {
+    height: 100%;
 }
 
-/* Prepara o Slide para receber as camadas */
 .premium-slide {
-    position: relative;
-    width: 100%;
-    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
-}
-
-/* ✨ A Mágica do Fundo Desfocado (Adeus borda preta!) */
-.media-blur-bg {
-    position: absolute;
-    top: -10%;
-    left: -10%;
-    width: 120%;
-    height: 120%;
-    background-size: cover;
-    background-position: center;
-    /* Borra e escurece a imagem de fundo para dar destaque à principal */
-    filter: blur(25px) brightness(0.35); 
-    z-index: 0;
-    pointer-events: none; /* Impede que o fundo roube o clique do vídeo */
-}
-
-/* A Mídia Real e Nítida que fica por cima */
-.media-content {
-    position: relative;
-    z-index: 1;
     width: 100%;
     height: 100%;
-    object-fit: contain !important; /* Exibe a foto inteira sem cortar */
-    display: block;
 }
 
-/* Ajuste específico para vídeos nativos */
-.video-content {
+.media-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.media-content {
     max-width: 100%;
     max-height: 100%;
-    width: auto; /* Permite que o vídeo vertical respire no centro */
-    height: auto; 
-    object-fit: contain !important;
+    width: auto;
+    height: auto;
+    object-fit: contain; /* 🏆 Garante que a foto inteira apareça sem cortar e sem estourar o card */
+    border-radius: 8px;
 }
 
-
-.swiper-pagination-bullet-active {
-    background-color: #f1c40f !important;
+.no-media-placeholder {
+    text-align: center;
+    padding: 100px;
+    color: #888;
+    font-size: 1.2rem;
+    width: 100%;
 }
 
-/* 3. A regra de chumbo para a imagem (!important vence qualquer App.css) */
-.card-image-container img,
-.card-image-container video {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: contain !important; /* Exibe 100% da foto, doa a quem doer */
-    display: block;
+/* Customização das setas e bolinhas do Swiper */
+.swiper-pagination-bullet { background: #fff !important; opacity: 0.3 !important; }
+.swiper-pagination-bullet-active { background: #d4af37 !important; opacity: 1 !important; transform: scale(1.3); }
+.swiper-button-next, .swiper-button-prev { color: #fff !important; background: rgba(0,0,0,0.4); padding: 25px 20px; border-radius: 8px; transform: scale(0.7); transition: all 0.3s; }
+.swiper-button-next:hover, .swiper-button-prev:hover { background: rgba(212, 175, 55, 0.8); }
+
+/* Empurra as bolinhas um pouco para cima para não ficarem em cima da foto */
+.swiper-pagination-bullets {
+    bottom: 10px !important;
 }
 
 /* =========================================
    🔍 BOTÃO DE EXPANDIR E LIGHTBOX
    ========================================= */
-
-/* O Botãozinho que flutua no canto da foto */
 .expand-btn {
     position: absolute;
     bottom: 15px;
     right: 15px;
-    width: 40px;
-    height: 40px;
-    background: rgba(0, 0, 0, 0.6); /* Fundo preto transparente */
-    backdrop-filter: blur(4px); /* Efeito vidro fosco */
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    width: 45px;
+    height: 45px;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     color: white;
     display: flex;
@@ -239,148 +309,154 @@
     transition: all 0.3s ease;
 }
 
-.expand-btn svg {
-    width: 20px;
-    height: 20px;
-}
+video::-webkit-media-controls-fullscreen-button { display: none !important; }
+
+.expand-btn svg { width: 22px; height: 22px; }
 
 .expand-btn:hover {
-    background: rgba(241, 196, 15, 0.9); /* Fica dourado no hover */
+    background: rgba(212, 175, 55, 0.9);
     transform: scale(1.1);
 }
 
-/* A Tela Escura (Fundo) */
+/* Lightbox Modal */
 .lightbox-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.95);
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.98);
     z-index: 9999;
-    /* Removemos o cursor: zoom-out daqui, a biblioteca cuida disso agora */
 }
 
-/* A Imagem Gigante no Centro */
 .lightbox-image {
-    max-width: 90vw; /* Dá um respiro nas laterais */
-    max-height: 90vh; /* Dá um respiro em cima e embaixo */
+    max-width: 90vw; max-height: 90vh;
     object-fit: contain;
     border-radius: 8px;
     box-shadow: 0 10px 50px rgba(0, 0, 0, 0.8);
     animation: fadeInZoom 0.3s ease;
-    cursor: grab; /* Indica pro usuário que ele pode arrastar a foto! */
+    cursor: grab;
 }
 
-.lightbox-image:active {
-    cursor: grabbing; /* Muda a "mãozinha" quando ele clica e arrasta */
-}
+.lightbox-image:active { cursor: grabbing; }
 
-/* O Botão de Fechar (X) */
 .lightbox-close {
     position: absolute;
-    top: 20px;
-    right: 30px;
+    top: 20px; right: 30px;
     background: transparent;
     border: none;
     color: white;
-    font-size: 40px;
+    font-size: 50px;
     cursor: pointer;
     z-index: 10000;
     transition: color 0.3s ease;
 }
 
-.lightbox-close:hover {
-    color: #f1c40f;
-}
+.lightbox-close:hover { color: #d4af37; }
 
-/* Animação suave para abrir */
 @keyframes fadeInZoom {
     from { opacity: 0; transform: scale(0.95); }
     to { opacity: 1; transform: scale(1); }
 }
 
 /* =========================================
-   🚀 RESPONSIVIDADE (MOBILE) - ÁREA DO CLIENTE
+   🔍 INDICADOR DE ZOOM (LIGHTBOX DO CLIENTE)
    ========================================= */
+.zoom-indicator {
+    position: absolute;
+    bottom: 40px; /* Alinhado perfeitamente na parte inferior da tela */
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    color: #e0e0e0;
+    padding: 8px 16px;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    /* 🏆 Impede que o aviso bloqueie o duplo clique do cliente na foto */
+    pointer-events: none; 
+    z-index: 10001; /* Fica acima da tela preta do Lightbox */
+    animation: pulseHint 2.5s infinite alternate ease-in-out;
+}
 
-@media (max-width: 600px) {
-    
-    /* 1. Ajustes Gerais */
-    header {
+.zoom-indicator svg {
+    width: 16px;
+    height: 16px;
+    color: #d4af37; /* Lupa Dourada */
+}
+
+@keyframes pulseHint {
+    0% { opacity: 0.4; transform: translateX(-50%) scale(0.98); }
+    100% { opacity: 1; transform: translateX(-50%) scale(1.02); }
+}
+
+/* =========================================
+   🚀 RESPONSIVIDADE (MOBILE)
+   ========================================= */
+@media (max-width: 768px) {
+    .dashboard-container { padding: 15px; }
+    .vip-project-card { padding: 25px 15px; }
+
+    .dashboard-header {
         flex-direction: column !important;
         gap: 20px !important;
         text-align: center;
     }
 
-    .logo-garbo img {
-        height: 65px !important; 
-        width: auto !important;
+    .logo-garbo img { height: 60px; }
+
+    /* Ajuste do botão de download no celular */
+    .vip-project-header {
+        flex-direction: column;
+        gap: 20px;
     }
     
+    .btn-download-project {
+        width: 100%; /* Faz o botão ocupar a largura toda pra ficar fácil de clicar com o dedão */
+        justify-content: center;
+    }
+
     .vip-project-title h2 {
         flex-direction: column;
         align-items: flex-start;
-        font-size: 1.5rem !important;
+        font-size: 1.6rem !important;
     }
 
-    /* =========================================
-       🔥 LINHA DO TEMPO VERTICAL (O SEGREDO)
-       ========================================= */
+    /* Linha do Tempo Vertical */
     .status-timeline {
-        flex-direction: column !important; /* Empilha de cima para baixo */
-        gap: 30px !important; /* Espaçamento entre os passos */
+        flex-direction: column !important;
+        gap: 35px !important;
         align-items: flex-start !important;
-        padding-left: 10px; /* Dá um respiro na borda esquerda */
+        padding-left: 10px;
+        margin: 30px 0;
     }
 
-    /* A linha cinza de fundo gira para a vertical */
     .status-timeline::before {
-        top: 0 !important;
-        bottom: 0 !important;
-        left: 24px !important; /* Fica exatamente no meio da bolinha (10px padding + 15px raio) */
-        width: 3px !important;
-        height: 100% !important;
+        top: 0 !important; bottom: 0 !important;
+        left: 26px !important; 
+        width: 3px !important; height: 100% !important;
     }
 
-    /* A linha amarela animada gira para a vertical */
     .status-progress-line {
-        top: 0 !important;
-        left: 24px !important;
-        width: 3px !important; /* Deixa de crescer pro lado */
-        height: var(--progress) !important; /* Passa a crescer para baixo! */
+        top: 0 !important; left: 26px !important;
+        width: 3px !important; height: var(--progress) !important;
     }
 
-    /* As bolinhas e os textos se alinham lado a lado */
     .status-step {
         width: 100% !important;
-        flex-direction: row !important; /* Bolinha na esquerda, texto na direita */
+        flex-direction: row !important;
         justify-content: flex-start !important;
         gap: 20px !important;
     }
 
-    .step-text {
-        text-align: left !important;
-        font-size: 1rem !important; /* Fonte num tamanho agradável de ler */
-    }
+    .step-text { text-align: left !important; font-size: 1rem !important; }
 
-    /* 1. Aumenta a altura para a foto vertical não ficar esmagada */
-    .card-image-container {
-        height: 500px !important; /* Pode ajustar entre 450px e 550px como preferir */
+    /* Media e Botão no Celular */
+    .media-content {
+        max-height: 85vh; /* Quase tela cheia no celular */
+        border-radius: 8px;
     }
-
-    /* 2. Faz a foto/vídeo preencher todo o espaço, cortando apenas as sobras */
-    .card-image-container img,
-    .card-image-container video,
-    .media-content,
-    .video-content {
-        object-fit: cover !important;
-        width: 100% !important;
-        height: 100% !important;
-    }
-
-    /* 3. Desliga o efeito de Blur (já que a foto vai cobrir tudo) */
-    .media-blur-bg {
-        display: none !important;
-    }
+    .swiper-button-next, .swiper-button-prev { display: none; /* Esconde as setas, deixa só o dedo no celular */ }
 }

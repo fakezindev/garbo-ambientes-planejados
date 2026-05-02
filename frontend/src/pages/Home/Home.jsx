@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import api from "../../services/api"; 
+import api from "../../services/api";
 import "./Home.css";
 
 import imgEdna from "../../assets/edna_arquiteta1.jpeg";
@@ -18,7 +18,7 @@ import iconGmail from "../../assets/enviar.png";
 import iconCode from "../../assets/codigo.png";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper/modules";
+import { Navigation, Pagination, Zoom} from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -26,11 +26,14 @@ import "swiper/css/pagination";
 const Home = () => {
   const [projects, setProjects] = useState([]);
 
+  // Controla qual projeto está aberto na Galeria em Tela Cheia
+  const [activeProjectGallery, setActiveProjectGallery] = useState(null);
+  
   const [leadName, setLeadName] = useState("");
   const [leadEmail, setLeadEmail] = useState("");
   const [leadPhone, setLeadPhone] = useState("");
-  const [leadService, setLeadService] = useState('');
-  const [leadEnvironment, setLeadEnvironment] = useState('');
+  const [leadService, setLeadService] = useState("");
+  const [leadEnvironment, setLeadEnvironment] = useState("");
   const [isSubmittingLead, setIsSubmittingLead] = useState(false);
 
   const [showHeader, setShowHeader] = useState(true);
@@ -43,8 +46,8 @@ const Home = () => {
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   // 1️⃣ EFFECT DOS PROJETOS (Roda apenas uma vez ao abrir o site)
@@ -86,14 +89,18 @@ const Home = () => {
       (entries) => {
         entries.forEach((entry) => {
           const video = entry.target;
-          
+
           // Verifica se é uma tela de celular (menor que 768px)
           const isMobile = window.innerWidth <= 768;
 
           if (isMobile) {
             if (entry.isIntersecting) {
               // Se 50% do vídeo apareceu na tela, dá play
-              video.play().catch((err) => console.log("Autoplay bloqueado pelo navegador:", err));
+              video
+                .play()
+                .catch((err) =>
+                  console.log("Autoplay bloqueado pelo navegador:", err),
+                );
             } else {
               // Se o vídeo saiu da tela, pausa para economizar bateria/dados
               video.pause();
@@ -103,7 +110,7 @@ const Home = () => {
       },
       {
         threshold: 0.5, // 0.5 significa que dispara quando 50% do vídeo está visível
-      }
+      },
     );
 
     // Manda o vigia olhar para todos os vídeos dentro dos cards de portfólio
@@ -122,7 +129,7 @@ const Home = () => {
     if (leadPhone.length < 15) {
       toast.warning("Por favor, digite o WhatsApp completo com DDD.", {
         position: "bottom-right",
-        theme: "dark"
+        theme: "dark",
       });
       return; // Interrompe a função aqui
     }
@@ -139,23 +146,28 @@ const Home = () => {
       };
       await api.post("/leads", leadData);
 
-      toast.success('Solicitação enviada com sucesso! A equipe da Garbo entrará em contato em breve.', {
-        position: "bottom-right", // Fica elegante no canto inferior
-        theme: "dark" // Combina com o site da Garbo!
-      });
+      toast.success(
+        "Solicitação enviada com sucesso! A equipe da Garbo entrará em contato em breve.",
+        {
+          position: "bottom-right", // Fica elegante no canto inferior
+          theme: "dark", // Combina com o site da Garbo!
+        },
+      );
 
       setLeadName("");
       setLeadEmail("");
       setLeadPhone("");
       setLeadService("");
       setLeadEnvironment("");
-
     } catch (error) {
       console.error("Erro ao enviar contato:", error);
-      toast.error('Ocorreu um erro ao enviar sua solicitação. Por favor, tente pelo WhatsApp.', {
-        position: "bottom-right",
-        theme: "dark"
-      });
+      toast.error(
+        "Ocorreu um erro ao enviar sua solicitação. Por favor, tente pelo WhatsApp.",
+        {
+          position: "bottom-right",
+          theme: "dark",
+        },
+      );
     } finally {
       setIsSubmittingLead(false);
     }
@@ -165,22 +177,22 @@ const Home = () => {
   const formatPhone = (value) => {
     if (!value) return "";
     return String(value)
-      .replace(/\D/g, '')
-      .replace(/(\d{2})(\d)/, '($1) $2')
-      .replace(/(\d{4,5})(\d{4})/, '$1-$2')
-      .replace(/(-\d{4})\d+?$/, '$1');
+      .replace(/\D/g, "")
+      .replace(/(\d{2})(\d)/, "($1) $2")
+      .replace(/(\d{4,5})(\d{4})/, "$1-$2")
+      .replace(/(-\d{4})\d+?$/, "$1");
   };
 
   return (
     <div className="home-container">
       {/* 1. CABEÇALHO (Menu de Navegação) */}
-      <header className={`public-header ${showHeader ? '' : 'header-hidden'}`}>
+      <header className={`public-header ${showHeader ? "" : "header-hidden"}`}>
         <div className="logo-garbo">
-          <a href="/" style={{ display: 'flex', alignItems: 'center' }}>
+          <a href="/" style={{ display: "flex", alignItems: "center" }}>
             <img
               src={logoGarbo}
               alt="Garbo Arquitetura e Planejados"
-              style={{ height: '50px', width: 'auto' }} // Ajuste a altura conforme necessário
+              style={{ height: "50px", width: "auto" }} // Ajuste a altura conforme necessário
             />
           </a>
         </div>
@@ -198,25 +210,26 @@ const Home = () => {
           HERO SECTION COM VÍDEO
           ========================================= */}
       <section className="hero-section" id="inicio">
-        
         {/* 1. O Vídeo Inteligente: Muda a fonte dependendo do tamanho da tela */}
-      <video 
-        autoPlay 
-        loop 
-        muted 
-        playsInline 
-        className="hero-video"
-        preload="auto"
-        // A propriedade key força o React a recarregar o player quando a tela muda
-        key={isMobile ? "video-mobile" : "video-desktop"} 
-      >
-        <source 
-          src={isMobile 
-            ? "https://pub-7a2f5cd0bcb44e32bc85b66200776d9f.r2.dev/Video2.mp4" 
-            : "https://pub-7a2f5cd0bcb44e32bc85b66200776d9f.r2.dev/Video1.mp4"} 
-          type="video/mp4" 
-        />
-      </video>
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="hero-video"
+          preload="auto"
+          // A propriedade key força o React a recarregar o player quando a tela muda
+          key={isMobile ? "video-mobile" : "video-desktop"}
+        >
+          <source
+            src={
+              isMobile
+                ? "https://pub-7a2f5cd0bcb44e32bc85b66200776d9f.r2.dev/Video2.mp4"
+                : "https://pub-7a2f5cd0bcb44e32bc85b66200776d9f.r2.dev/Video1.mp4"
+            }
+            type="video/mp4"
+          />
+        </video>
 
         {/* 2. Película escura para dar contraste */}
         <div className="hero-overlay"></div>
@@ -265,7 +278,11 @@ const Home = () => {
           {/* CARD 2: MARCIA */}
           <div className="team-card">
             <div className="team-image-wrapper">
-              <img src={imgMarcia} alt="Marcia Nascimento" className="team-image" />
+              <img
+                src={imgMarcia}
+                alt="Marcia Nascimento"
+                className="team-image"
+              />
             </div>
             <div className="team-info">
               <h3>Marcia Nascimento</h3>
@@ -287,7 +304,9 @@ const Home = () => {
         <div className="section-title">
           <h2 style={{ color: "#d4af37" }}>Nosso Propósito</h2>
           <p style={{ color: "#aaa", marginTop: "10px" }}>
-            <strong>A excelência por trás de cada detalhe dos seus móveis planejados.</strong>
+            <strong>
+              A excelência por trás de cada detalhe dos seus móveis planejados.
+            </strong>
           </p>
         </div>
 
@@ -325,15 +344,17 @@ const Home = () => {
             <h3>Valores</h3>
             <p style={{ textAlign: "left" }}>
               <strong>
-                Qualidade Absoluta, Respeito aos prazos combinados, Transparência
-                no atendimento e Foco no detalhe.
+                Qualidade Absoluta, Respeito aos prazos combinados,
+                Transparência no atendimento e Foco no detalhe.
               </strong>
             </p>
           </div>
         </div>
       </section>
 
-      {/* 4. GALERIA DE PROJETOS (A Vitrine conectada ao Backend) */}
+      {/* =========================================
+          4. GALERIA DE PROJETOS (VITRINE LIMPA)
+          ========================================= */}
       <section id="portfolio" className="portfolio-public">
         <div className="section-title">
           <h2 style={{ color: "#d4af37" }}>Nosso Portfólio</h2>
@@ -342,137 +363,125 @@ const Home = () => {
           </p>
         </div>
 
-        <div className="projects-grid public-grid">
+        <div className="portfolio-carousel-container" style={{ padding: "0 5%" }}>
           {projects && projects.length > 0 ? (
-            projects.map((project) => {
-              
-              // 1. MÁGICA: Juntamos fotos e vídeos em uma lista só, etiquetando os tipos!
-              const todasAsMidias = [
-                ...(project.imageUrls || []).map((url) => ({ type: "image", url })),
-                ...(project.videoUrls || []).map((url) => ({ type: "video", url })),
-              ];
-
-              return (
-                <div 
-                  key={project.id} 
-                  className="portfolio-card"
-                  // 👇 MÁGICA 1: Mouse entrou -> Dá Play no vídeo (se houver)
-                  onMouseEnter={(e) => {
-                    const video = e.currentTarget.querySelector("video");
-                    if (video) video.play();
-                  }}
-                  // 👇 MÁGICA 2: Mouse saiu -> Pausa o vídeo
-                  onMouseLeave={(e) => {
-                    const video = e.currentTarget.querySelector("video");
-                    if (video) {
-                      video.pause();
-                      // Opcional: Descomente a linha abaixo se quiser que o vídeo volte pro começo ao tirar o mouse
-                      // video.currentTime = 0; 
-                    }
-                  }}
-                >
-                  <div className="portfolio-image-wrapper">
-                    
-                    {/* 2. Verificamos se existe QUALQUER mídia na lista combinada */}
-                    {todasAsMidias.length > 0 ? (
-                      <Swiper
-                        modules={[Navigation, Pagination]}
-                        spaceBetween={0}
-                        slidesPerView={1}
-                        navigation
-                        pagination={{ clickable: true }}
-                        style={{ width: "100%", height: "100%" }}
-                        // Pausa os vídeos quando o usuário arrasta o carrossel
-                        onSlideChange={() => {
-                          const videos = document.querySelectorAll("video");
-                          videos.forEach((vid) => vid.pause());
-                        }}
-                      >
-                        {todasAsMidias.map((midia, index) => (
-                          <SwiperSlide key={index}>
-                            
-                            {/* 3. Renderiza IMG ou VIDEO dependendo da etiqueta */}
-                            {midia.type === "image" ? (
-                              <img
-                                src={midia.url}
-                                alt={`${project.title} - ${index + 1}`}
-                                className="portfolio-image"
-                              />
-                            ) : (
-                              <video
-                                src={midia.url}
-                                controls
-                                muted // Essencial para portfólios públicos
-                                className="portfolio-image" // Mantém a classe para bordas e tamanho
-                                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                              />
-                            )}
-
-                          </SwiperSlide>
-                        ))}
-                      </Swiper>
-                    ) : project.coverImageUrl ? (
-                      <img
-                        src={project.coverImageUrl}
-                        alt={project.title}
-                        className="portfolio-image"
-                      />
-                    ) : (
-                      /* Fundo elegante caso o projeto não tenha foto */
-                      <div
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          backgroundColor: "#111",
-                          color: "#555",
-                        }}
-                      >
-                        Sem Imagem
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Textos alinhados e estilizados */}
-                  <div className="portfolio-content">
-                    <span className="portfolio-category">
-                      {project.category || "PLANEJADOS"}
-                    </span>
-                    <h3 className="portfolio-title">{project.title}</h3>
-
-                    {/* Estilo adicionado para a descrição não quebrar o layout escuro */}
-                    <p
-                      style={{
-                        color: "#aaa",
-                        fontSize: "0.9rem",
-                        marginTop: "10px",
-                        lineHeight: "1.5",
-                        margin: "10px 0 0 0",
-                      }}
-                    >
-                      {project.description}
-                    </p>
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            /* Mensagem de vazio ajustada para o tema */
-            <p
-              style={{
-                textAlign: "center",
-                color: "#aaa",
-                gridColumn: "1 / -1",
-                padding: "50px 0",
+            <Swiper
+              modules={[Navigation, Pagination]}
+              spaceBetween={30}
+              loop={true}
+              navigation={true}
+              pagination={{ clickable: true, dynamicBullets: true }}
+              className="projects-master-swiper"
+              breakpoints={{
+                320: { slidesPerView: 1 },
+                768: { slidesPerView: 2 },
+                1024: { slidesPerView: 3 },
+                1440: { slidesPerView: 4 },
               }}
             >
-              Nenhum projeto encontrado.
-            </p>
+              {projects.map((project) => {
+                // Pega apenas a primeira mídia para ser a "Capa" do card
+                const coverUrl = project.coverImageUrl || 
+                                (project.imageUrls && project.imageUrls[0]) || 
+                                (project.videoUrls && project.videoUrls[0]);
+                const isVideo = coverUrl && (coverUrl.includes(".mp4") || coverUrl.includes(".mov"));
+
+                return (
+                  <SwiperSlide key={project.id}>
+                    {/* 🏆 CARD UNIFICADO: Ao clicar, abre a galeria */}
+                    <div className="portfolio-card" onClick={() => setActiveProjectGallery(project)}>
+                      <div className="portfolio-image-wrapper">
+                        
+                        {isVideo ? (
+                          <video src={coverUrl} autoPlay loop muted playsInline className="portfolio-image" />
+                        ) : coverUrl ? (
+                          <img src={coverUrl} alt={project.title} className="portfolio-image" />
+                        ) : (
+                          <div className="no-image-placeholder">Sem Imagem</div>
+                        )}
+
+                        {/* MÁSCARA DE HOVER ELEGANTE */}
+                        <div className="card-hover-overlay">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+                          </svg>
+                          <span>Ver Projeto</span>
+                        </div>
+
+                      </div>
+
+                      <div className="portfolio-content">
+                        <span className="portfolio-category">{project.category || "PLANEJADOS"}</span>
+                        <h3 className="portfolio-title">{project.title}</h3>
+                        <p className="portfolio-desc">{project.description}</p>
+                      </div>
+                    </div>
+                  </SwiperSlide>
+                );
+              })}
+            </Swiper>
+          ) : (
+            <p className="empty-portfolio">Nenhum projeto encontrado.</p>
           )}
         </div>
       </section>
+
+      {/* =========================================
+          ✨ A GALERIA FULLSCREEN (MODAL) ✨
+          ========================================= */}
+      {activeProjectGallery && (
+        <div className="fullscreen-gallery-overlay">
+          <button className="gallery-close-btn" onClick={() => setActiveProjectGallery(null)}>&times;</button>
+          
+          <div className="gallery-header">
+            <h3>{activeProjectGallery.title}</h3>
+            <p>{activeProjectGallery.description}</p>
+          </div>
+
+          <Swiper
+            modules={[Navigation, Pagination, Zoom]} // 🏆 1. Habilitamos o módulo nativo
+            zoom={{
+              maxRatio: 4, // 🏆 2. Configuração de zoom máximo
+              minRatio: 1
+            }}
+            navigation={true}
+            pagination={{ type: "fraction" }} 
+            className="fullscreen-swiper"
+            onSlideChange={() => {
+              const videos = document.querySelectorAll(".fullscreen-swiper video");
+              videos.forEach(vid => vid.pause());
+            }}
+          >
+            {[
+              ...(activeProjectGallery.imageUrls || []).map(url => ({ type: "image", url })),
+              ...(activeProjectGallery.videoUrls || []).map(url => ({ type: "video", url }))
+            ].map((midia, index) => (
+              <SwiperSlide key={index}>
+                  {midia.type === "image" ? (
+                    <>
+                      <div className="swiper-zoom-container">
+                        <img src={midia.url} alt={`Mídia ${index + 1}`} className="lightbox-image" />
+                      </div>
+                      
+                      {/* 🎯 O INDICADOR FLUTUANTE DE ZOOM */}
+                      <div className="zoom-indicator">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="11" cy="11" r="8"></circle>
+                          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                          <line x1="11" y1="8" x2="11" y2="14"></line>
+                          <line x1="8" y1="11" x2="14" y2="11"></line>
+                        </svg>
+                        <span>Toque duas vezes para zoom</span>
+                      </div>
+                    </>
+                  ) : (
+                    <video src={midia.url} controls muted autoPlay playsInline className="lightbox-image" />
+                  )}
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
+      )}
 
       {/* =========================================
               SESSÃO: LOCALIZAÇÃO
@@ -535,10 +544,12 @@ const Home = () => {
             fontSize: "1.2rem",
             fontWeight: "500",
           }}
-        >          
-            <div className="alfinete-icon" style={{ display: 'inline-flex' }}>
-              <img src={iconLocalizacao} alt="Ícone Localização" />
-            </div> <strong>Av. André Luiz, 296 - </strong> Picanço, Guarulhos - SP, 07082-050
+        >
+          <div className="alfinete-icon" style={{ display: "inline-flex" }}>
+            <img src={iconLocalizacao} alt="Ícone Localização" />
+          </div>{" "}
+          <strong>Av. André Luiz, 296 - </strong> Picanço, Guarulhos - SP,
+          07082-050
         </div>
       </section>
 
@@ -587,9 +598,7 @@ const Home = () => {
             style={{ display: "flex", flexDirection: "column", gap: "20px" }}
             onSubmit={handleSubmitLead}
           >
-            <div
-              className="form-row-mobile"
-            >
+            <div className="form-row-mobile">
               <input
                 type="text"
                 placeholder="Seu Nome Completo"
@@ -607,7 +616,9 @@ const Home = () => {
                 className="input-field"
                 style={{ width: "100%", boxSizing: "border-box" }}
                 value={leadPhone} /* 👈 Alterado para o estado correto */
-                onChange={(e) => setLeadPhone(formatPhone(e.target.value))} /* 👈 Alterado para o setLeadPhone */
+                onChange={(e) =>
+                  setLeadPhone(formatPhone(e.target.value))
+                } /* 👈 Alterado para o setLeadPhone */
               />
             </div>
 
@@ -629,13 +640,21 @@ const Home = () => {
               value={leadService}
               onChange={(e) => setLeadService(e.target.value)}
             >
-              <option value="" disabled> Qual serviço deseja solicitar?</option>
+              <option value="" disabled>
+                {" "}
+                Qual serviço deseja solicitar?
+              </option>
               <option value="MOVEIS_PLANEJADOS">Móveis planejados</option>
               <option value="SERVICO_EM_GESSO">Serviço em gesso</option>
               <option value="DESIGNER_DE_INTERIOR">Designer de interior</option>
               <option value="REFORMA_EM_GERAL">Reforma em geral</option>
-              <option value="PROJETOS_ARQUITETONICOS"> Projetos Arquitetônicos</option>
-              <option value="PISO_VINILICO_E_LAMINADO">Piso vinílico e Laminado</option>
+              <option value="PROJETOS_ARQUITETONICOS">
+                {" "}
+                Projetos Arquitetônicos
+              </option>
+              <option value="PISO_VINILICO_E_LAMINADO">
+                Piso vinílico e Laminado
+              </option>
               <option value="RRT">RRT</option>
               <option value="LAUDO_TECNICO">Laudo técnico</option>
               <option value="PERSIANAS_E_CORTINAS">Persianas e cortinas</option>
@@ -667,7 +686,7 @@ const Home = () => {
                 letterSpacing: "1px",
               }}
             >
-              {isSubmittingLead ? 'Enviando...' : 'Enviar Solicitação'}
+              {isSubmittingLead ? "Enviando..." : "Enviar Solicitação"}
             </button>
           </form>
         </div>
@@ -701,11 +720,17 @@ const Home = () => {
         >
           {/* COLUNA 1: Marca e Endereço */}
           <div style={{ flex: "1", minWidth: "250px" }}>
-            <a href="/" style={{ display: 'inline-block', marginBottom: '15px' }}>
+            <a
+              href="/"
+              style={{ display: "inline-block", marginBottom: "15px" }}
+            >
               <img
                 src={logoGarbo}
                 alt="Garbo Arquitetura e Planejados"
-                style={{ height: '60px', width: 'auto' }} /* Deixei com 60px para dar um destaque bonito no rodapé */
+                style={{
+                  height: "60px",
+                  width: "auto",
+                }} /* Deixei com 60px para dar um destaque bonito no rodapé */
               />
             </a>
             {/* 🚨 PREENCHA O CNPJ AQUI */}
@@ -718,19 +743,42 @@ const Home = () => {
 
           {/* COLUNA 2: Fale Conosco */}
           <div>
-            <h3 style={{ color: "#fff", fontSize: "1.1rem", marginBottom: "20px", fontWeight: "600" }}>
+            <h3
+              style={{
+                color: "#fff",
+                fontSize: "1.1rem",
+                marginBottom: "20px",
+                fontWeight: "600",
+              }}
+            >
               Fale Conosco
             </h3>
             <ul className="footer-links">
               <li>
-                <a href="https://api.whatsapp.com/message/2SSB4H5EDYLIO1?autoload=1&app_absent=0&utm_source=ig&text=Ol%C3%A1%2C%20gostaria%20de%20fazer%20um%20or%C3%A7amento%21" target="_blank" rel="noreferrer">
-                  <img src={iconWhatsapp} alt="WhatsApp" className="footer-icon" />
+                <a
+                  href="https://api.whatsapp.com/message/2SSB4H5EDYLIO1?autoload=1&app_absent=0&utm_source=ig&text=Ol%C3%A1%2C%20gostaria%20de%20fazer%20um%20or%C3%A7amento%21"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <img
+                    src={iconWhatsapp}
+                    alt="WhatsApp"
+                    className="footer-icon"
+                  />
                   Edna: (11) 99955-8023
                 </a>
               </li>
               <li>
-                <a href="https://api.whatsapp.com/send/?phone=5511986460451&text&type=phone_number&app_absent=0&utm_source=ig" target="_blank" rel="noreferrer">
-                  <img src={iconWhatsapp} alt="WhatsApp" className="footer-icon" />
+                <a
+                  href="https://api.whatsapp.com/send/?phone=5511986460451&text&type=phone_number&app_absent=0&utm_source=ig"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <img
+                    src={iconWhatsapp}
+                    alt="WhatsApp"
+                    className="footer-icon"
+                  />
                   Marcia: (11) 98646-0451
                 </a>
               </li>
@@ -743,30 +791,65 @@ const Home = () => {
 
           {/* COLUNA 3: Redes Sociais e CNPJ */}
           <div style={{ flex: "1", minWidth: "250px" }}>
-            <h3 style={{ color: "#fff", fontSize: "1.1rem", marginBottom: "20px", fontWeight: "600" }}>
+            <h3
+              style={{
+                color: "#fff",
+                fontSize: "1.1rem",
+                marginBottom: "20px",
+                fontWeight: "600",
+              }}
+            >
               Siga a Garbo
             </h3>
             <ul className="footer-links" style={{ marginBottom: "20px" }}>
               <li>
-                <a href="https://instagram.com/garboarqplan" target="_blank" rel="noreferrer">
-                  <img src={iconInstagram} alt="Instagram" className="footer-icon" />
+                <a
+                  href="https://instagram.com/garboarqplan"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <img
+                    src={iconInstagram}
+                    alt="Instagram"
+                    className="footer-icon"
+                  />
                   @garboarqplan
                 </a>
               </li>
               <li>
-                <a href="https://instagram.com/ednaramosarquiteta" target="_blank" rel="noreferrer">
-                  <img src={iconInstagram} alt="Instagram" className="footer-icon" />
+                <a
+                  href="https://instagram.com/ednaramosarquiteta"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <img
+                    src={iconInstagram}
+                    alt="Instagram"
+                    className="footer-icon"
+                  />
                   @ednaramosarquiteta
                 </a>
               </li>
               <li>
-                <a href="https://instagram.com/marciaarquiteta_" target="_blank" rel="noreferrer">
-                  <img src={iconInstagram} alt="Instagram" className="footer-icon" />
+                <a
+                  href="https://instagram.com/marciaarquiteta_"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <img
+                    src={iconInstagram}
+                    alt="Instagram"
+                    className="footer-icon"
+                  />
                   @marciaarquiteta_
                 </a>
               </li>
               <li>
-                <a href="https://tiktok.com/@garbo390" target="_blank" rel="noreferrer">
+                <a
+                  href="https://tiktok.com/@garbo390"
+                  target="_blank"
+                  rel="noreferrer"
+                >
                   <img src={iconTiktok} alt="TikTok" className="footer-icon" />
                   @garbo390
                 </a>
@@ -778,7 +861,8 @@ const Home = () => {
         {/* Linha Divisória Fina */}
         <div
           style={{
-            borderTop: "1px solid #222", /* Um tom um pouquinho mais claro que o fundo para dar destaque */
+            borderTop:
+              "1px solid #222" /* Um tom um pouquinho mais claro que o fundo para dar destaque */,
             width: "100%",
             margin: "0px 0 20px 0",
           }}
@@ -789,7 +873,8 @@ const Home = () => {
           style={{
             display: "flex",
             flexWrap: "wrap",
-            justifyContent: "space-between", /* Joga o Copyright pra esquerda e a assinatura pra direita */
+            justifyContent:
+              "space-between" /* Joga o Copyright pra esquerda e a assinatura pra direita */,
             alignItems: "center",
             gap: "20px",
             color: "#777",
@@ -800,14 +885,32 @@ const Home = () => {
           }}
         >
           <p style={{ margin: 0, letterSpacing: "0.5px" }}>
-            © {new Date().getFullYear()} Garbo Arquitetura e Planejados. Todos os direitos reservados.
+            © {new Date().getFullYear()} Garbo Arquitetura e Planejados. Todos
+            os direitos reservados.
           </p>
 
-          <div className="developer-signature" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <div
+            className="developer-signature"
+            style={{ display: "flex", alignItems: "center", gap: "6px" }}
+          >
             <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              Desenvolvido com <img src={iconCode} alt="Code" className="signature-icon" /> por
+              Desenvolvido com{" "}
+              <img src={iconCode} alt="Code" className="signature-icon" /> por
             </span>
-            <a href="https://www.linkedin.com/in/bruno-henrique-ramos-alves/" target="_blank" rel="noopener noreferrer" style={{ color: "#d4af37", textDecoration: "none", fontWeight: "600", letterSpacing: "0.5px", transition: "color 0.3s ease" }} onMouseOver={(e) => (e.target.style.color = "#fff")} onMouseOut={(e) => (e.target.style.color = "#d4af37")}>
+            <a
+              href="https://www.linkedin.com/in/bruno-henrique-ramos-alves/"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                color: "#d4af37",
+                textDecoration: "none",
+                fontWeight: "600",
+                letterSpacing: "0.5px",
+                transition: "color 0.3s ease",
+              }}
+              onMouseOver={(e) => (e.target.style.color = "#fff")}
+              onMouseOut={(e) => (e.target.style.color = "#d4af37")}
+            >
               Bruno Henrique
             </a>
           </div>
