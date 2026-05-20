@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/garbo-ambientes-planejados',
+  base: '/',
   server: {
     host: true, // Isso libera o acesso externo (0.0.0.0)
     strictPort: true,
