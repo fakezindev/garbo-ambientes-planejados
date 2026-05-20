@@ -85,8 +85,11 @@ public class SecurityConfigurations {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Usa patterns em vez de origins absolutos (evita conflitos no Spring 3+)
-        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+        configuration.setAllowedOriginPatterns(Arrays.asList(
+                "http://localhost:3000",
+                "https://garbo-arquitetura-planejados.vercel.app",
+                "*" // Mantemos o asterisco como "plano B" para testes de outras fontes
+        ));
 
         // O segredo está aqui: Liberar o OPTIONS para o navegador conseguir fazer o preflight!
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
