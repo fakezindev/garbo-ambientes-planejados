@@ -477,14 +477,36 @@
 /* Título flutuante no topo da galeria */
 .gallery-header {
     position: absolute;
-    top: 30px; left: 30px;
+    top: 30px; 
+    left: 30px;
     z-index: 10000;
     color: white;
-    max-width: 60%;
+    max-width: 300px; 
+    background: transparent; /* Deixando sem fundo já que a tela toda é escura */
+    padding: 15px 0px;
+    /* 🏆 MÁGICA: Se o texto for absurdamente gigante, ele cria uma barra de rolagem invisível 
+       em vez de vazar para fora da tela */
+    max-height: 80vh; 
+    overflow-y: auto;
 }
 
-.gallery-header h3 { font-size: 1.5rem; color: var(--gold); margin: 0 0 5px 0;}
-.gallery-header p { font-size: 0.9rem; color: #ccc; margin: 0; }
+.gallery-header h3 { 
+    font-size: 1.4rem; 
+    color: #d4af37; 
+    margin: 0 0 8px 0;
+}
+
+/* Esconde a barra de rolagem da caixinha (fica mais clean) */
+.gallery-header::-webkit-scrollbar {
+    display: none;
+}
+
+.gallery-header p { 
+    font-size: 0.9rem; 
+    color: #ccc; 
+    margin: 0; 
+    line-height: 1.5;
+}
 
 .fullscreen-swiper {
     width: 100%;
@@ -502,9 +524,15 @@
 .fullscreen-swiper video {
     max-width: 90vw;
     max-height: 85vh;
-    object-fit: contain; /* Não corta NADA, mantém a proporção real */
+    object-fit: contain;
     border-radius: 8px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    
+    /* 🏆 FIX DO VÍDEO DESCOLANDO: Força a aceleração de hardware correta */
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
 }
 
 /* Deixa a paginação (1 / 5) branca e visível */
@@ -677,74 +705,80 @@
    ========================================= */
 
 @media (max-width: 768px) {
-  .section-title h2 { font-size: 2rem !important; }
 
-  .location-section,
-  .contact-section,
-  .public-footer { padding: 40px 5% !important; }
+    .gallery-header {
+        /* Opção 1: Esconder no celular para priorizar a foto */
+        display: none;
+    }
+    
+    .section-title h2 { font-size: 2rem !important; }
 
-  .projects-grid,
-  .team-grid,
-  .mvv-grid {
-    grid-template-columns: 1fr !important;
-    gap: 30px;
-  }
+    .location-section,
+    .contact-section,
+    .public-footer { padding: 40px 5% !important; }
 
-  .map-container { height: 300px !important; }
-  .contact-box { padding: 25px !important; }
-  .form-row-mobile { grid-template-columns: 1fr !important; }
+    .projects-grid,
+    .team-grid,
+    .mvv-grid {
+        grid-template-columns: 1fr !important;
+        gap: 30px;
+    }
 
-  .public-footer>div {
-    flex-direction: column !important;
-    text-align: center !important;
-    align-items: center !important;
-  }
+    .map-container { height: 300px !important; }
+    .contact-box { padding: 25px !important; }
+    .form-row-mobile { grid-template-columns: 1fr !important; }
 
-  .public-footer ul {
-    text-align: center !important;
-    margin: 0 auto;
-  }
+    .public-footer>div {
+        flex-direction: column !important;
+        text-align: center !important;
+        align-items: center !important;
+    }
 
-  /* Vitrine e Galeria no Celular */
-  .portfolio-image-wrapper { 
-      height: 400px !important; /* Cards imersivos e mais altos no celular */
-  }
-  .portfolio-image { object-fit: cover !important; }
-  .gallery-header { display: none; } /* Esconde texto da galeria para focar na mídia */
+    .public-footer ul {
+        text-align: center !important;
+        margin: 0 auto;
+    }
 
-  /* Cabeçalho no celular */
-  header {
-      flex-direction: column !important;
-      padding: 15px 10px !important;
-      gap: 15px !important;
-      text-align: center;
-  }
-  header nav {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 15px !important;
-  }
-  header nav a { font-size: 0.9rem !important; }
+    /* Vitrine e Galeria no Celular */
+    .portfolio-image-wrapper { 
+        height: 400px !important; /* Cards imersivos e mais altos no celular */
+    }
+    .portfolio-image { object-fit: cover !important; }
+    .gallery-header { display: none; } /* Esconde texto da galeria para focar na mídia */
 
-  /* Título Banner Hero no celular */
-  h1 {
-      font-size: 2.4rem !important;
-      line-height: 1.2 !important;
-      padding: 0 15px !important;
-      word-wrap: break-word !important;
-  }
-  h1 + p {
-      font-size: 1rem !important;
-      padding: 0 20px !important;
-      line-height: 1.5 !important;
-  }
+    /* Cabeçalho no celular */
+    header {
+        flex-direction: column !important;
+        padding: 15px 10px !important;
+        gap: 15px !important;
+        text-align: center;
+    }
+    header nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px !important;
+    }
+    header nav a { font-size: 0.9rem !important; }
 
-  .developer-signature {
-    justify-content: center !important;
-    width: 100%;
-    margin-top: 15px;
-  }
+    /* Título Banner Hero no celular */
+    h1 {
+        font-size: 2.4rem !important;
+        line-height: 1.2 !important;
+        padding: 0 15px !important;
+        word-wrap: break-word !important;
+    }
+    h1 + p {
+        font-size: 1rem !important;
+        padding: 0 20px !important;
+        line-height: 1.5 !important;
+    }
+
+    .developer-signature {
+        justify-content: center !important;
+        width: 100%;
+        margin-top: 15px;
+    }
 }
 
 /* 📱 AJUSTE CIRÚRGICO PARA TELAS MICRO (425px, 375px e 320px) */
@@ -754,5 +788,9 @@
     .btn-area-cliente {
         padding: 6px 10px !important;
         font-size: 0.8rem !important;
+    }
+    .gallery-header {
+        /* Opção 1: Esconder no celular para priorizar a foto */
+        display: none;
     }
 }

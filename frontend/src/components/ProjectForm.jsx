@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import api from "../services/api";
+import imageCompression from 'browser-image-compression';
 
 function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
   const [title, setTitle] = useState("");
@@ -81,21 +82,45 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
     }
   }, [projectToEdit]);
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const files = Array.from(e.target.files);
+    
     if (files.length > 0) {
-      // ✅ Atualiza os arquivos reais
-      setImageFiles((prevImages) => {
-        const currentImages = prevImages || [];
-        return [...currentImages, ...files];
-      });
+      // 🏆 Mostra um aviso bonitinho enquanto o PC processa as fotos
+      const toastId = toast.loading("Otimizando imagens para envio rápido... ⏳", { theme: "dark" });
 
-      // ✅ Atualiza a vitrine (Previews)
-      setImagePreviews((prevUrls) => {
-        const currentUrls = prevUrls || [];
-        const newPreviewUrls = files.map((file) => URL.createObjectURL(file));
-        return [...currentUrls, ...newPreviewUrls];
-      });
+      try {
+        const compressedFiles = [];
+        const newPreviewUrls = [];
+
+        // 🏆 Configuração da Compressão: Máximo 1MB por foto, máximo Full HD
+        const options = {
+          maxSizeMB: 1, 
+          maxWidthOrHeight: 1920,
+          useWebWorker: true, // Usa o processador do pc do usuário em background para não travar a tela
+        };
+
+        // Comprime uma por uma
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const compressedFile = await imageCompression(file, options);
+          
+          compressedFiles.push(compressedFile);
+          newPreviewUrls.push(URL.createObjectURL(compressedFile));
+        }
+
+        // ✅ Atualiza os arquivos reais (AGORA LEVINHOS!)
+        setImageFiles((prevImages) => [...(prevImages || []), ...compressedFiles]);
+
+        // ✅ Atualiza a vitrine (Previews)
+        setImagePreviews((prevUrls) => [...(prevUrls || []), ...newPreviewUrls]);
+
+        toast.update(toastId, { render: "Imagens otimizadas com sucesso! 🚀", type: "success", isLoading: false, autoClose: 3000, theme: "dark" });
+
+      } catch (error) {
+        console.error("Erro ao comprimir imagens:", error);
+        toast.update(toastId, { render: "Erro ao otimizar imagens. 🚨", type: "error", isLoading: false, autoClose: 4000, theme: "dark" });
+      }
     }
 
     // Limpa o input escondido
@@ -123,20 +148,32 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
 
   const handleVideoChange = (e) => {
     const files = Array.from(e.target.files);
+    
     if (files.length > 0) {
-      // ✅ Atualiza os arquivos reais (Vídeos)
-      setVideoFiles((prevVideos) => {
-        const currentVideos = prevVideos || [];
-        return [...currentVideos, ...files];
+      // 🏆 TRAVA DE SEGURANÇA PARA VÍDEOS (Limite de 50MB)
+      const validVideos = [];
+      const invalidVideos = [];
+
+      files.forEach(file => {
+        const sizeInMB = file.size / 1024 / 1024;
+        if (sizeInMB > 50) {
+          invalidVideos.push(file.name);
+        } else {
+          validVideos.push(file);
+        }
       });
 
-      // ✅ Atualiza a vitrine (Previews)
-      setVideoPreviews((prevUrls) => {
-        const currentUrls = prevUrls || [];
-        // O createObjectURL também funciona para vídeos locais!
-        const newPreviewUrls = files.map((file) => URL.createObjectURL(file)); 
-        return [...currentUrls, ...newPreviewUrls];
-      });
+      if (invalidVideos.length > 0) {
+        toast.error(`Estes vídeos são muito pesados (máx 50MB): ${invalidVideos.join(', ')}`, { theme: "dark" });
+      }
+
+      if (validVideos.length > 0) {
+        // ✅ Atualiza os arquivos reais (Vídeos Válidos)
+        setVideoFiles((prevVideos) => [...(prevVideos || []), ...validVideos]);
+
+        // ✅ Atualiza a vitrine (Previews)
+        setVideoPreviews((prevUrls) => [...(prevUrls || []), ...validVideos.map((file) => URL.createObjectURL(file))]);
+      }
     }
 
     // Limpa o input escondido
@@ -378,7 +415,7 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
               1. GALERIA DE PREVIEW DAS FOTOS
               ========================================= */}
           {imagePreviews.length > 0 && (
-            <div style={{ display: "flex", gap: "15px", overflowX: "auto", padding: "10px 5px", marginBottom: "15px" }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "15px", padding: "10px 5px", marginBottom: "15px" }}>
               {imagePreviews.map((url, index) => (
                 <div key={`img-${index}`} style={{ position: "relative", minWidth: "100px" }}>
                   <img
@@ -413,7 +450,7 @@ function ProjectForm({ onUploadSuccess, projectToEdit, onCancelEdit }) {
               2. GALERIA DE PREVIEW DOS VÍDEOS
               ========================================= */}
           {videoPreviews.length > 0 && (
-            <div style={{ display: "flex", gap: "15px", overflowX: "auto", padding: "10px 5px", marginBottom: "15px" }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "15px", padding: "10px 5px", marginBottom: "15px" }}>
               {videoPreviews.map((url, index) => (
                 <div key={`vid-${index}`} style={{ position: "relative", minWidth: "150px" }}>
                   {/* Para preview de vídeos locais, usamos a tag video. 'url' é o blob criado */}

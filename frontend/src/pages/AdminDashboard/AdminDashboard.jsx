@@ -522,6 +522,12 @@ const AdminDashboard = () => {
                     navigation={true}
                     pagination={{ type: "fraction" }} 
                     className="fullscreen-swiper"
+                    
+                    // 🏆 FIX 1: O MODO OBSERVADOR (Recalcula os slides dinamicamente no Modal)
+                    observer={true}
+                    observeParents={true}
+                    observeSlideChildren={true}
+                    
                     onSlideChange={() => {
                       const videos = document.querySelectorAll(".fullscreen-swiper video");
                       videos.forEach(vid => vid.pause());
@@ -537,6 +543,7 @@ const AdminDashboard = () => {
                               <div className="swiper-zoom-container">
                                 <img src={midia.url} alt={`Mídia ${index + 1}`} className="lightbox-image" />
                               </div>
+                              
                               <div className="zoom-indicator">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                   <circle cx="11" cy="11" r="8"></circle>
@@ -548,7 +555,17 @@ const AdminDashboard = () => {
                               </div>
                             </>
                           ) : (
-                            <video src={midia.url} controls muted autoPlay playsInline className="lightbox-image" />
+                            <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                              <video 
+                                src={midia.url} 
+                                controls 
+                                muted 
+                                autoPlay 
+                                playsInline 
+                                /* 🏆 FIX 2: PREVINE QUE O VÍDEO ROUBE O ARRASTO DO SWIPER */
+                                className="lightbox-image swiper-no-swiping" 
+                              />
+                            </div>
                           )}
                       </SwiperSlide>
                     ))}
