@@ -78,7 +78,7 @@ function AppRoutes() {
 // 🧠 2. O Componente App agora serve apenas como a "Casca" do sistema
 function App() {
   return (
-    <BrowserRouter basename="/garbo-ambientes-planejados">
+    <BrowserRouter>
       
       {/* O componente com o useNavigate agora está DENTRO do BrowserRouter! */}
       <AppRoutes /> 
